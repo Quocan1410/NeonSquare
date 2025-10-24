@@ -26,4 +26,27 @@ public class Reaction {
     @OneToOne
     private User user;
 
+    public UUID getId() {
+        return id;
+    }
+
+    public void setId(UUID id) {
+        this.id = id;
+    }
+
+    public ReactionType getReaction() {
+        return reaction;
+    }
+
+    public void setReaction(ReactionType reaction) {
+        this.reaction = reaction;
+    }
+
+    public User getUser() {
+        return user;
+    }
+
+    public void setUser(User user) {
+        this.user = user;
+    }
 }

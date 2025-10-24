@@ -6,26 +6,15 @@ import { Button } from '@/components/ui/button';
 import { OnlineIndicator } from '@/components/ui/online-indicator';
 import { Heart, MessageCircle, Share, MoreHorizontal } from 'lucide-react';
 import Link from 'next/link';
+import { Post } from '@/lib/api';
 
 interface PostCardProps {
-  post: {
-    id: string;
-    text: string;
-    user: {
-      fullName: string;
-      profilePic: string;
-      isOnline: boolean;
-    };
-    time: string;
-    likes: number;
-    comments: number;
-    isLiked: boolean;
-  };
+  post: Post;
 }
 
 export function PostCard({ post }: PostCardProps) {
-  const [isLiked, setIsLiked] = useState(post.isLiked);
-  const [likeCount, setLikeCount] = useState(post.likes);
+  const [isLiked, setIsLiked] = useState(false);
+  const [likeCount, setLikeCount] = useState(post.reactionCount);
 
   const handleLike = () => {
     setIsLiked(!isLiked);
@@ -39,9 +28,9 @@ export function PostCard({ post }: PostCardProps) {
         <div className="flex items-center space-x-3">
           <div className="relative">
             <Avatar className="avatar-forum w-10 h-10">
-              <AvatarImage src={post.user.profilePic} alt={post.user.fullName} />
+              <AvatarImage src={post.author.profilePicUrl} alt={`${post.author.firstName} ${post.author.lastName}`} />
               <AvatarFallback className="bg-primary text-white">
-                {post.user.fullName.split(' ').map(n => n[0]).join('')}
+                {post.author.firstName.charAt(0)}{post.author.lastName.charAt(0)}
               </AvatarFallback>
             </Avatar>
             <div className="absolute -bottom-1 -right-1">
@@ -49,8 +38,10 @@ export function PostCard({ post }: PostCardProps) {
             </div>
           </div>
           <div>
-            <h3 className="font-semibold text-forum-primary">{post.user.fullName}</h3>
-            <p className="text-sm text-forum-secondary">{post.time}</p>
+            <h3 className="font-semibold text-forum-primary">
+              {post.author.firstName} {post.author.lastName}
+            </h3>
+            <p className="text-sm text-forum-secondary">{post.updateAt}</p>
           </div>
         </div>
         <Button variant="ghost" size="sm" className="btn-forum">
@@ -85,7 +76,7 @@ export function PostCard({ post }: PostCardProps) {
           className="flex items-center space-x-2 btn-forum text-forum-secondary hover:text-primary"
         >
           <MessageCircle className="w-4 h-4" />
-          <span>{post.comments}</span>
+          <span>{post.commentCount}</span>
         </Button>
         
         <Button

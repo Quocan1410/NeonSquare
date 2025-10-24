@@ -4,6 +4,8 @@ import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { OnlineIndicator } from '@/components/ui/online-indicator';
+import { useAuth } from '@/contexts/AuthContext';
+import { addToast, ToastContainer } from '@/components/ui/toast';
 import Link from 'next/link';
 import { 
   Home, 
@@ -12,16 +14,21 @@ import {
   Bell, 
   Settings, 
   Plus,
-  MessageCircle,
   TrendingUp,
-  BookOpen
+  BookOpen,
+  LogOut
 } from 'lucide-react';
 
 export function Sidebar() {
-  const user = {
-    fullName: 'John Doe',
-    profilePic: '/avatar.jpg',
-    isOnline: true
+  const { user, logout } = useAuth();
+
+  const handleLogout = () => {
+    addToast({
+      type: 'success',
+      title: 'Logged out successfully',
+      description: 'See you next time!',
+    });
+    logout();
   };
 
   const navigationItems = [
@@ -30,9 +37,6 @@ export function Sidebar() {
     { icon: Users, label: 'Friends', href: '/friends' },
   ];
 
-  const quickActions = [
-    { icon: MessageCircle, label: 'Messages', href: '/messages' },
-  ];
 
   const trendingTopics = [
     { name: 'Mathematics', posts: 245 },
@@ -50,13 +54,15 @@ export function Sidebar() {
         <Link href="/profile" className="block">
           <div className="forum-card flex items-center space-x-3 p-3 premium-hover">
             <Avatar className="avatar-forum w-10 h-10">
-              <AvatarImage src={user.profilePic} alt={user.fullName} />
+              <AvatarImage src={user?.profilePicUrl} alt={`${user?.firstName} ${user?.lastName}`} />
               <AvatarFallback className="gradient-primary text-primary-foreground">
-                {user.fullName.split(' ').map(n => n[0]).join('')}
+                {user ? `${user.firstName.charAt(0)}${user.lastName.charAt(0)}` : 'U'}
               </AvatarFallback>
             </Avatar>
             <div>
-              <p className="font-medium text-forum-primary">{user.fullName}</p>
+              <p className="font-medium text-forum-primary">
+                {user ? `${user.firstName} ${user.lastName}` : 'User'}
+              </p>
               <OnlineIndicator showText={true} size="sm" />
             </div>
           </div>
@@ -78,20 +84,6 @@ export function Sidebar() {
           ))}
         </nav>
 
-        {/* Quick Actions */}
-        <div className="space-y-2">
-          <h3 className="text-sm font-medium text-forum-secondary px-3">Quick Actions</h3>
-          {quickActions.map((action) => (
-            <Link
-              key={action.label}
-              href={action.href}
-              className="btn-forum w-full justify-start premium-hover block"
-            >
-              <action.icon className="w-4 h-4 mr-3" />
-              {action.label}
-            </Link>
-          ))}
-        </div>
 
         {/* Create Group */}
         <div className="space-y-2">
@@ -137,8 +129,21 @@ export function Sidebar() {
             <span>Settings</span>
           </Link>
         </div>
+
+        {/* Logout */}
+        <div className="pt-4 border-t border-border">
+          <Button
+            onClick={handleLogout}
+            variant="ghost"
+            className="w-full justify-start text-forum-secondary hover:text-red-500 hover:bg-red-500/10 transition-all duration-200 group"
+          >
+            <LogOut className="w-5 h-5 mr-3 group-hover:scale-110 transition-transform" />
+            <span className="font-medium">Logout</span>
+          </Button>
+        </div>
         </div>
       </div>
+      <ToastContainer />
     </div>
   );
 }

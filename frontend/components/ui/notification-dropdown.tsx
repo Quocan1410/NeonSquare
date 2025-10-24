@@ -6,6 +6,7 @@ import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { Badge } from '@/components/ui/badge';
 import { Bell, Heart, MessageCircle, UserPlus, CheckCircle, X } from 'lucide-react';
 import { cn } from '@/lib/utils';
+// WebSocket removed
 
 interface Notification {
   id: string;
@@ -25,53 +26,8 @@ interface NotificationDropdownProps {
   className?: string;
 }
 
-const mockNotifications: Notification[] = [
-  {
-    id: 'n1',
-    type: 'like',
-    user: { id: 'u1', fullName: 'Alice Johnson', profilePic: '/avatar-alice.jpg' },
-    message: 'liked your post "Learning Next.js 14..."',
-    timestamp: '5 minutes ago',
-    read: false,
-    link: '/post/p2',
-  },
-  {
-    id: 'n2',
-    type: 'comment',
-    user: { id: 'u2', fullName: 'Bob Smith', profilePic: '/avatar-bob.jpg' },
-    message: 'commented on your post "Math exam today..."',
-    timestamp: '15 minutes ago',
-    read: false,
-    link: '/post/p1',
-  },
-  {
-    id: 'n3',
-    type: 'follow',
-    user: { id: 'u3', fullName: 'Charlie Brown', profilePic: '/avatar-charlie.jpg' },
-    message: 'started following you.',
-    timestamp: '1 hour ago',
-    read: true,
-    link: '/profile/u3',
-  },
-  {
-    id: 'n4',
-    type: 'mention',
-    user: { id: 'u4', fullName: 'Diana Prince', profilePic: '/avatar-diana.jpg' },
-    message: 'mentioned you in a post.',
-    timestamp: '2 hours ago',
-    read: false,
-    link: '/post/p3',
-  },
-  {
-    id: 'n5',
-    type: 'like',
-    user: { id: 'u5', fullName: 'Eve Wilson', profilePic: '/avatar-eve.jpg' },
-    message: 'liked your comment.',
-    timestamp: '3 hours ago',
-    read: true,
-    link: '/post/p1',
-  },
-];
+// Mock notifications - will be replaced with real API calls
+const mockNotifications: Notification[] = [];
 
 const getNotificationIcon = (type: string) => {
   switch (type) {
@@ -90,10 +46,34 @@ const getNotificationIcon = (type: string) => {
 
 export function NotificationDropdown({ className }: NotificationDropdownProps) {
   const [isOpen, setIsOpen] = useState(false);
-  const [notifications, setNotifications] = useState<Notification[]>(mockNotifications);
+  const [notifications, setNotifications] = useState<Notification[]>([]);
+  const [isLoading, setIsLoading] = useState(false);
   const dropdownRef = useRef<HTMLDivElement>(null);
 
   const unreadCount = notifications.filter(n => !n.read).length;
+
+  // Fetch notifications from API and listen to real-time updates
+  useEffect(() => {
+    const fetchNotifications = async () => {
+      try {
+        setIsLoading(true);
+        // TODO: Implement actual notifications API
+        // const notificationsData = await apiService.getNotifications();
+        // setNotifications(notificationsData);
+        
+        // For now, using empty array until backend endpoint is ready
+        setNotifications([]);
+      } catch (error) {
+        console.error('Failed to fetch notifications:', error);
+      } finally {
+        setIsLoading(false);
+      }
+    };
+
+    fetchNotifications();
+
+    // WebSocket removed - no real-time notifications for now
+  }, []);
 
   // Close dropdown when clicking outside
   useEffect(() => {
@@ -179,7 +159,12 @@ export function NotificationDropdown({ className }: NotificationDropdownProps) {
 
           {/* Notifications List */}
           <div className="max-h-80 overflow-y-auto">
-            {notifications.length === 0 ? (
+            {isLoading ? (
+              <div className="p-8 text-center">
+                <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary mx-auto mb-3"></div>
+                <p className="text-forum-secondary">Loading notifications...</p>
+              </div>
+            ) : notifications.length === 0 ? (
               <div className="p-8 text-center">
                 <Bell className="w-12 h-12 text-forum-secondary mx-auto mb-3" />
                 <p className="text-forum-secondary">No notifications yet</p>

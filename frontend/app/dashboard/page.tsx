@@ -13,6 +13,8 @@ import { NoPostsEmptyState } from '@/components/ui/empty-state';
 import { ToastContainer, addToast } from '@/components/ui/toast';
 import { SkipLink, useKeyboardShortcuts, useScreenReaderAnnouncement, ScreenReaderAnnouncement } from '@/components/ui/accessibility';
 import { NotificationDropdown } from '@/components/ui/notification-dropdown';
+import { useAuth } from '@/contexts/AuthContext';
+import { apiService, Post } from '@/lib/api';
 import Link from 'next/link';
 import { 
   Search, 
@@ -28,17 +30,34 @@ export default function Dashboard() {
   const [searchQuery, setSearchQuery] = useState('');
   const [activeFilter, setActiveFilter] = useState('all');
   const [isLoading, setIsLoading] = useState(true);
+  const [posts, setPosts] = useState<Post[]>([]);
+  const { user, isAuthenticated } = useAuth();
   const { announcement, announce } = useScreenReaderAnnouncement();
 
-  // Simulate loading
+  // Fetch posts from API
   useEffect(() => {
-    const timer = setTimeout(() => {
-      setIsLoading(false);
-      announce('Posts loaded successfully');
-    }, 1500);
+    const fetchPosts = async () => {
+      try {
+        setIsLoading(true);
+        const fetchedPosts = await apiService.getPosts();
+        setPosts(fetchedPosts);
+        announce('Posts loaded successfully');
+      } catch (error) {
+        console.error('Failed to fetch posts:', error);
+        addToast({
+          type: 'error',
+          title: 'Failed to load posts',
+          description: 'Please try again later',
+        });
+      } finally {
+        setIsLoading(false);
+      }
+    };
 
-    return () => clearTimeout(timer);
-  }, [announce]);
+    if (isAuthenticated) {
+      fetchPosts();
+    }
+  }, [isAuthenticated, announce]);
 
   // Keyboard shortcuts
   useKeyboardShortcuts({
@@ -70,58 +89,19 @@ export default function Dashboard() {
     }
   });
 
-  // Simple user data
-  const user = {
-    id: '1',
-    fullName: 'John Doe',
-    profilePic: '/avatar.jpg',
-    isOnline: true
-  };
 
-  // Simple posts data
-  const mockPosts = [
-    {
-      id: '1',
-      text: 'Math exam today was so hard! Does anyone have study tips?',
-      user: {
-        fullName: 'Jane Smith',
-        profilePic: '/avatar2.jpg',
-        isOnline: true
-      },
-      time: '2 hours ago',
-      likes: 12,
-      comments: 5,
-      isLiked: false
-    },
-    {
-      id: '2',
-      text: 'Sharing Physics study materials for Grade 12 students. Check the link in comments!',
-      user: {
-        fullName: 'Mike Johnson',
-        profilePic: '/avatar3.jpg',
-        isOnline: false
-      },
-      time: '4 hours ago',
-      likes: 8,
-      comments: 3,
-      isLiked: true
-    },
-    {
-      id: '3',
-      text: 'Anyone interested in forming a study group for Chemistry?',
-      user: {
-        fullName: 'Sarah Wilson',
-        profilePic: '/avatar4.jpg',
-        isOnline: true
-      },
-      time: '6 hours ago',
-      likes: 15,
-      comments: 8,
-      isLiked: false
-    }
-  ];
-
-  const [posts, setPosts] = useState(mockPosts);
+  // Filter posts based on search and active filter
+  const filteredPosts = posts.filter(post => {
+    const matchesSearch = post.text.toLowerCase().includes(searchQuery.toLowerCase()) ||
+                         post.author.firstName.toLowerCase().includes(searchQuery.toLowerCase()) ||
+                         post.author.lastName.toLowerCase().includes(searchQuery.toLowerCase());
+    
+    if (activeFilter === 'all') return matchesSearch;
+    if (activeFilter === 'trending') return matchesSearch && post.reactionCount > 10;
+    if (activeFilter === 'recent') return matchesSearch && new Date(post.updateAt) > new Date(Date.now() - 24 * 60 * 60 * 1000);
+    
+    return matchesSearch;
+  });
 
   const filters = [
     { id: 'all', label: 'All Posts' },
@@ -229,14 +209,14 @@ export default function Dashboard() {
                     <PostCardSkeleton />
                   </div>
                 ))
-              ) : posts.length === 0 ? (
+              ) : filteredPosts.length === 0 ? (
                 // Empty state
                 <div className="post-card p-6">
                   <NoPostsEmptyState />
                 </div>
               ) : (
                 // Actual posts
-                posts.map((post) => (
+                filteredPosts.map((post) => (
                   <div key={post.id} className="post-card p-6 premium-hover">
                     <PostCard post={post} />
                   </div>
