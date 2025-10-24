@@ -110,7 +110,7 @@ export function CreatePost() {
                 <option value="private">Private</option>
               </select>
               <Button 
-                className="btn-primary hover-glow shadow-teal px-6"
+                className="btn-primary hover-glow shadow-fresh px-6 animate-fresh-glow"
                 disabled={!content.trim()}
                 onClick={handleSubmit}
               >

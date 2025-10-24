@@ -109,7 +109,7 @@ export default function Dashboard() {
                     <Bell className="w-5 h-5" />
                     <span className="absolute -top-1 -right-1 w-3 h-3 bg-destructive rounded-full"></span>
                   </Button>
-                  <Button className="btn-primary hover-glow shadow-teal">
+                  <Button className="btn-primary hover-glow shadow-fresh animate-fresh-glow">
                     <Plus className="w-4 h-4 mr-2" />
                     Create Post
                   </Button>

@@ -34,7 +34,7 @@ export function Header({ className }: HeaderProps) {
             <Button variant="outline" size="sm" className="btn-forum premium-hover">
               Sign In
             </Button>
-            <Button size="sm" className="btn-primary hover-glow shadow-teal">
+            <Button size="sm" className="btn-primary hover-glow shadow-fresh animate-fresh-glow">
               Get Started
             </Button>
           </nav>

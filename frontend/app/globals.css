@@ -80,68 +80,68 @@
 
 .dark {
   /* Sophisticated Dark Theme - Inspired by Premium Design */
-  /* Deep Charcoal Foundation - Rich & Elegant */
-  --background: #0B0C10;
-  --foreground: #C5C6C7;
-  --card: #1F2833;
-  --card-foreground: #C5C6C7;
-  --popover: #1F2833;
-  --popover-foreground: #C5C6C7;
-  --muted: #2D2E32;
-  --muted-foreground: #9CA3AF;
-  --border: #374151;
-  --input: #2D2E32;
-  --ring: #66FCF1;
+  /* Fresh Dark Foundation - Vibrant & Lively */
+  --background: #0F1419;
+  --foreground: #E2E8F0;
+  --card: #1E293B;
+  --card-foreground: #E2E8F0;
+  --popover: #1E293B;
+  --popover-foreground: #E2E8F0;
+  --muted: #334155;
+  --muted-foreground: #94A3B8;
+  --border: #475569;
+  --input: #334155;
+  --ring: #00D4AA;
 
-  /* Sophisticated Teal Family - Balanced & Professional */
-  --secondary: #0F766E;
-  --secondary-foreground: #C5C6C7;
-  --accent: #45A29E;
-  --accent-foreground: #0B0C10;
-  --surface: #1F2833;
-  --surface-hover: #2D2E32;
+  /* Vibrant Color Family - Fresh & Energetic */
+  --secondary: #0D9488;
+  --secondary-foreground: #E2E8F0;
+  --accent: #14B8A6;
+  --accent-foreground: #0F1419;
+  --surface: #1E293B;
+  --surface-hover: #334155;
 
-  /* Vibrant Teal Accent - Eye-catching but not overwhelming */
-  --primary: #66FCF1;
-  --primary-foreground: #0B0C10;
+  /* Bright Primary Accent - Eye-catching & Fresh */
+  --primary: #00D4AA;
+  --primary-foreground: #0F1419;
 
-  /* Refined Status Colors */
-  --destructive: #EF4444;
-  --success: #10B981;
-  --warning: #F59E0B;
-  --info: #3B82F6;
+  /* Vibrant Status Colors - Fresh & Bright */
+  --destructive: #FF6B6B;
+  --success: #00D4AA;
+  --warning: #FFB800;
+  --info: #00B4D8;
 
-  /* Harmonious Chart Palette */
-  --chart-1: #66FCF1;
-  --chart-2: #45A29E;
-  --chart-3: #0F766E;
-  --chart-4: #134E4A;
-  --chart-5: #1F2833;
+  /* Fresh Chart Palette - Vibrant & Lively */
+  --chart-1: #00D4AA;
+  --chart-2: #14B8A6;
+  --chart-3: #0D9488;
+  --chart-4: #0F766E;
+  --chart-5: #1E293B;
 
-  /* Sidebar with Clear Background */
-  --sidebar: #0B0C10;
-  --sidebar-foreground: #C5C6C7;
-  --sidebar-primary: #66FCF1;
-  --sidebar-primary-foreground: #0B0C10;
-  --sidebar-accent: #45A29E;
-  --sidebar-accent-foreground: #0B0C10;
-  --sidebar-border: #374151;
-  --sidebar-ring: #66FCF1;
+  /* Fresh Sidebar Colors */
+  --sidebar: #0F1419;
+  --sidebar-foreground: #E2E8F0;
+  --sidebar-primary: #00D4AA;
+  --sidebar-primary-foreground: #0F1419;
+  --sidebar-accent: #14B8A6;
+  --sidebar-accent-foreground: #0F1419;
+  --sidebar-border: #475569;
+  --sidebar-ring: #00D4AA;
 
-  /* Refined Typography Scale */
-  --text-primary: #C5C6C7;
-  --text-secondary: #9CA3AF;
-  --text-muted: #6B7280;
+  /* Fresh Typography Scale */
+  --text-primary: #E2E8F0;
+  --text-secondary: #94A3B8;
+  --text-muted: #64748B;
 
-  /* Curated Extended Palette */
-  --purple: #8B5CF6;
-  --pink: #EC4899;
-  --orange: #F59E0B;
-  --green: #10B981;
-  --blue: #3B82F6;
-  --yellow: #EAB308;
-  --teal: #66FCF1;
-  --indigo: #6366F1;
+  /* Vibrant Extended Palette - Fresh & Bright */
+  --purple: #A855F7;
+  --pink: #F472B6;
+  --orange: #FF8C00;
+  --green: #00D4AA;
+  --blue: #00B4D8;
+  --yellow: #FFD700;
+  --teal: #00D4AA;
+  --indigo: #7C3AED;
 }
 
 @layer base {
@@ -494,17 +494,20 @@
   }
 
   .scrollbar-forum::-webkit-scrollbar-track {
-    background: var(--secondary);
-    border-radius: 3px;
+    background: transparent;
   }
 
   .scrollbar-forum::-webkit-scrollbar-thumb {
-    background: var(--border);
+    background: var(--muted);
     border-radius: 3px;
   }
 
   .scrollbar-forum::-webkit-scrollbar-thumb:hover {
-    background: var(--text-muted);
+    background: var(--accent);
+  }
+
+  .scrollbar-forum::-webkit-scrollbar-thumb:active {
+    background: var(--primary);
   }
 
   /* Forum Layout */
@@ -533,6 +536,17 @@
     @apply w-64 border-r;
     background: var(--sidebar);
     border-color: var(--sidebar-border);
+    height: 100vh;
+    overflow-y: auto;
+    overflow-x: hidden;
+    position: sticky;
+    top: 0;
+  }
+
+  .forum-sidebar>div {
+    height: 100%;
+    display: flex;
+    flex-direction: column;
   }
 
   .forum-main {
@@ -602,9 +616,9 @@
     @apply space-y-6;
   }
 
-  /* Sophisticated Gradients */
+  /* Fresh & Vibrant Gradients */
   .gradient-primary {
-    background: linear-gradient(135deg, var(--primary) 0%, var(--accent) 100%);
+    background: linear-gradient(135deg, #00D4AA 0%, #14B8A6 50%, #0D9488 100%);
   }
 
   .gradient-subtle {
@@ -612,7 +626,15 @@
   }
 
   .gradient-elegant {
-    background: linear-gradient(135deg, #1F2833 0%, #2D2E32 50%, #374151 100%);
+    background: linear-gradient(135deg, #1E293B 0%, #334155 50%, #475569 100%);
+  }
+
+  .gradient-fresh {
+    background: linear-gradient(135deg, #00D4AA 0%, #00B4D8 50%, #A855F7 100%);
+  }
+
+  .gradient-sunset {
+    background: linear-gradient(135deg, #FF6B6B 0%, #FFB800 50%, #00D4AA 100%);
   }
 
   /* Refined Shadows */
@@ -629,18 +651,26 @@
   }
 
   .shadow-glow {
-    box-shadow: 0 0 20px rgba(102, 252, 241, 0.25);
+    box-shadow: 0 0 20px rgba(0, 212, 170, 0.4);
   }
 
   .shadow-teal {
-    box-shadow: 0 4px 16px rgba(102, 252, 241, 0.15);
+    box-shadow: 0 4px 16px rgba(0, 212, 170, 0.25);
   }
 
-  /* Sophisticated Effects */
+  .shadow-fresh {
+    box-shadow: 0 0 25px rgba(0, 212, 170, 0.3);
+  }
+
+  .shadow-vibrant {
+    box-shadow: 0 0 30px rgba(0, 180, 216, 0.2);
+  }
+
+  /* Fresh Glass Effects */
   .glass-effect {
-    background: rgba(31, 40, 51, 0.8);
-    backdrop-filter: blur(10px);
-    border: 1px solid rgba(102, 252, 241, 0.1);
+    background: rgba(30, 41, 59, 0.85);
+    backdrop-filter: blur(12px);
+    border: 1px solid rgba(0, 212, 170, 0.2);
   }
 
   .elegant-border {
@@ -786,6 +816,30 @@
   }
 }
 
+@keyframes freshGlow {
+
+  0%,
+  100% {
+    box-shadow: 0 0 20px rgba(0, 212, 170, 0.3);
+  }
+
+  50% {
+    box-shadow: 0 0 30px rgba(0, 212, 170, 0.5);
+  }
+}
+
+@keyframes vibrantBounce {
+
+  0%,
+  100% {
+    transform: translateY(0);
+  }
+
+  50% {
+    transform: translateY(-5px);
+  }
+}
+
 .animate-fade-in-up {
   animation: fadeInUp 0.6s ease-out;
 }
@@ -800,4 +854,12 @@
 
 .animate-subtle-pulse {
   animation: subtlePulse 4s ease-in-out infinite;
+}
+
+.animate-fresh-glow {
+  animation: freshGlow 3s ease-in-out infinite;
+}
+
+.animate-vibrant-bounce {
+  animation: vibrantBounce 2s ease-in-out infinite;
 }

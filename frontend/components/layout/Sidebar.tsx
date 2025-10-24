@@ -42,8 +42,9 @@ export function Sidebar() {
   ];
 
   return (
-    <div className="forum-sidebar w-64 h-screen overflow-y-auto scrollbar-forum">
-      <div className="p-6 space-y-6">
+    <div className="forum-sidebar scrollbar-forum">
+      <div className="flex flex-col h-full">
+        <div className="p-6 space-y-6 flex-1">
         
         {/* User Profile */}
         <div className="forum-card flex items-center space-x-3 p-3 premium-hover">
@@ -126,6 +127,7 @@ export function Sidebar() {
             <Settings className="w-5 h-5 mr-3" />
             <span>Settings</span>
           </a>
+        </div>
         </div>
       </div>
     </div>
