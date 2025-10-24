@@ -1,0 +1,105 @@
+# ----------------------------
+# Global: dependencies / package managers
+# ----------------------------
+**/node_modules/
+.pnp.*
+/.pnp
+.yarn/*
+!.yarn/patches
+!.yarn/plugins
+!.yarn/releases
+!.yarn/versions
+
+# ----------------------------
+# Next.js / frontend build
+# ----------------------------
+**/.next/
+**/out/
+# If you use Next export/build folders
+**/.vercel/
+# Generic web build output
+**/coverage/
+**/build/
+**/dist/
+
+# ----------------------------
+# Logs & diagnostics
+# ----------------------------
+logs
+*.log
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+pnpm-debug.log*
+.pnpm-debug.log*
+*.pid
+*.pid.lock
+*.seed
+
+# ----------------------------
+# Environment files (keep templates)
+# ----------------------------
+**/.env*
+!**/.env.example
+!**/*.example
+# Cloud Run env file (private)
+**/env.yaml
+
+# ----------------------------
+# TypeScript
+# ----------------------------
+*.tsbuildinfo
+next-env.d.ts
+
+# ----------------------------
+# IDE / editor
+# ----------------------------
+.vscode/
+.idea/
+*.iml
+*.ipr
+*.iws
+.apt_generated
+.classpath
+.factorypath
+.project
+.settings
+.springBeans
+.sts4-cache
+
+# ----------------------------
+# Java / Maven (backend)
+# ----------------------------
+**/target/
+# NetBeans / Gradle extras
+**/nbproject/private/
+**/nbbuild/
+**/dist/
+**/nbdist/
+**/.nb-gradle/
+# Keep Maven wrapper tracked
+!**/mvnw
+!**/mvnw.cmd
+!**/.mvn/wrapper/**
+
+# ----------------------------
+# OS cruft
+# ----------------------------
+.DS_Store
+.DS_Store?
+._*
+.Spotlight-V100
+.Trashes
+ehthumbs.db
+Thumbs.db
+
+# ----------------------------
+# Misc keys/certs
+# ----------------------------
+*.pem
+
+# ----------------------------
+# Temp
+# ----------------------------
+tmp/
+temp/
