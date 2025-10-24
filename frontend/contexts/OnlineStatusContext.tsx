@@ -1,7 +1,6 @@
 'use client';
 
 import React, { createContext, useContext, useEffect, useState } from 'react';
-import { useOnlineStatus } from '@/hooks/useOnlineStatus';
 
 interface OnlineStatusContextType {
   isOnline: boolean;
@@ -14,14 +13,32 @@ interface OnlineStatusContextType {
 const OnlineStatusContext = createContext<OnlineStatusContextType | undefined>(undefined);
 
 export function OnlineStatusProvider({ children }: { children: React.ReactNode }) {
-  const { status, updateLastSeen, setOnline } = useOnlineStatus();
+  const [isOnline, setIsOnline] = useState(true); // Default to online
+  const [lastSeen, setLastSeen] = useState<Date | null>(new Date());
+  const [connectionStatus, setConnectionStatus] = useState<'connected' | 'disconnected' | 'reconnecting'>('connected');
+
+  useEffect(() => {
+    // Simple online status without WebSocket
+    setIsOnline(true);
+    setConnectionStatus('connected');
+    setLastSeen(new Date());
+  }, []);
+
+  const updateLastSeen = () => {
+    setLastSeen(new Date());
+  };
+
+  const setOnline = (online: boolean) => {
+    setIsOnline(online);
+    setConnectionStatus(online ? 'connected' : 'disconnected');
+  };
 
   return (
     <OnlineStatusContext.Provider
       value={{
-        isOnline: status.isOnline,
-        lastSeen: status.lastSeen,
-        connectionStatus: status.connectionStatus,
+        isOnline,
+        lastSeen,
+        connectionStatus,
         updateLastSeen,
         setOnline
       }}

@@ -1,21 +1,19 @@
 import type { Metadata } from "next";
-import { Geist, Geist_Mono } from "next/font/google";
+import { Roboto } from "next/font/google";
 import "./globals.css";
 import { OnlineStatusProvider } from "@/contexts/OnlineStatusContext";
+import { AuthProvider } from "@/contexts/AuthContext";
 
-const geistSans = Geist({
-  variable: "--font-geist-sans",
+const roboto = Roboto({
+  variable: "--font-roboto",
   subsets: ["latin"],
-});
-
-const geistMono = Geist_Mono({
-  variable: "--font-geist-mono",
-  subsets: ["latin"],
+  weight: ["100", "300", "400", "500", "700", "900"],
+  style: ["normal", "italic"],
 });
 
 export const metadata: Metadata = {
   title: "Student Forum - Connect Students",
-  description: "Student forum with modern dark theme interface, connect friends and share knowledge",
+  description: "Student forum with modern Google Material Design interface, connect friends and share knowledge",
 };
 
 export default function RootLayout({
@@ -24,16 +22,18 @@ export default function RootLayout({
   children: React.ReactNode;
 }>) {
   return (
-    <html lang="en" className="dark">
+    <html lang="en">
       <head>
         <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/7.0.1/css/all.min.css" integrity="sha512-2SwdPD6INVrV/lHTZbO2nodKhrnDdJK9/kg2XD1r9uGqPo1cUbujc+IYdlYdEErWNu69gVcYgdxlmVmzTWnetw==" crossOrigin="anonymous" referrerPolicy="no-referrer" />
       </head>
       <body
-        className={`${geistSans.variable} ${geistMono.variable} antialiased`}
+        className={`${roboto.variable} antialiased`}
       >
-        <OnlineStatusProvider>
-          {children}
-        </OnlineStatusProvider>
+        <AuthProvider>
+          <OnlineStatusProvider>
+            {children}
+          </OnlineStatusProvider>
+        </AuthProvider>
       </body>
     </html>
   );

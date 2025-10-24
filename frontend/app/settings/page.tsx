@@ -227,7 +227,7 @@ export default function SettingsPage() {
                   )}
                 </Button>
               </div>
-            </div>
+                </div>
 
             {/* Profile Settings */}
             {activeTab === 'profile' && (
@@ -295,12 +295,12 @@ export default function SettingsPage() {
                   <div>
                         <Label htmlFor="bio" className="text-forum-primary">Bio</Label>
                         <Textarea
-                          id="bio"
+                    id="bio" 
                           placeholder="Tell us about yourself..."
                           className="input-forum mt-1"
                           rows={4}
-                        />
-                      </div>
+                  />
+                </div>
                     </div>
                   </div>
                 </div>
@@ -313,16 +313,16 @@ export default function SettingsPage() {
                 <div className="forum-card p-6">
                   <h3 className="text-lg font-semibold text-forum-primary mb-4">Notification Preferences</h3>
                   <div className="space-y-6">
-                    <div className="flex items-center justify-between">
-                      <div>
+                <div className="flex items-center justify-between">
+                  <div>
                         <h4 className="font-medium text-forum-primary">Email Notifications</h4>
                         <p className="text-sm text-forum-secondary">Receive notifications via email</p>
-                      </div>
-                      <Switch
-                        checked={notifications.email}
+                  </div>
+                  <Switch 
+                    checked={notifications.email}
                         onCheckedChange={(checked) => setNotifications({...notifications, email: checked})}
-                      />
-                    </div>
+                  />
+                </div>
                 <div className="flex items-center justify-between">
                   <div>
                         <h4 className="font-medium text-forum-primary">Push Notifications</h4>
@@ -384,8 +384,8 @@ export default function SettingsPage() {
                           <Switch
                             checked={notifications.follows}
                             onCheckedChange={(checked) => setNotifications({...notifications, follows: checked})}
-                          />
-                        </div>
+                  />
+                </div>
                       </div>
                     </div>
                   </div>
@@ -437,18 +437,18 @@ export default function SettingsPage() {
                         <div>
                           <h4 className="font-medium text-forum-primary">Allow Messages</h4>
                           <p className="text-sm text-forum-secondary">Allow other users to send you messages</p>
-                        </div>
+                </div>
                         <Switch
                           checked={privacy.allowMessages}
                           onCheckedChange={(checked) => setPrivacy({...privacy, allowMessages: checked})}
                         />
-                      </div>
-                      <div className="flex items-center justify-between">
-                        <div>
+                </div>
+                <div className="flex items-center justify-between">
+                  <div>
                           <h4 className="font-medium text-forum-primary">Allow Comments</h4>
                           <p className="text-sm text-forum-secondary">Allow comments on your posts</p>
-                        </div>
-                        <Switch
+                  </div>
+                  <Switch 
                           checked={privacy.allowComments}
                           onCheckedChange={(checked) => setPrivacy({...privacy, allowComments: checked})}
                         />
@@ -549,8 +549,8 @@ export default function SettingsPage() {
                         id="confirmPassword"
                         type="password"
                         className="input-forum mt-1"
-                      />
-                    </div>
+                  />
+                </div>
                     <Button className="btn-primary">
                       <Lock className="w-4 h-4 mr-2" />
                       Update Password
@@ -582,9 +582,9 @@ export default function SettingsPage() {
                           Delete Account
                         </Button>
                       </div>
-                    </div>
-                  </div>
-                </div>
+          </div>
+        </div>
+      </div>
               </div>
             )}
           </div>
