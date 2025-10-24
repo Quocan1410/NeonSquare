@@ -50,4 +50,59 @@ public class Group {
     @OneToOne
     private User groupAdmin;
 
+    public UUID getId() {
+        return id;
+    }
+
+    public void setId(UUID id) {
+        this.id = id;
+    }
+
+    public Image getGroupPic() {
+        return groupPic;
+    }
+
+    public void setGroupPic(Image groupPic) {
+        this.groupPic = groupPic;
+    }
+
+    public GroupVisibility getVisibility() {
+        return visibility;
+    }
+
+    public void setVisibility(GroupVisibility visibility) {
+        this.visibility = visibility;
+    }
+
+    public List<Post> getPosts() {
+        return posts;
+    }
+
+    public void setPosts(List<Post> posts) {
+        this.posts = posts;
+    }
+
+    public Status getStatus() {
+        return status;
+    }
+
+    public void setStatus(Status status) {
+        this.status = status;
+    }
+
+    public List<User> getMembers() {
+        return members;
+    }
+
+    public void setMembers(List<User> members) {
+        this.members = members;
+    }
+
+    public User getGroupAdmin() {
+        return groupAdmin;
+    }
+
+    public void setGroupAdmin(User groupAdmin) {
+        this.groupAdmin = groupAdmin;
+    }
 }

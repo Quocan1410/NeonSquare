@@ -31,4 +31,20 @@ public class ImageService {
     public Image getImage(UUID id) {
         return repository.findById(id).orElseThrow(() -> new RuntimeException("Image not found"));
     }
+
+    @Transactional
+    public Image updateImage(MultipartFile file, UUID imageId) throws IOException {
+        Image image = repository.findById(imageId)
+                .orElseThrow(() -> new RuntimeException("Image not found"));
+        image.setName(file.getOriginalFilename());
+        image.setData(file.getBytes());
+        return repository.save(image);
+    }
+
+    @Transactional
+    public void deleteImage(UUID imageId) throws IOException {
+        Image image = repository.findById(imageId)
+                .orElseThrow(() -> new RuntimeException("Image not found"));
+        repository.delete(image);
+    }
 }

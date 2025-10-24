@@ -5,10 +5,11 @@
   </component>
   <component name="ChangeListManager">
     <list default="true" id="4e44c2e9-e7be-40ee-9a35-44fb768d9398" name="Changes" comment="">
-      <change afterPath="$PROJECT_DIR$/backend/src/main/java/NeonSquare/backend/controllers/ImageController.java" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/backend/src/main/java/NeonSquare/backend/repositories/ImageRepository.java" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/backend/src/main/java/NeonSquare/backend/services/ImageService.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/backend/src/main/java/DbTest.java" beforeDir="false" />
+      <change afterPath="$PROJECT_DIR$/backend/src/main/java/NeonSquare/backend/controllers/UserController.java" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/backend/src/main/java/NeonSquare/backend/services/UserService.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/backend/src/main/java/NeonSquare/backend/repositories/UserRepository.java" beforeDir="false" afterPath="$PROJECT_DIR$/backend/src/main/java/NeonSquare/backend/repositories/UserRepository.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/backend/src/main/java/NeonSquare/backend/services/ImageService.java" beforeDir="false" afterPath="$PROJECT_DIR$/backend/src/main/java/NeonSquare/backend/services/ImageService.java" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -47,6 +48,21 @@
     "last_opened_file_path": "D:/hackathon/NeonSquare/backend"
   }
 }]]></component>
+  <component name="RunManager">
+    <configuration default="true" type="JetRunConfigurationType">
+      <module name="NeonSquare" />
+      <method v="2">
+        <option name="Make" enabled="true" />
+      </method>
+    </configuration>
+    <configuration default="true" type="KotlinStandaloneScriptRunConfigurationType">
+      <module name="NeonSquare" />
+      <option name="filePath" />
+      <method v="2">
+        <option name="Make" enabled="true" />
+      </method>
+    </configuration>
+  </component>
   <component name="SpellCheckerSettings" RuntimeDictionaries="0" Folders="0" CustomDictionaries="0" DefaultDictionary="application-level" UseSingleDictionary="true" transferred="true" />
   <component name="TaskManager">
     <task active="true" id="Default" summary="Default task">
