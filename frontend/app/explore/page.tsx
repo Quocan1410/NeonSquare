@@ -1,12 +1,15 @@
 'use client';
 
 import { useState } from 'react';
+import { Sidebar } from '@/components/layout/Sidebar';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Badge } from '@/components/ui/badge';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
-import { Search, Filter, TrendingUp, Users, BookOpen, MessageCircle } from 'lucide-react';
+import { Breadcrumb } from '@/components/ui/breadcrumb';
+import { OnlineIndicator } from '@/components/ui/online-indicator';
+import { Search, Filter, TrendingUp, Users, BookOpen, MessageCircle, Heart, Share, Plus } from 'lucide-react';
 
 export default function ExplorePage() {
   const [searchQuery, setSearchQuery] = useState('');
@@ -78,35 +81,53 @@ export default function ExplorePage() {
   ];
 
   return (
-    <div className="min-h-screen bg-background">
-      <div className="max-w-6xl mx-auto p-6 space-y-6">
-        {/* Search Header */}
-        <div className="card-social p-6">
-          <h1 className="text-3xl font-bold text-foreground mb-4">Explore</h1>
-          <div className="flex space-x-4">
-            <div className="flex-1 relative">
-              <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-muted-foreground w-4 h-4" />
-              <Input
-                placeholder="Search posts, topics, or people..."
-                value={searchQuery}
-                onChange={(e) => setSearchQuery(e.target.value)}
-                className="input-social pl-10"
-              />
+    <div className="min-h-screen forum-layout">
+      <div className="flex">
+        <Sidebar />
+        
+        {/* Main Content */}
+        <main className="flex-1 forum-main">
+          {/* Header */}
+          <div className="sticky top-0 z-10 glass-effect border-b border-border">
+            <div className="p-4">
+              <div className="flex items-center justify-between">
+                <div className="flex items-center space-x-4">
+                  <div>
+                    <Breadcrumb items={[{ label: 'Explore', current: true }]} />
+                    <h1 className="text-2xl font-bold text-forum-primary mt-1">Explore</h1>
+                  </div>
+                  <div className="relative">
+                    <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-forum-secondary w-4 h-4" />
+                    <Input
+                      placeholder="Search posts, topics, or people..."
+                      value={searchQuery}
+                      onChange={(e) => setSearchQuery(e.target.value)}
+                      className="pl-10 w-80 input-forum"
+                      aria-label="Search posts and people"
+                      role="searchbox"
+                    />
+                  </div>
+                </div>
+                
+                <div className="flex items-center space-x-3">
+                  <Button variant="outline" className="btn-forum">
+                    <Filter className="w-4 h-4 mr-2" />
+                    Filters
+                  </Button>
+                </div>
+              </div>
             </div>
-            <Button variant="outline">
-              <Filter className="w-4 h-4 mr-2" />
-              Filters
-            </Button>
           </div>
-        </div>
 
-        <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
+          {/* Content */}
+          <div className="forum-content space-y-6">
+            <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
           {/* Main Content */}
           <div className="lg:col-span-2 space-y-6">
             {/* Trending Topics */}
-            <Card className="card-social">
+            <Card className="forum-card">
               <CardHeader>
-                <CardTitle className="flex items-center">
+                <CardTitle className="flex items-center text-forum-primary">
                   <TrendingUp className="w-5 h-5 mr-2" />
                   Trending Topics
                 </CardTitle>
@@ -114,21 +135,21 @@ export default function ExplorePage() {
               <CardContent>
                 <div className="space-y-3">
                   {trendingTopics.map((topic, index) => (
-                    <div key={index} className="flex items-center justify-between p-3 hover:bg-muted/50 rounded-lg transition-colors">
+                    <div key={index} className="flex items-center justify-between p-3 hover:bg-muted/50 rounded-lg transition-colors premium-hover">
                       <div className="flex items-center space-x-3">
                         <div className="w-8 h-8 bg-primary/20 rounded-full flex items-center justify-center">
                           <BookOpen className="w-4 h-4 text-primary" />
                         </div>
                         <div>
-                          <p className="font-medium text-foreground">{topic.name}</p>
-                          <p className="text-sm text-muted-foreground">{topic.posts} posts</p>
+                          <p className="font-medium text-forum-primary">{topic.name}</p>
+                          <p className="text-sm text-forum-secondary">{topic.posts} posts</p>
                         </div>
                       </div>
                       <div className="flex items-center space-x-2">
                         {topic.trending && (
-                          <Badge className="badge-social accent">Trending</Badge>
+                          <Badge className="badge-forum accent">Trending</Badge>
                         )}
-                        <Button size="sm" variant="outline">
+                        <Button size="sm" className="btn-forum">
                           Follow
                         </Button>
                       </div>
@@ -139,36 +160,45 @@ export default function ExplorePage() {
             </Card>
 
             {/* Recent Posts */}
-            <Card className="card-social">
+            <Card className="forum-card">
               <CardHeader>
-                <CardTitle>Recent Posts</CardTitle>
+                <CardTitle className="text-forum-primary">Recent Posts</CardTitle>
               </CardHeader>
               <CardContent>
                 <div className="space-y-4">
                   {recentPosts.map((post) => (
-                    <div key={post.id} className="p-4 border border-border rounded-lg hover:bg-muted/50 transition-colors">
+                    <div key={post.id} className="p-4 border border-border rounded-lg hover:bg-muted/50 transition-colors premium-hover">
                       <div className="flex items-start space-x-3">
-                        <Avatar className="w-10 h-10">
-                          <AvatarFallback className="bg-primary/20 text-primary font-semibold">
-                            {post.author.split(' ').map(n => n[0]).join('')}
-                          </AvatarFallback>
-                        </Avatar>
+                        <div className="relative">
+                          <Avatar className="avatar-forum w-10 h-10">
+                            <AvatarFallback className="gradient-primary text-primary-foreground">
+                              {post.author.split(' ').map(n => n[0]).join('')}
+                            </AvatarFallback>
+                          </Avatar>
+                          <div className="absolute -bottom-1 -right-1">
+                            <OnlineIndicator size="sm" />
+                          </div>
+                        </div>
                         <div className="flex-1">
                           <div className="flex items-center space-x-2 mb-2">
-                            <p className="font-semibold text-foreground">{post.author}</p>
-                            <Badge className="badge-social text-xs">{post.topic}</Badge>
-                            <span className="text-xs text-muted-foreground">•</span>
-                            <span className="text-xs text-muted-foreground">{post.time}</span>
+                            <p className="font-semibold text-forum-primary">{post.author}</p>
+                            <Badge className="badge-forum text-xs">{post.topic}</Badge>
+                            <span className="text-xs text-forum-secondary">•</span>
+                            <span className="text-xs text-forum-secondary">{post.time}</span>
                           </div>
-                          <p className="text-foreground mb-3">{post.content}</p>
-                          <div className="flex items-center space-x-4 text-sm text-muted-foreground">
-                            <button className="btn-social">
+                          <p className="text-forum-primary mb-3">{post.content}</p>
+                          <div className="flex items-center space-x-4 text-sm text-forum-secondary">
+                            <button className="btn-forum hover-glow">
                               <MessageCircle className="w-4 h-4 mr-1" />
                               {post.comments}
                             </button>
-                            <button className="btn-social">
-                              <Users className="w-4 h-4 mr-1" />
+                            <button className="btn-forum hover-glow">
+                              <Heart className="w-4 h-4 mr-1" />
                               {post.likes}
+                            </button>
+                            <button className="btn-forum hover-glow">
+                              <Share className="w-4 h-4 mr-1" />
+                              Share
                             </button>
                           </div>
                         </div>
@@ -183,9 +213,9 @@ export default function ExplorePage() {
           {/* Sidebar */}
           <div className="space-y-6">
             {/* Suggested Users */}
-            <Card className="card-social">
+            <Card className="forum-card">
               <CardHeader>
-                <CardTitle className="flex items-center">
+                <CardTitle className="flex items-center text-forum-primary">
                   <Users className="w-5 h-5 mr-2" />
                   Suggested Friends
                 </CardTitle>
@@ -193,23 +223,23 @@ export default function ExplorePage() {
               <CardContent>
                 <div className="space-y-4">
                   {suggestedUsers.map((user) => (
-                    <div key={user.id} className="flex items-center space-x-3">
+                    <div key={user.id} className="flex items-center space-x-3 premium-hover p-2 rounded-lg">
                       <div className="relative">
-                        <Avatar className="w-10 h-10">
-                          <AvatarFallback className="bg-primary/20 text-primary font-semibold">
+                        <Avatar className="avatar-forum w-10 h-10">
+                          <AvatarFallback className="gradient-primary text-primary-foreground">
                             {user.name.split(' ').map(n => n[0]).join('')}
                           </AvatarFallback>
                         </Avatar>
-                        {user.isOnline && (
-                          <div className="absolute -bottom-1 -right-1 w-3 h-3 bg-accent rounded-full border-2 border-background"></div>
-                        )}
+                        <div className="absolute -bottom-1 -right-1">
+                          <OnlineIndicator size="sm" />
+                        </div>
                       </div>
                       <div className="flex-1">
-                        <p className="font-medium text-foreground text-sm">{user.name}</p>
-                        <p className="text-xs text-muted-foreground">{user.role}</p>
-                        <p className="text-xs text-muted-foreground">{user.mutualFriends} mutual friends</p>
+                        <p className="font-medium text-forum-primary text-sm">{user.name}</p>
+                        <p className="text-xs text-forum-secondary">{user.role}</p>
+                        <p className="text-xs text-forum-secondary">{user.mutualFriends} mutual friends</p>
                       </div>
-                      <Button size="sm" variant="outline">
+                      <Button size="sm" className="btn-forum">
                         Add
                       </Button>
                     </div>
@@ -217,29 +247,10 @@ export default function ExplorePage() {
                 </div>
               </CardContent>
             </Card>
-
-            {/* Quick Actions */}
-            <Card className="card-social">
-              <CardHeader>
-                <CardTitle>Quick Actions</CardTitle>
-              </CardHeader>
-              <CardContent className="space-y-3">
-                <Button className="btn-primary w-full justify-start">
-                  <BookOpen className="w-4 h-4 mr-2" />
-                  Create Study Group
-                </Button>
-                <Button className="btn-secondary w-full justify-start">
-                  <MessageCircle className="w-4 h-4 mr-2" />
-                  Start Discussion
-                </Button>
-                <Button className="btn-secondary w-full justify-start">
-                  <Users className="w-4 h-4 mr-2" />
-                  Find Study Partners
-                </Button>
-              </CardContent>
-            </Card>
           </div>
         </div>
+          </div>
+        </main>
       </div>
     </div>
   );

@@ -3,7 +3,9 @@
 import { useState } from 'react';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { Button } from '@/components/ui/button';
+import { OnlineIndicator } from '@/components/ui/online-indicator';
 import { Heart, MessageCircle, Share, MoreHorizontal } from 'lucide-react';
+import Link from 'next/link';
 
 interface PostCardProps {
   post: {
@@ -42,9 +44,9 @@ export function PostCard({ post }: PostCardProps) {
                 {post.user.fullName.split(' ').map(n => n[0]).join('')}
               </AvatarFallback>
             </Avatar>
-            {post.user.isOnline && (
-              <div className="status-online absolute -bottom-1 -right-1"></div>
-            )}
+            <div className="absolute -bottom-1 -right-1">
+              <OnlineIndicator size="sm" />
+            </div>
           </div>
           <div>
             <h3 className="font-semibold text-forum-primary">{post.user.fullName}</h3>
@@ -58,7 +60,9 @@ export function PostCard({ post }: PostCardProps) {
 
       {/* Post Content */}
       <div>
-        <p className="text-forum-primary leading-relaxed">{post.text}</p>
+        <Link href={`/post/${post.id}`} className="hover:opacity-90 transition-opacity">
+          <p className="text-forum-primary leading-relaxed cursor-pointer">{post.text}</p>
+        </Link>
       </div>
 
       {/* Post Actions */}

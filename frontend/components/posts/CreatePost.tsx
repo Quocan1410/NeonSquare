@@ -3,12 +3,14 @@
 import { useState } from 'react';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { Button } from '@/components/ui/button';
-import { ImageIcon, Smile, X, Globe, Users, Lock } from 'lucide-react';
+import { ImageIcon, Smile, X, Globe, Users, Lock, Loader2 } from 'lucide-react';
+import { addToast } from '@/components/ui/toast';
 
 export function CreatePost() {
   const [content, setContent] = useState('');
   const [visibility, setVisibility] = useState<'public' | 'friends' | 'private'>('public');
   const [imagePreview, setImagePreview] = useState<string | null>(null);
+  const [isSubmitting, setIsSubmitting] = useState(false);
 
   const user = {
     fullName: 'John Doe',
@@ -26,11 +28,43 @@ export function CreatePost() {
     }
   };
 
-  const handleSubmit = () => {
-    if (content.trim()) {
+  const handleSubmit = async () => {
+    if (!content.trim()) {
+      addToast({
+        type: 'warning',
+        title: 'Content required',
+        description: 'Please write something before posting.'
+      });
+      return;
+    }
+    
+    setIsSubmitting(true);
+    
+    try {
+      // Simulate API call
+      await new Promise(resolve => setTimeout(resolve, 1500));
+      
+      // Here you would submit the post to your backend
       console.log('Creating post:', { content, visibility, image: imagePreview });
+      
+      // Success feedback
+      addToast({
+        type: 'success',
+        title: 'Post published!',
+        description: 'Your post has been shared with the community.'
+      });
+      
+      // Reset form
       setContent('');
       setImagePreview(null);
+    } catch (error) {
+      addToast({
+        type: 'error',
+        title: 'Failed to post',
+        description: 'Something went wrong. Please try again.'
+      });
+    } finally {
+      setIsSubmitting(false);
     }
   };
 
@@ -111,10 +145,17 @@ export function CreatePost() {
               </select>
               <Button 
                 className="btn-primary hover-glow shadow-fresh px-6 animate-fresh-glow"
-                disabled={!content.trim()}
+                disabled={!content.trim() || isSubmitting}
                 onClick={handleSubmit}
               >
-                Post
+                {isSubmitting ? (
+                  <>
+                    <Loader2 className="w-4 h-4 mr-2 animate-spin" />
+                    Posting...
+                  </>
+                ) : (
+                  'Post'
+                )}
               </Button>
             </div>
           </div>
