@@ -1,26 +1,865 @@
 @import "tailwindcss";
+@import "tw-animate-css";
 
-:root {
-  --background: #ffffff;
-  --foreground: #171717;
-}
+@custom-variant dark (&:is(.dark *));
 
 @theme inline {
   --color-background: var(--background);
   --color-foreground: var(--foreground);
   --font-sans: var(--font-geist-sans);
   --font-mono: var(--font-geist-mono);
+  --color-sidebar-ring: var(--sidebar-ring);
+  --color-sidebar-border: var(--sidebar-border);
+  --color-sidebar-accent-foreground: var(--sidebar-accent-foreground);
+  --color-sidebar-accent: var(--sidebar-accent);
+  --color-sidebar-primary-foreground: var(--sidebar-primary-foreground);
+  --color-sidebar-primary: var(--sidebar-primary);
+  --color-sidebar-foreground: var(--sidebar-foreground);
+  --color-sidebar: var(--sidebar);
+  --color-chart-5: var(--chart-5);
+  --color-chart-4: var(--chart-4);
+  --color-chart-3: var(--chart-3);
+  --color-chart-2: var(--chart-2);
+  --color-chart-1: var(--chart-1);
+  --color-ring: var(--ring);
+  --color-input: var(--input);
+  --color-border: var(--border);
+  --color-destructive: var(--destructive);
+  --color-accent-foreground: var(--accent-foreground);
+  --color-accent: var(--accent);
+  --color-muted-foreground: var(--muted-foreground);
+  --color-muted: var(--muted);
+  --color-secondary-foreground: var(--secondary-foreground);
+  --color-secondary: var(--secondary);
+  --color-primary-foreground: var(--primary-foreground);
+  --color-primary: var(--primary);
+  --color-popover-foreground: var(--popover-foreground);
+  --color-popover: var(--popover);
+  --color-card-foreground: var(--card-foreground);
+  --color-card: var(--card);
+  --radius-sm: calc(var(--radius) - 4px);
+  --radius-md: calc(var(--radius) - 2px);
+  --radius-lg: var(--radius);
+  --radius-xl: calc(var(--radius) + 4px);
 }
 
-@media (prefers-color-scheme: dark) {
-  :root {
-    --background: #0a0a0a;
-    --foreground: #ededed;
+:root {
+  --radius: 0.625rem;
+  --background: oklch(1 0 0);
+  --foreground: oklch(0.145 0 0);
+  --card: oklch(1 0 0);
+  --card-foreground: oklch(0.145 0 0);
+  --popover: oklch(1 0 0);
+  --popover-foreground: oklch(0.145 0 0);
+  --primary: oklch(0.205 0 0);
+  --primary-foreground: oklch(0.985 0 0);
+  --secondary: oklch(0.97 0 0);
+  --secondary-foreground: oklch(0.205 0 0);
+  --muted: oklch(0.97 0 0);
+  --muted-foreground: oklch(0.556 0 0);
+  --accent: oklch(0.97 0 0);
+  --accent-foreground: oklch(0.205 0 0);
+  --destructive: oklch(0.577 0.245 27.325);
+  --border: oklch(0.922 0 0);
+  --input: oklch(0.922 0 0);
+  --ring: oklch(0.708 0 0);
+  --chart-1: oklch(0.646 0.222 41.116);
+  --chart-2: oklch(0.6 0.118 184.704);
+  --chart-3: oklch(0.398 0.07 227.392);
+  --chart-4: oklch(0.828 0.189 84.429);
+  --chart-5: oklch(0.769 0.188 70.08);
+  --sidebar: oklch(0.985 0 0);
+  --sidebar-foreground: oklch(0.145 0 0);
+  --sidebar-primary: oklch(0.205 0 0);
+  --sidebar-primary-foreground: oklch(0.985 0 0);
+  --sidebar-accent: oklch(0.97 0 0);
+  --sidebar-accent-foreground: oklch(0.205 0 0);
+  --sidebar-border: oklch(0.922 0 0);
+  --sidebar-ring: oklch(0.708 0 0);
+}
+
+.dark {
+  /* Sophisticated Dark Theme - Inspired by Premium Design */
+  /* Fresh Dark Foundation - Vibrant & Lively */
+  --background: #0F1419;
+  --foreground: #E2E8F0;
+  --card: #1E293B;
+  --card-foreground: #E2E8F0;
+  --popover: #1E293B;
+  --popover-foreground: #E2E8F0;
+  --muted: #334155;
+  --muted-foreground: #94A3B8;
+  --border: #475569;
+  --input: #334155;
+  --ring: #00D4AA;
+
+  /* Vibrant Color Family - Fresh & Energetic */
+  --secondary: #0D9488;
+  --secondary-foreground: #E2E8F0;
+  --accent: #14B8A6;
+  --accent-foreground: #0F1419;
+  --surface: #1E293B;
+  --surface-hover: #334155;
+
+  /* Bright Primary Accent - Eye-catching & Fresh */
+  --primary: #00D4AA;
+  --primary-foreground: #0F1419;
+
+  /* Vibrant Status Colors - Fresh & Bright */
+  --destructive: #FF6B6B;
+  --success: #00D4AA;
+  --warning: #FFB800;
+  --info: #00B4D8;
+
+  /* Fresh Chart Palette - Vibrant & Lively */
+  --chart-1: #00D4AA;
+  --chart-2: #14B8A6;
+  --chart-3: #0D9488;
+  --chart-4: #0F766E;
+  --chart-5: #1E293B;
+
+  /* Fresh Sidebar Colors */
+  --sidebar: #0F1419;
+  --sidebar-foreground: #E2E8F0;
+  --sidebar-primary: #00D4AA;
+  --sidebar-primary-foreground: #0F1419;
+  --sidebar-accent: #14B8A6;
+  --sidebar-accent-foreground: #0F1419;
+  --sidebar-border: #475569;
+  --sidebar-ring: #00D4AA;
+
+  /* Fresh Typography Scale */
+  --text-primary: #E2E8F0;
+  --text-secondary: #94A3B8;
+  --text-muted: #64748B;
+
+  /* Vibrant Extended Palette - Fresh & Bright */
+  --purple: #A855F7;
+  --pink: #F472B6;
+  --orange: #FF8C00;
+  --green: #00D4AA;
+  --blue: #00B4D8;
+  --yellow: #FFD700;
+  --teal: #00D4AA;
+  --indigo: #7C3AED;
+}
+
+@layer base {
+  * {
+    @apply border-border outline-ring/50;
+  }
+
+  body {
+    @apply text-foreground font-sans;
+    background: var(--background);
+    min-height: 100vh;
+  }
+
+  /* Beautiful gradient background */
+  .dark body {
+    background: linear-gradient(135deg, #0B0C10 0%, #1A1B1E 25%, #2D2E32 50%, #1A1B1E 75%, #0B0C10 100%);
+    background-size: 400% 400%;
+    animation: gradientShift 15s ease infinite;
+    position: relative;
+    min-height: 100vh;
+  }
+
+  /* Subtle texture overlay */
+  .dark body::before {
+    content: '';
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background-image:
+      radial-gradient(circle at 20% 80%, rgba(102, 252, 241, 0.03) 0%, transparent 50%),
+      radial-gradient(circle at 80% 20%, rgba(69, 162, 158, 0.02) 0%, transparent 50%),
+      radial-gradient(circle at 40% 40%, rgba(15, 118, 110, 0.01) 0%, transparent 50%);
+    pointer-events: none;
+    z-index: -1;
+  }
+
+  /* Modern scrollbar styling */
+  ::-webkit-scrollbar {
+    width: 8px;
+    height: 8px;
+  }
+
+  ::-webkit-scrollbar-track {
+    background: var(--muted);
+    border-radius: 4px;
+  }
+
+  ::-webkit-scrollbar-thumb {
+    background: var(--border);
+    border-radius: 4px;
+  }
+
+  ::-webkit-scrollbar-thumb:hover {
+    background: var(--muted-foreground);
+  }
+
+  /* Smooth transitions */
+  * {
+    transition: background-color 0.2s ease, border-color 0.2s ease, color 0.2s ease, box-shadow 0.2s ease;
+  }
+
+  /* Sophisticated typography scale */
+  h1,
+  h2,
+  h3,
+  h4,
+  h5,
+  h6 {
+    color: var(--text-primary);
+    font-weight: 600;
+    line-height: 1.3;
+    letter-spacing: -0.025em;
+  }
+
+  p {
+    color: var(--text-secondary);
+    line-height: 1.7;
+    letter-spacing: 0.01em;
+  }
+
+  /* Refined text hierarchy */
+  .text-xl {
+    font-size: 1.25rem;
+    line-height: 1.4;
+  }
+
+  .text-lg {
+    font-size: 1.125rem;
+    line-height: 1.5;
+  }
+
+  .text-base {
+    font-size: 1rem;
+    line-height: 1.6;
+  }
+
+  .text-sm {
+    font-size: 0.875rem;
+    line-height: 1.5;
+  }
+
+  .text-xs {
+    font-size: 0.75rem;
+    line-height: 1.4;
+  }
+
+  /* Professional focus states */
+  *:focus-visible {
+    outline: 2px solid var(--primary);
+    outline-offset: 2px;
+    border-radius: 4px;
   }
 }
 
-body {
-  background: var(--background);
-  color: var(--foreground);
-  font-family: Arial, Helvetica, sans-serif;
+@layer components {
+
+  /* Simple User-Friendly Cards */
+  .forum-card {
+    @apply border border-border rounded-xl shadow-sm hover:shadow-md transition-all duration-200;
+    background: var(--card);
+    border: 1px solid var(--border);
+    backdrop-filter: blur(10px);
+  }
+
+  .forum-card:hover {
+    background: var(--surface-hover);
+    border-color: var(--primary);
+    box-shadow: 0 8px 32px rgba(102, 252, 241, 0.2);
+  }
+
+  /* Post Card with modern styling */
+  .post-card {
+    @apply border border-border rounded-lg shadow-sm hover:shadow-lg transition-all duration-300;
+    background: var(--card);
+    border: 1px solid var(--border);
+    backdrop-filter: blur(10px);
+  }
+
+  .post-card:hover {
+    background: var(--muted);
+    transform: translateY(-2px);
+    box-shadow: 0 8px 32px rgba(102, 252, 241, 0.15);
+  }
+
+  /* Comment Card with threading */
+  .comment-card {
+    @apply border-l-2 border-l-primary pl-4 py-3 rounded-r-lg ml-4;
+    background: var(--card);
+    border-left-color: var(--primary);
+    backdrop-filter: blur(10px);
+  }
+
+  .comment-card:hover {
+    background: var(--muted);
+    box-shadow: 0 4px 16px rgba(102, 252, 241, 0.1);
+  }
+
+  /* Thread Card */
+  .thread-card {
+    @apply border border-border rounded-lg p-4 hover:bg-muted transition-all duration-200;
+    background: var(--card);
+    border: 1px solid var(--border);
+    backdrop-filter: blur(10px);
+  }
+
+  .thread-card:hover {
+    background: var(--muted);
+    border-color: var(--primary);
+    box-shadow: 0 4px 16px rgba(102, 252, 241, 0.12);
+  }
+
+  /* Modern Forum Buttons */
+  .btn-forum {
+    @apply px-4 py-2 rounded-md font-medium transition-all duration-200;
+    background: var(--secondary);
+    color: var(--text-secondary);
+    border: 1px solid var(--border);
+  }
+
+  .btn-forum:hover {
+    background: var(--muted);
+    color: var(--text-primary);
+    border-color: var(--primary);
+  }
+
+  .btn-forum.active {
+    background: var(--primary);
+    color: var(--primary-foreground);
+    border-color: var(--primary);
+  }
+
+  /* Simple Primary Button */
+  .btn-primary {
+    @apply px-6 py-2 rounded-lg font-medium transition-all duration-200;
+    background: var(--primary);
+    color: var(--primary-foreground);
+    border: none;
+  }
+
+  .btn-primary:hover {
+    background: var(--primary);
+    opacity: 0.9;
+  }
+
+  /* Secondary Button */
+  .btn-secondary {
+    @apply px-6 py-2 rounded-md font-semibold transition-all duration-200;
+    background: transparent;
+    color: var(--text-primary);
+    border: 1px solid var(--border);
+  }
+
+  .btn-secondary:hover {
+    background: var(--muted);
+    border-color: var(--primary);
+    color: var(--primary);
+  }
+
+  /* Success Button */
+  .btn-success {
+    @apply px-6 py-2 rounded-md font-semibold transition-all duration-200;
+    background: var(--success);
+    color: var(--accent-foreground);
+    border: 1px solid var(--success);
+  }
+
+  .btn-success:hover {
+    background: #00b894;
+    box-shadow: 0 4px 12px rgba(0, 212, 170, 0.3);
+  }
+
+  /* Modern Forum Input */
+  .input-forum {
+    @apply w-full px-4 py-3 rounded-md border transition-all duration-200;
+    background: var(--input);
+    border-color: var(--border);
+    color: var(--text-primary);
+  }
+
+  .input-forum:focus {
+    border-color: var(--primary);
+    box-shadow: 0 0 0 2px rgba(102, 252, 241, 0.2);
+    background: var(--card);
+  }
+
+  .input-forum::placeholder {
+    color: var(--text-muted);
+  }
+
+  /* Forum Navigation */
+  .nav-forum {
+    @apply flex items-center px-3 py-2 rounded-md transition-all duration-200 cursor-pointer;
+    color: var(--text-secondary);
+  }
+
+  .nav-forum:hover {
+    background: var(--muted);
+    color: var(--text-primary);
+  }
+
+  .nav-forum.active {
+    background: var(--primary);
+    color: var(--primary-foreground);
+  }
+
+  /* Sidebar Navigation */
+  .sidebar-nav {
+    @apply flex items-center px-3 py-2 rounded-md transition-all duration-200 cursor-pointer;
+    color: var(--text-secondary);
+  }
+
+  .sidebar-nav:hover {
+    background: var(--muted);
+    color: var(--text-primary);
+  }
+
+  .sidebar-nav.active {
+    background: var(--primary);
+    color: var(--primary-foreground);
+  }
+
+  /* Modern Forum Avatar */
+  .avatar-forum {
+    @apply rounded-full border-2;
+    border-color: var(--border);
+  }
+
+  .avatar-forum.online {
+    border-color: var(--success);
+  }
+
+  .avatar-forum.offline {
+    border-color: var(--text-muted);
+  }
+
+  /* Forum Badge */
+  .badge-forum {
+    @apply px-2 py-1 rounded-full text-xs font-medium;
+    background: var(--secondary);
+    color: var(--text-secondary);
+  }
+
+  .badge-forum.primary {
+    background: var(--primary);
+    color: var(--primary-foreground);
+  }
+
+  .badge-forum.success {
+    background: var(--success);
+    color: var(--accent-foreground);
+  }
+
+  .badge-forum.warning {
+    background: var(--warning);
+    color: var(--foreground);
+  }
+
+  .badge-forum.error {
+    background: var(--error);
+    color: var(--foreground);
+  }
+
+  /* Status Indicators */
+  .status-online {
+    @apply w-3 h-3 rounded-full border-2 border-background;
+    background: var(--success);
+  }
+
+  .status-offline {
+    @apply w-3 h-3 rounded-full border-2 border-background;
+    background: var(--text-muted);
+  }
+
+  .status-away {
+    @apply w-3 h-3 rounded-full border-2 border-background;
+    background: var(--warning);
+  }
+
+  /* Forum Divider */
+  .divider-forum {
+    @apply border-t;
+    border-color: var(--border);
+  }
+
+  /* Modern Forum Scrollbar */
+  .scrollbar-forum::-webkit-scrollbar {
+    width: 6px;
+  }
+
+  .scrollbar-forum::-webkit-scrollbar-track {
+    background: transparent;
+  }
+
+  .scrollbar-forum::-webkit-scrollbar-thumb {
+    background: var(--muted);
+    border-radius: 3px;
+  }
+
+  .scrollbar-forum::-webkit-scrollbar-thumb:hover {
+    background: var(--accent);
+  }
+
+  .scrollbar-forum::-webkit-scrollbar-thumb:active {
+    background: var(--primary);
+  }
+
+  /* Forum Layout */
+  .forum-layout {
+    @apply min-h-screen;
+    background: var(--background);
+    position: relative;
+  }
+
+  .forum-layout::before {
+    content: '';
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background-image:
+      radial-gradient(circle at 20% 80%, rgba(102, 252, 241, 0.03) 0%, transparent 50%),
+      radial-gradient(circle at 80% 20%, rgba(69, 162, 158, 0.02) 0%, transparent 50%),
+      radial-gradient(circle at 40% 40%, rgba(15, 118, 110, 0.01) 0%, transparent 50%);
+    pointer-events: none;
+    z-index: -1;
+  }
+
+  .forum-sidebar {
+    @apply w-64 border-r;
+    background: var(--sidebar);
+    border-color: var(--sidebar-border);
+    height: 100vh;
+    overflow-y: auto;
+    overflow-x: hidden;
+    position: sticky;
+    top: 0;
+  }
+
+  .forum-sidebar>div {
+    height: 100%;
+    display: flex;
+    flex-direction: column;
+  }
+
+  .forum-main {
+    @apply flex-1;
+    background: transparent;
+  }
+
+  .forum-content {
+    @apply max-w-4xl mx-auto space-y-6 p-6;
+  }
+
+  /* Modern Forum Hover Effects */
+  .hover-lift {
+    transition: transform 0.2s ease, box-shadow 0.2s ease;
+  }
+
+  .hover-lift:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 8px 25px rgba(0, 0, 0, 0.15);
+  }
+
+  .hover-glow:hover {
+    box-shadow: 0 0 20px rgba(102, 252, 241, 0.3);
+  }
+
+  /* Forum Animations */
+  .fade-in {
+    animation: fadeIn 0.3s ease-out;
+  }
+
+  .slide-up {
+    animation: slideUp 0.3s ease-out;
+  }
+
+  .slide-in-right {
+    animation: slideInRight 0.3s ease-out;
+  }
+
+  .scale-in {
+    animation: scaleIn 0.2s ease-out;
+  }
+
+  /* Forum Focus States */
+  .focus-ring {
+    @apply focus:outline-none focus:ring-2 focus:ring-primary focus:ring-offset-2 focus:ring-offset-background;
+  }
+
+  /* Typography */
+  .text-forum-primary {
+    color: var(--text-primary);
+  }
+
+  .text-forum-secondary {
+    color: var(--text-secondary);
+  }
+
+  .text-forum-muted {
+    color: var(--text-muted);
+  }
+
+  /* Professional Spacing */
+  .space-forum {
+    @apply space-y-4;
+  }
+
+  .space-forum-lg {
+    @apply space-y-6;
+  }
+
+  /* Fresh & Vibrant Gradients */
+  .gradient-primary {
+    background: linear-gradient(135deg, #00D4AA 0%, #14B8A6 50%, #0D9488 100%);
+  }
+
+  .gradient-subtle {
+    background: linear-gradient(135deg, var(--card) 0%, var(--muted) 100%);
+  }
+
+  .gradient-elegant {
+    background: linear-gradient(135deg, #1E293B 0%, #334155 50%, #475569 100%);
+  }
+
+  .gradient-fresh {
+    background: linear-gradient(135deg, #00D4AA 0%, #00B4D8 50%, #A855F7 100%);
+  }
+
+  .gradient-sunset {
+    background: linear-gradient(135deg, #FF6B6B 0%, #FFB800 50%, #00D4AA 100%);
+  }
+
+  /* Refined Shadows */
+  .shadow-soft {
+    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.12), 0 1px 2px rgba(0, 0, 0, 0.24);
+  }
+
+  .shadow-medium {
+    box-shadow: 0 3px 6px rgba(0, 0, 0, 0.16), 0 3px 6px rgba(0, 0, 0, 0.23);
+  }
+
+  .shadow-strong {
+    box-shadow: 0 10px 20px rgba(0, 0, 0, 0.19), 0 6px 6px rgba(0, 0, 0, 0.23);
+  }
+
+  .shadow-glow {
+    box-shadow: 0 0 20px rgba(0, 212, 170, 0.4);
+  }
+
+  .shadow-teal {
+    box-shadow: 0 4px 16px rgba(0, 212, 170, 0.25);
+  }
+
+  .shadow-fresh {
+    box-shadow: 0 0 25px rgba(0, 212, 170, 0.3);
+  }
+
+  .shadow-vibrant {
+    box-shadow: 0 0 30px rgba(0, 180, 216, 0.2);
+  }
+
+  /* Fresh Glass Effects */
+  .glass-effect {
+    background: rgba(30, 41, 59, 0.85);
+    backdrop-filter: blur(12px);
+    border: 1px solid rgba(0, 212, 170, 0.2);
+  }
+
+  .elegant-border {
+    border: 1px solid var(--border);
+    border-radius: 8px;
+  }
+
+  .premium-hover {
+    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  }
+
+  .premium-hover:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 8px 25px rgba(102, 252, 241, 0.15);
+  }
+
+  /* Beautiful Background Variants */
+  .bg-gradient-primary {
+    background: linear-gradient(135deg, #0B0C10 0%, #1F2833 50%, #2D2E32 100%);
+  }
+
+  .bg-gradient-teal {
+    background: linear-gradient(135deg, #0B0C10 0%, #0F766E 25%, #45A29E 50%, #66FCF1 75%, #0B0C10 100%);
+  }
+
+  .bg-gradient-subtle {
+    background: linear-gradient(135deg, #1A1B1E 0%, #2D2E32 50%, #374151 100%);
+  }
+
+  .bg-texture {
+    background-image:
+      radial-gradient(circle at 25% 25%, rgba(102, 252, 241, 0.05) 0%, transparent 50%),
+      radial-gradient(circle at 75% 75%, rgba(69, 162, 158, 0.03) 0%, transparent 50%);
+  }
+
+  .bg-animated {
+    background-size: 400% 400%;
+    animation: gradientShift 20s ease infinite;
+  }
+}
+
+@keyframes float {
+
+  0%,
+  100% {
+    transform: translateY(0px);
+  }
+
+  50% {
+    transform: translateY(-10px);
+  }
+}
+
+@keyframes shimmer {
+  0% {
+    background-position: -200% 0;
+  }
+
+  100% {
+    background-position: 200% 0;
+  }
+}
+
+@keyframes fadeInUp {
+  from {
+    opacity: 0;
+    transform: translateY(30px);
+  }
+
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@keyframes slideInRight {
+  from {
+    opacity: 0;
+    transform: translateX(30px);
+  }
+
+  to {
+    opacity: 1;
+    transform: translateX(0);
+  }
+}
+
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+  }
+
+  to {
+    opacity: 1;
+  }
+}
+
+@keyframes slideUp {
+  from {
+    opacity: 0;
+    transform: translateY(20px);
+  }
+
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@keyframes twinkle {
+  0% {
+    opacity: 0.3;
+  }
+
+  100% {
+    opacity: 1;
+  }
+}
+
+@keyframes gradientShift {
+  0% {
+    background-position: 0% 50%;
+  }
+
+  50% {
+    background-position: 100% 50%;
+  }
+
+  100% {
+    background-position: 0% 50%;
+  }
+}
+
+@keyframes subtlePulse {
+
+  0%,
+  100% {
+    opacity: 0.4;
+  }
+
+  50% {
+    opacity: 0.8;
+  }
+}
+
+@keyframes freshGlow {
+
+  0%,
+  100% {
+    box-shadow: 0 0 20px rgba(0, 212, 170, 0.3);
+  }
+
+  50% {
+    box-shadow: 0 0 30px rgba(0, 212, 170, 0.5);
+  }
+}
+
+@keyframes vibrantBounce {
+
+  0%,
+  100% {
+    transform: translateY(0);
+  }
+
+  50% {
+    transform: translateY(-5px);
+  }
+}
+
+.animate-fade-in-up {
+  animation: fadeInUp 0.6s ease-out;
+}
+
+.animate-slide-in-right {
+  animation: slideInRight 0.6s ease-out;
+}
+
+.animate-gradient-shift {
+  animation: gradientShift 15s ease infinite;
+}
+
+.animate-subtle-pulse {
+  animation: subtlePulse 4s ease-in-out infinite;
+}
+
+.animate-fresh-glow {
+  animation: freshGlow 3s ease-in-out infinite;
+}
+
+.animate-vibrant-bounce {
+  animation: vibrantBounce 2s ease-in-out infinite;
 }
