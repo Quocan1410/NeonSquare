@@ -48,11 +48,11 @@ export function CreatePost() {
   };
 
   return (
-    <div className="bg-card border border-border rounded-xl p-6">
+    <div className="forum-card p-6 premium-hover">
       <div className="flex items-start space-x-4">
-        <Avatar className="w-10 h-10">
+        <Avatar className="avatar-forum w-10 h-10">
           <AvatarImage src={user.profilePic} alt={user.fullName} />
-          <AvatarFallback className="bg-primary text-white">
+          <AvatarFallback className="gradient-primary text-primary-foreground">
             {user.fullName.split(' ').map(n => n[0]).join('')}
           </AvatarFallback>
         </Avatar>
@@ -60,7 +60,7 @@ export function CreatePost() {
         <div className="flex-1 space-y-4">
           <textarea
             placeholder="What's on your mind?"
-            className="w-full p-4 rounded-xl border border-border bg-background text-foreground placeholder:text-muted-foreground focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent resize-none min-h-[100px]"
+            className="w-full p-4 rounded-xl input-forum resize-none min-h-[100px]"
             value={content}
             onChange={(e) => setContent(e.target.value)}
           />
@@ -83,7 +83,7 @@ export function CreatePost() {
           
           <div className="flex items-center justify-between">
             <div className="flex space-x-2">
-              <label className="flex items-center px-3 py-2 rounded-lg bg-muted text-muted-foreground hover:bg-muted/80 cursor-pointer transition-colors">
+              <label className="flex items-center px-3 py-2 rounded-lg btn-forum cursor-pointer premium-hover">
                 <ImageIcon className="w-4 h-4 mr-2" />
                 Photo
                 <input
@@ -93,7 +93,7 @@ export function CreatePost() {
                   className="hidden"
                 />
               </label>
-              <button className="flex items-center px-3 py-2 rounded-lg bg-muted text-muted-foreground hover:bg-muted/80 transition-colors">
+              <button className="flex items-center px-3 py-2 rounded-lg btn-forum premium-hover">
                 <Smile className="w-4 h-4 mr-2" />
                 Emoji
               </button>
@@ -103,14 +103,14 @@ export function CreatePost() {
               <select 
                 value={visibility}
                 onChange={(e) => setVisibility(e.target.value as 'public' | 'friends' | 'private')}
-                className="px-3 py-2 rounded-lg border border-border bg-background text-foreground focus:outline-none focus:ring-2 focus:ring-primary"
+                className="px-3 py-2 rounded-lg input-forum"
               >
                 <option value="public">Public</option>
                 <option value="friends">Friends</option>
                 <option value="private">Private</option>
               </select>
               <Button 
-                className="bg-primary hover:bg-primary/90 text-white px-6"
+                className="btn-primary hover-glow shadow-teal px-6"
                 disabled={!content.trim()}
                 onClick={handleSubmit}
               >

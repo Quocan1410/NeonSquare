@@ -81,35 +81,35 @@ export default function Dashboard() {
   ];
 
   return (
-    <div className="min-h-screen bg-background">
+    <div className="min-h-screen forum-layout">
       <div className="flex">
         <Sidebar />
         
         {/* Main Content */}
-        <div className="flex-1 bg-background">
+        <div className="flex-1 forum-main">
           {/* Header */}
-          <div className="sticky top-0 z-10 bg-background/95 backdrop-blur-sm border-b border-border">
+          <div className="sticky top-0 z-10 glass-effect border-b border-border">
             <div className="p-4">
               <div className="flex items-center justify-between">
                 <div className="flex items-center space-x-4">
-                  <h1 className="text-2xl font-bold text-foreground">Community</h1>
+                  <h1 className="text-2xl font-bold text-forum-primary">Community</h1>
                   <div className="relative">
-                    <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-muted-foreground w-4 h-4" />
+                    <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-forum-secondary w-4 h-4" />
                     <Input
                       placeholder="Search posts, people..."
                       value={searchQuery}
                       onChange={(e) => setSearchQuery(e.target.value)}
-                      className="pl-10 w-80"
+                      className="pl-10 w-80 input-forum"
                     />
                   </div>
                 </div>
                 
                 <div className="flex items-center space-x-3">
-                  <Button variant="ghost" size="sm" className="relative">
+                  <Button variant="ghost" size="sm" className="relative btn-forum">
                     <Bell className="w-5 h-5" />
-                    <span className="absolute -top-1 -right-1 w-3 h-3 bg-red-500 rounded-full"></span>
+                    <span className="absolute -top-1 -right-1 w-3 h-3 bg-destructive rounded-full"></span>
                   </Button>
-                  <Button className="btn-primary">
+                  <Button className="btn-primary hover-glow shadow-teal">
                     <Plus className="w-4 h-4 mr-2" />
                     Create Post
                   </Button>
@@ -119,7 +119,7 @@ export default function Dashboard() {
           </div>
 
           {/* Content */}
-          <div className="max-w-4xl mx-auto p-6 space-y-6">
+          <div className="forum-content space-y-6">
             
 
             {/* Create Post */}
@@ -134,8 +134,8 @@ export default function Dashboard() {
                     onClick={() => setActiveFilter(filter.id)}
                     className={`px-4 py-2 rounded-md text-sm font-medium transition-colors ${
                       activeFilter === filter.id
-                        ? 'bg-background text-foreground shadow-sm'
-                        : 'text-muted-foreground hover:text-foreground'
+                        ? 'bg-primary text-primary-foreground shadow-sm'
+                        : 'text-forum-secondary hover:text-forum-primary'
                     }`}
                   >
                     {filter.label}
@@ -143,7 +143,7 @@ export default function Dashboard() {
                 ))}
               </div>
               
-              <Button variant="ghost" size="sm">
+              <Button variant="ghost" size="sm" className="btn-forum">
                 <Filter className="w-4 h-4 mr-2" />
                 Filter
               </Button>
@@ -152,7 +152,7 @@ export default function Dashboard() {
             {/* Posts Feed */}
             <div className="space-y-4">
               {posts.map((post) => (
-                <div key={post.id} className="bg-card border border-border rounded-xl p-6 hover:shadow-md transition-shadow">
+                <div key={post.id} className="post-card p-6 premium-hover">
                   <PostCard post={post} />
                 </div>
               ))}
@@ -160,7 +160,7 @@ export default function Dashboard() {
 
             {/* Load More */}
             <div className="text-center py-8">
-              <Button variant="outline" className="px-8">
+              <Button variant="outline" className="px-8 btn-forum">
                 Load More Posts
               </Button>
             </div>

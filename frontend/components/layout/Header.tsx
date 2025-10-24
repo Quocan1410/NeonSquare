@@ -8,11 +8,11 @@ interface HeaderProps {
 
 export function Header({ className }: HeaderProps) {
   return (
-    <header className={cn('sticky top-0 z-50 w-full border-b bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60', className)}>
+    <header className={cn('sticky top-0 z-50 w-full border-b glass-effect hover-glow', className)}>
       <div className="container flex h-14 items-center">
         <div className="mr-4 flex">
           <a className="mr-6 flex items-center space-x-2" href="/">
-            <span className="hidden font-bold sm:inline-block">
+            <span className="hidden font-bold sm:inline-block text-forum-primary">
               NeonSquare
             </span>
           </a>
@@ -22,19 +22,19 @@ export function Header({ className }: HeaderProps) {
             {/* Search can be added here */}
           </div>
           <nav className="flex items-center space-x-2">
-            <Button variant="ghost" size="sm">
+            <Button variant="ghost" size="sm" className="btn-forum premium-hover">
               Features
             </Button>
-            <Button variant="ghost" size="sm">
+            <Button variant="ghost" size="sm" className="btn-forum premium-hover">
               Pricing
             </Button>
-            <Button variant="ghost" size="sm">
+            <Button variant="ghost" size="sm" className="btn-forum premium-hover">
               About
             </Button>
-            <Button variant="outline" size="sm">
+            <Button variant="outline" size="sm" className="btn-forum premium-hover">
               Sign In
             </Button>
-            <Button size="sm">
+            <Button size="sm" className="btn-primary hover-glow shadow-teal">
               Get Started
             </Button>
           </nav>
