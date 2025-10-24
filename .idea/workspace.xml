@@ -1,0 +1,61 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project version="4">
+  <component name="AutoImportSettings">
+    <option name="autoReloadType" value="SELECTIVE" />
+  </component>
+  <component name="ChangeListManager">
+    <list default="true" id="4e44c2e9-e7be-40ee-9a35-44fb768d9398" name="Changes" comment="">
+      <change afterPath="$PROJECT_DIR$/backend/src/main/java/NeonSquare/backend/controllers/ImageController.java" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/backend/src/main/java/NeonSquare/backend/repositories/ImageRepository.java" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/backend/src/main/java/NeonSquare/backend/services/ImageService.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/backend/src/main/java/DbTest.java" beforeDir="false" />
+    </list>
+    <option name="SHOW_DIALOG" value="false" />
+    <option name="HIGHLIGHT_CONFLICTS" value="true" />
+    <option name="HIGHLIGHT_NON_ACTIVE_CHANGELIST" value="false" />
+    <option name="LAST_RESOLUTION" value="IGNORE" />
+  </component>
+  <component name="Git.Settings">
+    <option name="RECENT_GIT_ROOT_PATH" value="$PROJECT_DIR$" />
+  </component>
+  <component name="GitHubPullRequestSearchHistory">{
+  &quot;lastFilter&quot;: {
+    &quot;state&quot;: &quot;OPEN&quot;,
+    &quot;assignee&quot;: &quot;phuchauxd12&quot;
+  }
+}</component>
+  <component name="GithubPullRequestsUISettings">{
+  &quot;selectedUrlAndAccountId&quot;: {
+    &quot;url&quot;: &quot;https://github.com/Quocan1410/NeonSquare.git&quot;,
+    &quot;accountId&quot;: &quot;4b42d998-27fc-4b2c-a1ff-ed1bc6bbc94e&quot;
+  }
+}</component>
+  <component name="ProjectColorInfo">{
+  &quot;associatedIndex&quot;: 5
+}</component>
+  <component name="ProjectId" id="34VgZcH72ryFtowWW4R8PB5UxDW" />
+  <component name="ProjectViewState">
+    <option name="hideEmptyMiddlePackages" value="true" />
+    <option name="showLibraryContents" value="true" />
+  </component>
+  <component name="PropertiesComponent"><![CDATA[{
+  "keyToString": {
+    "Application.BackendApplication.executor": "Run",
+    "RunOnceActivity.ShowReadmeOnStart": "true",
+    "git-widget-placeholder": "feature/backend",
+    "kotlin-language-version-configured": "true",
+    "last_opened_file_path": "D:/hackathon/NeonSquare/backend"
+  }
+}]]></component>
+  <component name="SpellCheckerSettings" RuntimeDictionaries="0" Folders="0" CustomDictionaries="0" DefaultDictionary="application-level" UseSingleDictionary="true" transferred="true" />
+  <component name="TaskManager">
+    <task active="true" id="Default" summary="Default task">
+      <changelist id="4e44c2e9-e7be-40ee-9a35-44fb768d9398" name="Changes" comment="" />
+      <created>1761304209785</created>
+      <option name="number" value="Default" />
+      <option name="presentableId" value="Default" />
+      <updated>1761304209785</updated>
+    </task>
+    <servers />
+  </component>
+</project>
