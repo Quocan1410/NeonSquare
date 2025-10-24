@@ -1,0 +1,34 @@
+package NeonSquare.backend.services;
+
+import NeonSquare.backend.models.Image;
+import NeonSquare.backend.repositories.ImageRepository;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
+import org.springframework.web.multipart.MultipartFile;
+
+import java.io.IOException;
+import java.util.UUID;
+
+@Service
+public class ImageService {
+
+    private final ImageRepository repository;
+
+    @Autowired
+    public ImageService(ImageRepository repository) {
+        this.repository = repository;
+    }
+
+    @Transactional
+    public Image saveImage(MultipartFile file) throws IOException {
+        Image image = new Image();
+        image.setName(file.getOriginalFilename());
+        image.setData(file.getBytes());
+        return repository.save(image);
+    }
+
+    public Image getImage(UUID id) {
+        return repository.findById(id).orElseThrow(() -> new RuntimeException("Image not found"));
+    }
+}
