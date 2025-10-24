@@ -1,26 +1,564 @@
 @import "tailwindcss";
+@import "tw-animate-css";
 
-:root {
-  --background: #ffffff;
-  --foreground: #171717;
-}
+@custom-variant dark (&:is(.dark *));
 
 @theme inline {
   --color-background: var(--background);
   --color-foreground: var(--foreground);
   --font-sans: var(--font-geist-sans);
   --font-mono: var(--font-geist-mono);
+  --color-sidebar-ring: var(--sidebar-ring);
+  --color-sidebar-border: var(--sidebar-border);
+  --color-sidebar-accent-foreground: var(--sidebar-accent-foreground);
+  --color-sidebar-accent: var(--sidebar-accent);
+  --color-sidebar-primary-foreground: var(--sidebar-primary-foreground);
+  --color-sidebar-primary: var(--sidebar-primary);
+  --color-sidebar-foreground: var(--sidebar-foreground);
+  --color-sidebar: var(--sidebar);
+  --color-chart-5: var(--chart-5);
+  --color-chart-4: var(--chart-4);
+  --color-chart-3: var(--chart-3);
+  --color-chart-2: var(--chart-2);
+  --color-chart-1: var(--chart-1);
+  --color-ring: var(--ring);
+  --color-input: var(--input);
+  --color-border: var(--border);
+  --color-destructive: var(--destructive);
+  --color-accent-foreground: var(--accent-foreground);
+  --color-accent: var(--accent);
+  --color-muted-foreground: var(--muted-foreground);
+  --color-muted: var(--muted);
+  --color-secondary-foreground: var(--secondary-foreground);
+  --color-secondary: var(--secondary);
+  --color-primary-foreground: var(--primary-foreground);
+  --color-primary: var(--primary);
+  --color-popover-foreground: var(--popover-foreground);
+  --color-popover: var(--popover);
+  --color-card-foreground: var(--card-foreground);
+  --color-card: var(--card);
+  --radius-sm: calc(var(--radius) - 4px);
+  --radius-md: calc(var(--radius) - 2px);
+  --radius-lg: var(--radius);
+  --radius-xl: calc(var(--radius) + 4px);
 }
 
-@media (prefers-color-scheme: dark) {
-  :root {
-    --background: #0a0a0a;
-    --foreground: #ededed;
+:root {
+  --radius: 0.625rem;
+  --background: oklch(1 0 0);
+  --foreground: oklch(0.145 0 0);
+  --card: oklch(1 0 0);
+  --card-foreground: oklch(0.145 0 0);
+  --popover: oklch(1 0 0);
+  --popover-foreground: oklch(0.145 0 0);
+  --primary: oklch(0.205 0 0);
+  --primary-foreground: oklch(0.985 0 0);
+  --secondary: oklch(0.97 0 0);
+  --secondary-foreground: oklch(0.205 0 0);
+  --muted: oklch(0.97 0 0);
+  --muted-foreground: oklch(0.556 0 0);
+  --accent: oklch(0.97 0 0);
+  --accent-foreground: oklch(0.205 0 0);
+  --destructive: oklch(0.577 0.245 27.325);
+  --border: oklch(0.922 0 0);
+  --input: oklch(0.922 0 0);
+  --ring: oklch(0.708 0 0);
+  --chart-1: oklch(0.646 0.222 41.116);
+  --chart-2: oklch(0.6 0.118 184.704);
+  --chart-3: oklch(0.398 0.07 227.392);
+  --chart-4: oklch(0.828 0.189 84.429);
+  --chart-5: oklch(0.769 0.188 70.08);
+  --sidebar: oklch(0.985 0 0);
+  --sidebar-foreground: oklch(0.145 0 0);
+  --sidebar-primary: oklch(0.205 0 0);
+  --sidebar-primary-foreground: oklch(0.985 0 0);
+  --sidebar-accent: oklch(0.97 0 0);
+  --sidebar-accent-foreground: oklch(0.205 0 0);
+  --sidebar-border: oklch(0.922 0 0);
+  --sidebar-ring: oklch(0.708 0 0);
+}
+
+.dark {
+  /* Better Dark Theme - Not too dark */
+  --background: #1a1a1a;
+  --foreground: #ffffff;
+  --card: #2a2a2a;
+  --card-foreground: #ffffff;
+  --popover: #2a2a2a;
+  --popover-foreground: #ffffff;
+  --primary: #3b82f6;
+  --primary-foreground: #ffffff;
+  --secondary: #3a3a3a;
+  --secondary-foreground: #ffffff;
+  --muted: #3a3a3a;
+  --muted-foreground: #b0b0b0;
+  --accent: #10b981;
+  --accent-foreground: #ffffff;
+  --destructive: #ef4444;
+  --border: #4a4a4a;
+  --input: #3a3a3a;
+  --ring: #3b82f6;
+  --chart-1: #3b82f6;
+  --chart-2: #10b981;
+  --chart-3: #f59e0b;
+  --chart-4: #ef4444;
+  --chart-5: #8b5cf6;
+  --sidebar: #2a2a2a;
+  --sidebar-foreground: #ffffff;
+  --sidebar-primary: #3b82f6;
+  --sidebar-primary-foreground: #ffffff;
+  --sidebar-accent: #3a3a3a;
+  --sidebar-accent-foreground: #ffffff;
+  --sidebar-border: #4a4a4a;
+  --sidebar-ring: #3b82f6;
+
+  /* Better colors */
+  --success: #10b981;
+  --warning: #f59e0b;
+  --info: #3b82f6;
+  --error: #ef4444;
+  --surface: #2a2a2a;
+  --surface-hover: #3a3a3a;
+  --text-primary: #ffffff;
+  --text-secondary: #b0b0b0;
+  --text-muted: #909090;
+}
+
+@layer base {
+  * {
+    @apply border-border outline-ring/50;
+  }
+
+  body {
+    @apply bg-background text-foreground font-sans;
+  }
+
+  /* Modern scrollbar styling */
+  ::-webkit-scrollbar {
+    width: 8px;
+    height: 8px;
+  }
+
+  ::-webkit-scrollbar-track {
+    background: var(--muted);
+    border-radius: 4px;
+  }
+
+  ::-webkit-scrollbar-thumb {
+    background: var(--border);
+    border-radius: 4px;
+  }
+
+  ::-webkit-scrollbar-thumb:hover {
+    background: var(--muted-foreground);
+  }
+
+  /* Smooth transitions */
+  * {
+    transition: background-color 0.2s ease, border-color 0.2s ease, color 0.2s ease;
+  }
+
+  /* Modern focus styles */
+  *:focus-visible {
+    outline: 2px solid var(--ring);
+    outline-offset: 2px;
   }
 }
 
-body {
-  background: var(--background);
-  color: var(--foreground);
-  font-family: Arial, Helvetica, sans-serif;
+@layer components {
+
+  /* Simple User-Friendly Cards */
+  .forum-card {
+    @apply bg-card border border-border rounded-xl shadow-sm hover:shadow-md transition-all duration-200;
+    background: var(--card);
+    border: 1px solid var(--border);
+  }
+
+  .forum-card:hover {
+    background: var(--surface-hover);
+    border-color: var(--primary);
+  }
+
+  /* Post Card with modern styling */
+  .post-card {
+    @apply bg-card border border-border rounded-lg shadow-sm hover:shadow-lg transition-all duration-300;
+    background: var(--card);
+    border: 1px solid var(--border);
+  }
+
+  .post-card:hover {
+    background: var(--muted);
+    transform: translateY(-2px);
+    box-shadow: 0 8px 25px rgba(0, 0, 0, 0.15);
+  }
+
+  /* Comment Card with threading */
+  .comment-card {
+    @apply bg-card border-l-2 border-l-primary pl-4 py-3 rounded-r-lg ml-4;
+    background: var(--card);
+    border-left-color: var(--primary);
+  }
+
+  .comment-card:hover {
+    background: var(--muted);
+  }
+
+  /* Thread Card */
+  .thread-card {
+    @apply bg-card border border-border rounded-lg p-4 hover:bg-muted transition-all duration-200;
+    background: var(--card);
+    border: 1px solid var(--border);
+  }
+
+  .thread-card:hover {
+    background: var(--muted);
+    border-color: var(--primary);
+  }
+
+  /* Modern Forum Buttons */
+  .btn-forum {
+    @apply px-4 py-2 rounded-md font-medium transition-all duration-200;
+    background: var(--secondary);
+    color: var(--text-secondary);
+    border: 1px solid var(--border);
+  }
+
+  .btn-forum:hover {
+    background: var(--muted);
+    color: var(--text-primary);
+    border-color: var(--primary);
+  }
+
+  .btn-forum.active {
+    background: var(--primary);
+    color: var(--primary-foreground);
+    border-color: var(--primary);
+  }
+
+  /* Simple Primary Button */
+  .btn-primary {
+    @apply px-6 py-2 rounded-lg font-medium transition-all duration-200;
+    background: var(--primary);
+    color: var(--primary-foreground);
+    border: none;
+  }
+
+  .btn-primary:hover {
+    background: var(--primary);
+    opacity: 0.9;
+  }
+
+  /* Secondary Button */
+  .btn-secondary {
+    @apply px-6 py-2 rounded-md font-semibold transition-all duration-200;
+    background: transparent;
+    color: var(--text-primary);
+    border: 1px solid var(--border);
+  }
+
+  .btn-secondary:hover {
+    background: var(--muted);
+    border-color: var(--primary);
+    color: var(--primary);
+  }
+
+  /* Success Button */
+  .btn-success {
+    @apply px-6 py-2 rounded-md font-semibold transition-all duration-200;
+    background: var(--success);
+    color: var(--accent-foreground);
+    border: 1px solid var(--success);
+  }
+
+  .btn-success:hover {
+    background: #00b894;
+    box-shadow: 0 4px 12px rgba(0, 212, 170, 0.3);
+  }
+
+  /* Modern Forum Input */
+  .input-forum {
+    @apply w-full px-4 py-3 rounded-md border transition-all duration-200;
+    background: var(--input);
+    border-color: var(--border);
+    color: var(--text-primary);
+  }
+
+  .input-forum:focus {
+    border-color: var(--primary);
+    box-shadow: 0 0 0 2px rgba(88, 101, 242, 0.2);
+    background: var(--card);
+  }
+
+  .input-forum::placeholder {
+    color: var(--text-muted);
+  }
+
+  /* Forum Navigation */
+  .nav-forum {
+    @apply flex items-center px-3 py-2 rounded-md transition-all duration-200 cursor-pointer;
+    color: var(--text-secondary);
+  }
+
+  .nav-forum:hover {
+    background: var(--muted);
+    color: var(--text-primary);
+  }
+
+  .nav-forum.active {
+    background: var(--primary);
+    color: var(--primary-foreground);
+  }
+
+  /* Sidebar Navigation */
+  .sidebar-nav {
+    @apply flex items-center px-3 py-2 rounded-md transition-all duration-200 cursor-pointer;
+    color: var(--text-secondary);
+  }
+
+  .sidebar-nav:hover {
+    background: var(--muted);
+    color: var(--text-primary);
+  }
+
+  .sidebar-nav.active {
+    background: var(--primary);
+    color: var(--primary-foreground);
+  }
+
+  /* Modern Forum Avatar */
+  .avatar-forum {
+    @apply rounded-full border-2;
+    border-color: var(--border);
+  }
+
+  .avatar-forum.online {
+    border-color: var(--success);
+  }
+
+  .avatar-forum.offline {
+    border-color: var(--text-muted);
+  }
+
+  /* Forum Badge */
+  .badge-forum {
+    @apply px-2 py-1 rounded-full text-xs font-medium;
+    background: var(--secondary);
+    color: var(--text-secondary);
+  }
+
+  .badge-forum.primary {
+    background: var(--primary);
+    color: var(--primary-foreground);
+  }
+
+  .badge-forum.success {
+    background: var(--success);
+    color: var(--accent-foreground);
+  }
+
+  .badge-forum.warning {
+    background: var(--warning);
+    color: var(--foreground);
+  }
+
+  .badge-forum.error {
+    background: var(--error);
+    color: var(--foreground);
+  }
+
+  /* Status Indicators */
+  .status-online {
+    @apply w-3 h-3 rounded-full border-2 border-background;
+    background: var(--success);
+  }
+
+  .status-offline {
+    @apply w-3 h-3 rounded-full border-2 border-background;
+    background: var(--text-muted);
+  }
+
+  .status-away {
+    @apply w-3 h-3 rounded-full border-2 border-background;
+    background: var(--warning);
+  }
+
+  /* Forum Divider */
+  .divider-forum {
+    @apply border-t;
+    border-color: var(--border);
+  }
+
+  /* Modern Forum Scrollbar */
+  .scrollbar-forum::-webkit-scrollbar {
+    width: 6px;
+  }
+
+  .scrollbar-forum::-webkit-scrollbar-track {
+    background: var(--secondary);
+    border-radius: 3px;
+  }
+
+  .scrollbar-forum::-webkit-scrollbar-thumb {
+    background: var(--border);
+    border-radius: 3px;
+  }
+
+  .scrollbar-forum::-webkit-scrollbar-thumb:hover {
+    background: var(--text-muted);
+  }
+
+  /* Forum Layout */
+  .forum-layout {
+    @apply min-h-screen;
+    background: var(--background);
+  }
+
+  .forum-sidebar {
+    @apply w-64 border-r;
+    background: var(--sidebar);
+    border-color: var(--sidebar-border);
+  }
+
+  .forum-main {
+    @apply flex-1 p-6;
+    background: var(--background);
+  }
+
+  .forum-content {
+    @apply max-w-4xl mx-auto space-y-6;
+  }
+
+  /* Modern Forum Hover Effects */
+  .hover-lift {
+    transition: transform 0.2s ease, box-shadow 0.2s ease;
+  }
+
+  .hover-lift:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 8px 25px rgba(0, 0, 0, 0.15);
+  }
+
+  .hover-glow:hover {
+    box-shadow: 0 0 20px rgba(88, 101, 242, 0.3);
+  }
+
+  /* Forum Animations */
+  .fade-in {
+    animation: fadeIn 0.3s ease-out;
+  }
+
+  .slide-up {
+    animation: slideUp 0.3s ease-out;
+  }
+
+  .slide-in-right {
+    animation: slideInRight 0.3s ease-out;
+  }
+
+  .scale-in {
+    animation: scaleIn 0.2s ease-out;
+  }
+
+  /* Forum Focus States */
+  .focus-ring {
+    @apply focus:outline-none focus:ring-2 focus:ring-primary focus:ring-offset-2 focus:ring-offset-background;
+  }
+
+  /* Typography */
+  .text-forum-primary {
+    color: var(--text-primary);
+  }
+
+  .text-forum-secondary {
+    color: var(--text-secondary);
+  }
+
+  .text-forum-muted {
+    color: var(--text-muted);
+  }
+
+  /* Spacing */
+  .space-forum {
+    @apply space-y-4;
+  }
+
+  .space-forum-lg {
+    @apply space-y-6;
+  }
+}
+
+@keyframes float {
+
+  0%,
+  100% {
+    transform: translateY(0px);
+  }
+
+  50% {
+    transform: translateY(-10px);
+  }
+}
+
+@keyframes shimmer {
+  0% {
+    background-position: -200% 0;
+  }
+
+  100% {
+    background-position: 200% 0;
+  }
+}
+
+@keyframes fadeInUp {
+  from {
+    opacity: 0;
+    transform: translateY(30px);
+  }
+
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@keyframes slideInRight {
+  from {
+    opacity: 0;
+    transform: translateX(30px);
+  }
+
+  to {
+    opacity: 1;
+    transform: translateX(0);
+  }
+}
+
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+  }
+
+  to {
+    opacity: 1;
+  }
+}
+
+@keyframes slideUp {
+  from {
+    opacity: 0;
+    transform: translateY(20px);
+  }
+
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.animate-fade-in-up {
+  animation: fadeInUp 0.6s ease-out;
+}
+
+.animate-slide-in-right {
+  animation: slideInRight 0.6s ease-out;
 }
