@@ -2,6 +2,7 @@ package NeonSquare.backend.services;
 
 import NeonSquare.backend.models.Image;
 import NeonSquare.backend.repositories.ImageRepository;
+import org.apache.tika.Tika;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -14,6 +15,7 @@ import java.util.UUID;
 public class ImageService {
 
     private final ImageRepository repository;
+    private final Tika tika = new Tika();
 
     @Autowired
     public ImageService(ImageRepository repository) {
@@ -25,6 +27,9 @@ public class ImageService {
         Image image = new Image();
         image.setName(file.getOriginalFilename());
         image.setData(file.getBytes());
+        String mimeType = tika.detect(file.getBytes());
+        image.setType(mimeType);
+
         return repository.save(image);
     }
 

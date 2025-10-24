@@ -23,6 +23,8 @@ public class Image {
     @Lob
     private byte[] data;
 
+    private String type;
+
     public UUID getId() {
         return id;
     }
@@ -45,5 +47,13 @@ public class Image {
 
     public void setData(byte[] data) {
         this.data = data;
+    }
+
+    public String getType() {
+        return type;
+    }
+
+    public void setType(String type) {
+        this.type = type;
     }
 }
