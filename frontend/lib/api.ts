@@ -44,6 +44,8 @@ export interface Comment {
     postId: string;
     createdAt: string;
     author?: User; // Will be populated when needed
+    replies?: Comment[]; // Nested replies
+    parentCommentId?: string; // Reference to parent comment
 }
 
 export interface Reaction {
@@ -153,7 +155,24 @@ class ApiService {
     }
 
     async getUser(userId: string): Promise<User> {
-        return this.request<User>(`/users/${userId}`);
+        try {
+            return await this.request<User>(`/users/${userId}`);
+        } catch (error: any) {
+            if (error.message.includes('404')) {
+                // Return fallback user data when user not found
+                return {
+                    id: userId,
+                    firstName: 'Unknown',
+                    lastName: 'User',
+                    email: 'unknown@example.com',
+                    profilePicUrl: undefined,
+                    status: 'OFFLINE' as any,
+                    isOnline: false,
+                    lastSeen: new Date().toISOString()
+                };
+            }
+            throw error;
+        }
     }
 
     async updateUser(userId: string, userData: Partial<User>): Promise<User> {
@@ -266,6 +285,10 @@ class ApiService {
             method: 'POST',
             body: formData,
         });
+    }
+
+    async getReplies(commentId: string): Promise<Comment[]> {
+        return this.request<Comment[]>(`/comment/${commentId}/replies`);
     }
 
     // Notification endpoints (commented out until backend endpoints are ready)

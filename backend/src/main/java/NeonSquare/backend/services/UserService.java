@@ -42,8 +42,7 @@ public class UserService {
 
     @Transactional(readOnly = true)
     public User getUser(UUID id) {
-        return userRepository.findById(id)
-                .orElseThrow(() -> new RuntimeException("User not found"));
+        return userRepository.findById(id).orElse(null);
     }
 
     @Transactional
