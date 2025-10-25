@@ -1,6 +1,7 @@
 package NeonSquare.backend.models.enums;
 
 public enum PostVisibility {
-    Public,
-    Friend
+    PUBLIC,     // 0
+    FRIENDS,    // 1
+    PRIVATE     // 2
 }

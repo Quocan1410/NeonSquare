@@ -22,6 +22,12 @@ public class Group {
     @UuidGenerator
     private UUID id;
 
+    @Column(nullable = false)
+    private String name;
+
+    @Column(length = 1000)
+    private String description;
+
     @OneToOne
     private Image groupPic;
 
@@ -49,6 +55,13 @@ public class Group {
 
     @OneToOne
     private User groupAdmin;
+
+    @ManyToOne
+    @JoinColumn(name = "created_by")
+    private User createdBy;
+
+    @Column(name = "created_at")
+    private java.time.LocalDateTime createdAt;
 
     public UUID getId() {
         return id;
@@ -104,5 +117,37 @@ public class Group {
 
     public void setGroupAdmin(User groupAdmin) {
         this.groupAdmin = groupAdmin;
+    }
+
+    public String getName() {
+        return name;
+    }
+
+    public void setName(String name) {
+        this.name = name;
+    }
+
+    public String getDescription() {
+        return description;
+    }
+
+    public void setDescription(String description) {
+        this.description = description;
+    }
+
+    public User getCreatedBy() {
+        return createdBy;
+    }
+
+    public void setCreatedBy(User createdBy) {
+        this.createdBy = createdBy;
+    }
+
+    public java.time.LocalDateTime getCreatedAt() {
+        return createdAt;
+    }
+
+    public void setCreatedAt(java.time.LocalDateTime createdAt) {
+        this.createdAt = createdAt;
     }
 }

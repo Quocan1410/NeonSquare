@@ -38,17 +38,16 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
     const checkAuth = async () => {
       if (apiService.isAuthenticated()) {
         try {
-          // Try to get current user info
-          // For now, we'll just set a basic user object
-          // In a real app, you'd have an endpoint to get current user
+          // Try to get user info from token
           const token = apiService.getToken();
           if (token) {
-            // Parse user info from token (simplified)
-            // In real app, you'd decode JWT or call /me endpoint
+            // For now, we'll create a dummy user from token
+            // In a real app, you'd validate the token with the backend
+            console.log('Token found, setting user as authenticated');
             setUser({
-              id: 'current-user-id',
-              firstName: 'Current',
-              lastName: 'User',
+              id: 'temp-user-id',
+              firstName: 'User',
+              lastName: 'Name',
               email: 'user@example.com',
               isOnline: true,
               lastSeen: 'Online now'
@@ -69,6 +68,9 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
     try {
       const response = await apiService.login(credentials);
       if (response.success) {
+        // Set token in apiService
+        apiService.setToken(response.token);
+        
         setUser({
           id: response.userId,
           firstName: response.firstName,
@@ -89,6 +91,9 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
     try {
       const response = await apiService.register(userData);
       if (response.success) {
+        // Set token in apiService
+        apiService.setToken(response.token);
+        
         setUser({
           id: response.userId,
           firstName: response.firstName,
