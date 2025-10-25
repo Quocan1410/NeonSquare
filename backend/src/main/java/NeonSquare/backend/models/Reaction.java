@@ -5,6 +5,7 @@ import jakarta.persistence.*;
 import lombok.*;
 import org.hibernate.annotations.UuidGenerator;
 
+import java.time.LocalDateTime;
 import java.util.List;
 import java.util.UUID;
 
@@ -21,10 +22,18 @@ public class Reaction {
     private UUID id;
 
     @Enumerated(EnumType.ORDINAL)
-    private ReactionType reaction;
+    private ReactionType type;
 
-    @OneToOne
+    @ManyToOne
+    @JoinColumn(name = "user_id")
     private User user;
+
+    @ManyToOne
+    @JoinColumn(name = "post_id")
+    private Post post;
+
+    @Column(name = "created_at")
+    private LocalDateTime createdAt;
 
     public UUID getId() {
         return id;
@@ -34,12 +43,12 @@ public class Reaction {
         this.id = id;
     }
 
-    public ReactionType getReaction() {
-        return reaction;
+    public ReactionType getType() {
+        return type;
     }
 
-    public void setReaction(ReactionType reaction) {
-        this.reaction = reaction;
+    public void setType(ReactionType type) {
+        this.type = type;
     }
 
     public User getUser() {
@@ -48,5 +57,21 @@ public class Reaction {
 
     public void setUser(User user) {
         this.user = user;
+    }
+
+    public Post getPost() {
+        return post;
+    }
+
+    public void setPost(Post post) {
+        this.post = post;
+    }
+
+    public LocalDateTime getCreatedAt() {
+        return createdAt;
+    }
+
+    public void setCreatedAt(LocalDateTime createdAt) {
+        this.createdAt = createdAt;
     }
 }

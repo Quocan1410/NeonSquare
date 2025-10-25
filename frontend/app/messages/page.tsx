@@ -26,6 +26,7 @@ import {
 } from 'lucide-react';
 import Link from 'next/link';
 
+// Mock data - would need backend API for messages
 const conversations = [
   {
     id: '1',

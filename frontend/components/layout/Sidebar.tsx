@@ -1,12 +1,16 @@
 'use client';
 
+import { useState } from 'react';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { OnlineIndicator } from '@/components/ui/online-indicator';
+import { CreateGroupModal } from '@/components/ui/create-group-modal';
 import { useAuth } from '@/contexts/AuthContext';
+import { useTheme } from '@/contexts/ThemeContext';
 import { addToast, ToastContainer } from '@/components/ui/toast';
 import Link from 'next/link';
+import { usePathname } from 'next/navigation';
 import { 
   Home, 
   Search, 
@@ -21,6 +25,9 @@ import {
 
 export function Sidebar() {
   const { user, logout } = useAuth();
+  const { themeColors } = useTheme();
+  const pathname = usePathname();
+  const [isCreateGroupOpen, setIsCreateGroupOpen] = useState(false);
 
   const handleLogout = () => {
     addToast({
@@ -32,7 +39,7 @@ export function Sidebar() {
   };
 
   const navigationItems = [
-    { icon: Home, label: 'Home', href: '/dashboard', active: true },
+    { icon: Home, label: 'Home', href: '/dashboard' },
     { icon: Search, label: 'Explore', href: '/explore' },
     { icon: Users, label: 'Friends', href: '/friends' },
   ];
@@ -75,7 +82,7 @@ export function Sidebar() {
               key={item.label}
               href={item.href}
               className={`sidebar-nav ${
-                item.active ? 'active' : ''
+                pathname === item.href ? 'active' : ''
               }`}
             >
               <item.icon className="w-5 h-5 mr-3" />
@@ -90,10 +97,7 @@ export function Sidebar() {
           <h3 className="text-sm font-medium text-forum-secondary px-3">Groups</h3>
           <Button 
             className="btn-primary w-full justify-start hover-glow shadow-fresh animate-fresh-glow"
-            onClick={() => {
-              // TODO: Implement create group modal
-              console.log('Create group clicked');
-            }}
+            onClick={() => setIsCreateGroupOpen(true)}
           >
             <Plus className="w-4 h-4 mr-3" />
             Create Group
@@ -123,7 +127,9 @@ export function Sidebar() {
         <div className="pt-4 divider-forum">
           <Link
             href="/settings"
-            className="sidebar-nav premium-hover"
+            className={`sidebar-nav premium-hover ${
+              pathname === '/settings' ? 'active' : ''
+            }`}
           >
             <Settings className="w-5 h-5 mr-3" />
             <span>Settings</span>
@@ -144,6 +150,10 @@ export function Sidebar() {
         </div>
       </div>
       <ToastContainer />
+      <CreateGroupModal 
+        isOpen={isCreateGroupOpen} 
+        onClose={() => setIsCreateGroupOpen(false)} 
+      />
     </div>
   );
 }

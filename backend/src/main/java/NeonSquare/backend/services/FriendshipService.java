@@ -1,7 +1,7 @@
 package NeonSquare.backend.services;
 
 import NeonSquare.backend.models.Friendship;
-import NeonSquare.backend.models.enums.Status;
+import NeonSquare.backend.models.enums.FriendshipStatus;
 import NeonSquare.backend.repositories.FriendshipRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -29,11 +29,11 @@ public class FriendshipService {
     }
 
     public Friendship createFriendship(Friendship friendship) {
-        friendship.setStatus(Status.pending);
+        friendship.setStatus(FriendshipStatus.PENDING);
         return repository.save(friendship);
     }
 
-    public Friendship updateStatus(UUID id, Status status) {
+    public Friendship updateStatus(UUID id, FriendshipStatus status) {
         Friendship friendship = getFriendshipById(id);
         friendship.setStatus(status);
         return repository.save(friendship);
@@ -44,11 +44,11 @@ public class FriendshipService {
     }
 
     public List<Friendship> getAcceptedFriendshipsForUser(UUID userId) {
-        return repository.findAcceptedFriendshipsForUser(Status.accepted, userId);
+        return repository.findAcceptedFriendshipsForUser(FriendshipStatus.ACCEPTED, userId);
     }
 
     public boolean acceptFriendship(UUID senderId, UUID receiverId) {
-        int updated = repository.acceptFriendship(senderId, receiverId, Status.accepted);
+        int updated = repository.acceptFriendship(senderId, receiverId, FriendshipStatus.ACCEPTED);
         return updated > 0;
     }
 

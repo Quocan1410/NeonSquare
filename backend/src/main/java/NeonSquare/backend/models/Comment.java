@@ -1,10 +1,11 @@
 package NeonSquare.backend.models;
 
+import NeonSquare.backend.models.enums.Status;
 import jakarta.persistence.*;
 import lombok.*;
 import org.hibernate.annotations.UuidGenerator;
 
-import java.time.LocalDate;
+import java.time.LocalDateTime;
 import java.util.List;
 import java.util.UUID;
 
@@ -20,12 +21,15 @@ public class Comment {
     @UuidGenerator
     private UUID id;
 
-    private String text;
+    private String content;
 
     @ManyToOne
     @JoinColumn(name = "post_id")
     private Post post;
 
+    @ManyToOne
+    @JoinColumn(name = "author_id")
+    private User author;
 
     @OneToMany
     @JoinTable(
@@ -35,10 +39,11 @@ public class Comment {
     )
     private List<Reaction> reactions;
 
-    private LocalDate updateAt;
+    @Column(name = "created_at")
+    private LocalDateTime createdAt;
 
-    @OneToOne
-    private  User user;
+    @Enumerated(EnumType.ORDINAL)
+    private Status status;
 
     public UUID getId() {
         return id;
@@ -48,12 +53,12 @@ public class Comment {
         this.id = id;
     }
 
-    public String getText() {
-        return text;
+    public String getContent() {
+        return content;
     }
 
-    public void setText(String text) {
-        this.text = text;
+    public void setContent(String content) {
+        this.content = content;
     }
 
     public Post getPost() {
@@ -72,19 +77,27 @@ public class Comment {
         this.reactions = reactions;
     }
 
-    public LocalDate getUpdateAt() {
-        return updateAt;
+    public User getAuthor() {
+        return author;
     }
 
-    public void setUpdateAt(LocalDate updateAt) {
-        this.updateAt = updateAt;
+    public void setAuthor(User author) {
+        this.author = author;
     }
 
-    public User getUser() {
-        return user;
+    public LocalDateTime getCreatedAt() {
+        return createdAt;
     }
 
-    public void setUser(User user) {
-        this.user = user;
+    public void setCreatedAt(LocalDateTime createdAt) {
+        this.createdAt = createdAt;
+    }
+
+    public Status getStatus() {
+        return status;
+    }
+
+    public void setStatus(Status status) {
+        this.status = status;
     }
 }

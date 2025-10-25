@@ -4,7 +4,7 @@ import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
-import java.time.LocalDate;
+import java.time.LocalDateTime;
 import java.util.List;
 import java.util.UUID;
 
@@ -16,7 +16,7 @@ public class PostResponse {
     private String text;
     private UserResponse author;
     private String visibility;
-    private LocalDate updateAt;
+    private LocalDateTime updateAt;
     private int commentCount;
     private int reactionCount;
     private List<String> imageUrls;

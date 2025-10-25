@@ -60,8 +60,8 @@ export function CreatePost() {
       setContent('');
       setImagePreview(null);
       
-      // Refresh the page to show new post
-      window.location.reload();
+      // Trigger a custom event to refresh posts instead of reloading page
+      window.dispatchEvent(new CustomEvent('postCreated'));
     } catch (error) {
       addToast({
         type: 'error',

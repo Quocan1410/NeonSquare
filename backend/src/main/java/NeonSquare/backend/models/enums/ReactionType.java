@@ -1,8 +1,10 @@
 package NeonSquare.backend.models.enums;
 
 public enum ReactionType {
-    like,
-    haha,
-    heart,
-    wow
+    LIKE,
+    LOVE,
+    HAHA,
+    WOW,
+    SAD,
+    ANGRY
 }

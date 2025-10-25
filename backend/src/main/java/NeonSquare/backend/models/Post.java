@@ -1,11 +1,12 @@
 package NeonSquare.backend.models;
 
 import NeonSquare.backend.models.enums.PostVisibility;
+import NeonSquare.backend.models.enums.Status;
 import jakarta.persistence.*;
 import lombok.*;
 import org.hibernate.annotations.UuidGenerator;
 
-import java.time.LocalDate;
+import java.time.LocalDateTime;
 import java.util.List;
 import java.util.UUID;
 
@@ -21,14 +22,18 @@ public class Post {
     @UuidGenerator
     private UUID id;
 
-    private String text;
+    @Column(length = 200)
+    private String title;
+
+    @Column(columnDefinition = "TEXT")
+    private String content;
 
     @OneToMany(mappedBy = "post")
     private List<Comment> comments;
 
     @ManyToOne
-    @JoinColumn(name = "user_id")
-    private User user;
+    @JoinColumn(name = "author_id")
+    private User author;
 
     @OneToMany
     @JoinTable(
@@ -41,7 +46,14 @@ public class Post {
     @Enumerated(EnumType.ORDINAL)
     private PostVisibility visibility;
 
-    private LocalDate updateAt;
+    @Enumerated(EnumType.ORDINAL)
+    private Status status;
+
+    @Column(name = "created_at")
+    private LocalDateTime createdAt;
+
+    @Column(name = "updated_at")
+    private LocalDateTime updatedAt;
 
     @OneToMany
     @JoinTable(
@@ -59,12 +71,20 @@ public class Post {
         this.id = id;
     }
 
-    public String getText() {
-        return text;
+    public String getTitle() {
+        return title;
     }
 
-    public void setText(String text) {
-        this.text = text;
+    public void setTitle(String title) {
+        this.title = title;
+    }
+
+    public String getContent() {
+        return content;
+    }
+
+    public void setContent(String content) {
+        this.content = content;
     }
 
     public List<Comment> getComments() {
@@ -75,12 +95,12 @@ public class Post {
         this.comments = comments;
     }
 
-    public User getUser() {
-        return user;
+    public User getAuthor() {
+        return author;
     }
 
-    public void setUser(User user) {
-        this.user = user;
+    public void setAuthor(User author) {
+        this.author = author;
     }
 
     public List<Reaction> getReactions() {
@@ -99,12 +119,28 @@ public class Post {
         this.visibility = visibility;
     }
 
-    public LocalDate getUpdateAt() {
-        return updateAt;
+    public Status getStatus() {
+        return status;
     }
 
-    public void setUpdateAt(LocalDate updateAt) {
-        this.updateAt = updateAt;
+    public void setStatus(Status status) {
+        this.status = status;
+    }
+
+    public LocalDateTime getCreatedAt() {
+        return createdAt;
+    }
+
+    public void setCreatedAt(LocalDateTime createdAt) {
+        this.createdAt = createdAt;
+    }
+
+    public LocalDateTime getUpdatedAt() {
+        return updatedAt;
+    }
+
+    public void setUpdatedAt(LocalDateTime updatedAt) {
+        this.updatedAt = updatedAt;
     }
 
     public List<Image> getImages() {

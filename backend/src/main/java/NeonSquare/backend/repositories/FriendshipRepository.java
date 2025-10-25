@@ -1,7 +1,7 @@
 package NeonSquare.backend.repositories;
 
 import NeonSquare.backend.models.Friendship;
-import NeonSquare.backend.models.enums.Status;
+import NeonSquare.backend.models.enums.FriendshipStatus;
 import jakarta.transaction.Transactional;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Modifying;
@@ -17,7 +17,7 @@ public interface FriendshipRepository extends JpaRepository<Friendship, UUID> {
     @Query("SELECT f FROM Friendship f " +
             "WHERE f.status = :status AND (f.sender.id = :userId OR f.receiver.id = :userId)")
     List<Friendship> findAcceptedFriendshipsForUser(
-            @Param("status") Status status,
+            @Param("status") FriendshipStatus status,
             @Param("userId") UUID userId
     );
 
@@ -28,7 +28,7 @@ public interface FriendshipRepository extends JpaRepository<Friendship, UUID> {
     int acceptFriendship(
             @Param("senderId") UUID senderId,
             @Param("receiverId") UUID receiverId,
-            @Param("status") Status status
+            @Param("status") FriendshipStatus status
     );
 
     @Modifying
