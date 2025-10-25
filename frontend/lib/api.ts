@@ -6,6 +6,7 @@ export interface User {
     lastName: string;
     email: string;
     profilePicUrl?: string;
+    status?: string;
     isOnline: boolean;
     lastSeen: string;
 }
@@ -138,6 +139,17 @@ class ApiService {
         return this.request<User[]>(`/users/search?query=${encodeURIComponent(query)}`);
     }
 
+    async getCurrentUser(): Promise<User> {
+        return this.request<User>('/users/me');
+    }
+
+    async updateUser(userId: string, userData: Partial<User>): Promise<User> {
+        return this.request<User>(`/users/${userId}`, {
+            method: 'PUT',
+            body: JSON.stringify(userData),
+        });
+    }
+
     // Post endpoints
     async getPosts(): Promise<Post[]> {
         return this.request<Post[]>('/posts');
@@ -145,13 +157,16 @@ class ApiService {
 
 
     async createPost(text: string, userId: string, visibility: string = 'PUBLIC'): Promise<Post> {
+        const formData = new FormData();
+        formData.append('post', JSON.stringify({
+            text,
+            userId,
+            visibility,
+        }));
+
         return this.request<Post>('/posts', {
             method: 'POST',
-            body: JSON.stringify({
-                text,
-                userId,
-                visibility,
-            }),
+            body: formData,
         });
     }
 

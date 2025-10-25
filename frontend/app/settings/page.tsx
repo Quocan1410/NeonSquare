@@ -31,16 +31,11 @@ import {
   Loader2
 } from 'lucide-react';
 import Link from 'next/link';
-
-const user = {
-  fullName: 'John Doe',
-  username: '@johndoe',
-  email: 'john.doe@example.com',
-  profilePic: '/avatars/user.png',
-  joinDate: 'January 2023'
-};
+import { useAuth } from '@/contexts/AuthContext';
+import { apiService } from '@/lib/api';
 
 export default function SettingsPage() {
+  const { user, refreshUser } = useAuth();
   const [activeTab, setActiveTab] = useState('profile');
   const [showPassword, setShowPassword] = useState(false);
   const [isSaving, setIsSaving] = useState(false);
@@ -48,16 +43,14 @@ export default function SettingsPage() {
   // Form validation for profile
   const profileForm = useFormValidation(
     {
-      fullName: user.fullName,
-      username: user.username,
-      email: user.email,
-      bio: ''
+      fullName: user ? `${user.firstName} ${user.lastName}` : '',
+      username: user ? `@${user.firstName?.toLowerCase()}${user.lastName?.toLowerCase()}` : '',
+      email: user?.email || ''
     },
     {
       fullName: [validators.required, validators.minLength(2)],
       username: [validators.required, validators.username],
-      email: [validators.required, validators.email],
-      bio: [validators.maxLength(500)]
+      email: [validators.required, validators.email]
     }
   );
   const [notifications, setNotifications] = useState({
@@ -103,11 +96,20 @@ export default function SettingsPage() {
     setIsSaving(true);
     
     try {
-      // Simulate API call
-      await new Promise(resolve => setTimeout(resolve, 1500));
-      
-      console.log('Saving settings...');
-      // Here you would save settings to your backend
+      if (!user) {
+        throw new Error('User not found');
+      }
+
+      // Update user profile
+      const [firstName, lastName] = profileForm.values.fullName.split(' ');
+      await apiService.updateUser(user.id, {
+        firstName,
+        lastName,
+        email: profileForm.values.email
+      });
+
+      // Refresh user data
+      await refreshUser();
       
       addToast({
         type: 'success',
@@ -115,6 +117,7 @@ export default function SettingsPage() {
         description: 'Your changes have been saved successfully.'
       });
     } catch (error) {
+      console.error('Failed to save settings:', error);
       addToast({
         type: 'error',
         title: 'Failed to save',
@@ -166,17 +169,17 @@ export default function SettingsPage() {
               <div className="forum-card p-4">
                 <div className="flex items-center space-x-3">
                   <Avatar className="avatar-forum w-12 h-12">
-                    <AvatarImage src={user.profilePic} alt={user.fullName} />
+                    <AvatarImage src={user?.profilePicUrl} alt={user ? `${user.firstName} ${user.lastName}` : 'User'} />
                     <AvatarFallback className="gradient-primary text-primary-foreground">
-                      {user.fullName.split(' ').map(n => n[0]).join('')}
+                      {user ? `${user.firstName} ${user.lastName}`.split(' ').map(n => n[0]).join('') : 'U'}
                     </AvatarFallback>
                   </Avatar>
                   <div>
-                    <h3 className="font-semibold text-forum-primary">{user.fullName}</h3>
-                    <p className="text-sm text-forum-secondary">{user.username}</p>
-                  </div>
+                    <h3 className="font-semibold text-forum-primary">{user ? `${user.firstName} ${user.lastName}` : 'User'}</h3>
+                    <p className="text-sm text-forum-secondary">{user ? `@${user.firstName?.toLowerCase()}${user.lastName?.toLowerCase()}` : '@user'}</p>
                   </div>
                 </div>
+              </div>
 
               {/* Settings Tabs */}
               <div className="space-y-1">
@@ -281,9 +284,9 @@ export default function SettingsPage() {
                         <Label className="text-forum-primary">Profile Picture</Label>
                         <div className="flex items-center space-x-4 mt-2">
                           <Avatar className="avatar-forum w-16 h-16">
-                            <AvatarImage src={user.profilePic} alt={user.fullName} />
+                            <AvatarImage src={user?.profilePicUrl} alt={user ? `${user.firstName} ${user.lastName}` : 'User'} />
                             <AvatarFallback className="gradient-primary text-primary-foreground">
-                              {user.fullName.split(' ').map(n => n[0]).join('')}
+                              {user ? `${user.firstName} ${user.lastName}`.split(' ').map(n => n[0]).join('') : 'U'}
                             </AvatarFallback>
                           </Avatar>
                           <Button variant="outline" className="btn-forum">

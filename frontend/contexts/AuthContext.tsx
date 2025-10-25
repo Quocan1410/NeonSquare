@@ -38,21 +38,13 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
     const checkAuth = async () => {
       if (apiService.isAuthenticated()) {
         try {
-          // Try to get user info from token
-          const token = apiService.getToken();
-          if (token) {
-            // For now, we'll create a dummy user from token
-            // In a real app, you'd validate the token with the backend
-            console.log('Token found, setting user as authenticated');
-            setUser({
-              id: 'temp-user-id',
-              firstName: 'User',
-              lastName: 'Name',
-              email: 'user@example.com',
-              isOnline: true,
-              lastSeen: 'Online now'
-            });
-          }
+          // Get user info from backend
+          const userData = await apiService.getCurrentUser();
+          setUser({
+            ...userData,
+            isOnline: true,
+            lastSeen: 'Online now'
+          });
         } catch (error) {
           console.error('Auth check failed:', error);
           apiService.logout();
@@ -122,8 +114,12 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
   const refreshUser = async () => {
     if (apiService.isAuthenticated()) {
       try {
-        // In a real app, you'd call an endpoint to get current user
-        // For now, we'll just keep the current user
+        const userData = await apiService.getCurrentUser();
+        setUser({
+          ...userData,
+          isOnline: true,
+          lastSeen: 'Online now'
+        });
       } catch (error) {
         console.error('Failed to refresh user:', error);
         logout();

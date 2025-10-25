@@ -1,5 +1,6 @@
 package NeonSquare.backend.services;
 
+import NeonSquare.backend.dto.UserDTO;
 import NeonSquare.backend.models.Image;
 import NeonSquare.backend.models.User;
 import NeonSquare.backend.repositories.UserRepository;
@@ -53,5 +54,29 @@ public class UserService {
 
     public List<User> findUsersByName(String name){
         return  userRepository.searchByName(name);
+    }
+
+    @Transactional
+    public User updateUser(UUID userId, UserDTO userDTO) {
+        User user = getUser(userId);
+        
+        if (userDTO.getFirstName() != null) {
+            user.setFirstName(userDTO.getFirstName());
+        }
+        if (userDTO.getLastName() != null) {
+            user.setLastName(userDTO.getLastName());
+        }
+        if (userDTO.getEmail() != null) {
+            user.setEmail(userDTO.getEmail());
+        }
+        
+        return userRepository.save(user);
+    }
+
+    public User getCurrentUserFromToken(String token) {
+        // Simplified implementation - in a real app, you'd parse JWT token
+        // For now, return the first user as an example
+        return userRepository.findAll().stream().findFirst()
+                .orElseThrow(() -> new RuntimeException("No users found"));
     }
 }

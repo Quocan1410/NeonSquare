@@ -14,12 +14,14 @@ public class UserDTO {
     private String lastName;
     private String email;
     private String profilePicUrl;
+    private String status;
 
     public UserDTO(User user){
         id = user.getId();
         firstName = user.getFirstName();
         lastName = user.getLastName();
         email = user.getEmail();
+        status = user.getStatus() != null ? user.getStatus().toString() : null;
         if (user.getProfilePic() != null) {
             this.setProfilePicUrl("/api/images/" + user.getProfilePic().getId());
         }
@@ -63,5 +65,13 @@ public class UserDTO {
 
     public void setProfilePicUrl(String profilePicUrl) {
         this.profilePicUrl = profilePicUrl;
+    }
+
+    public String getStatus() {
+        return status;
+    }
+
+    public void setStatus(String status) {
+        this.status = status;
     }
 }
