@@ -1,5 +1,0 @@
-C:\Users\Nguyen Hoang Duy\Documents\GitHub\CSIT-SWITCH Hackathon 2025\NeonSquare\backend\.env.example
-C:\Users\Nguyen Hoang Duy\Documents\GitHub\CSIT-SWITCH Hackathon 2025\NeonSquare\backend\Dockerfile
-C:\Users\Nguyen Hoang Duy\Documents\GitHub\CSIT-SWITCH Hackathon 2025\NeonSquare\backend\env.example.yaml
-C:\Users\Nguyen Hoang Duy\Documents\GitHub\CSIT-SWITCH Hackathon 2025\NeonSquare\backend\env.yaml
-C:\Users\Nguyen Hoang Duy\Documents\GitHub\CSIT-SWITCH Hackathon 2025\NeonSquare\backend\pom.xml
