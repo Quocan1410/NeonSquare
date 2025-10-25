@@ -118,4 +118,40 @@ public class PostController {
         postService.updatePost(post);
         return  ResponseEntity.ok(reactionDTO);
     }
+
+    @PatchMapping("/{id}/reaction/update")
+    public ResponseEntity<ReactionDTO> updateReaction(@PathVariable UUID id, @RequestParam("reaction") String reaction) throws IOException {
+        ObjectMapper mapper = new ObjectMapper();
+        mapper.registerModule(new JavaTimeModule());
+        ReactionDTO reactionDTO = mapper.readValue(reaction, ReactionDTO.class);
+
+        Post post = postService.getPost(id);
+        User user = userService.getUser(reactionDTO.getUserId());
+
+        if (post == null || user == null) {
+            return ResponseEntity.badRequest().build();
+        }
+
+        Reaction oldReaction = reactionService.findReactionByUserAndPost(reactionDTO.getUserId(),id);
+
+        if (oldReaction == null) {
+            return ResponseEntity.badRequest().build();
+        }
+
+        oldReaction.setType(reactionDTO.getType());
+        oldReaction.setCreatedAt(reactionDTO.getCreatedAt());
+
+        reactionService.updateReaction(oldReaction);
+        return  ResponseEntity.ok(reactionDTO);
+    }
+
+    @PatchMapping("/{id}/{userId}/delete")
+    public ResponseEntity<Void> updateReaction(@PathVariable UUID id,@PathVariable UUID userId) throws IOException {
+        boolean deleted = reactionService.removeReactionFromPost(id,userId);
+        if (deleted) {
+            return ResponseEntity.noContent().build(); // 204 No Content
+        } else {
+            return ResponseEntity.notFound().build(); // 404 Not Found
+        }
+    }
 }

@@ -7,6 +7,7 @@ import java.time.LocalDateTime;
 import java.util.UUID;
 
 public class ReactionDTO {
+    private UUID id;
     private ReactionType type;
     private UUID userId;
     private LocalDateTime createdAt;
@@ -18,6 +19,7 @@ public class ReactionDTO {
     }
 
     public ReactionDTO(Reaction reaction){
+        this.id = reaction.getId();
         this.type = reaction.getType();
         this.userId = reaction.getUser().getId();
         this.createdAt = reaction.getCreatedAt();
@@ -45,5 +47,13 @@ public class ReactionDTO {
 
     public void setCreatedAt(LocalDateTime createdAt) {
         this.createdAt = createdAt;
+    }
+
+    public UUID getId() {
+        return id;
+    }
+
+    public void setId(UUID id) {
+        this.id = id;
     }
 }
