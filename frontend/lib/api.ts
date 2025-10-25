@@ -18,10 +18,10 @@ export interface Post {
     comments: Comment[];
     reactions: Reaction[];
     visibility: string;
-    updateAt: string;
-    imageUrls: string[];
-    commentCount: number;
-    reactionCount: number;
+    updateAt?: string;
+    imageUrls?: string[];
+    commentCount?: number;
+    reactionCount?: number;
 }
 
 export interface Comment {
@@ -76,9 +76,12 @@ class ApiService {
         options: RequestInit = {}
     ): Promise<T> {
         const url = `${this.baseURL}${endpoint}`;
+
+        // Don't set Content-Type for FormData, let browser set it with boundary
+        const isFormData = options.body instanceof FormData;
         const config: RequestInit = {
             headers: {
-                'Content-Type': 'application/json',
+                ...(isFormData ? {} : { 'Content-Type': 'application/json' }),
                 ...(this.token && { Authorization: `Bearer ${this.token}` }),
                 ...options.headers,
             },
@@ -169,6 +172,7 @@ class ApiService {
             body: formData,
         });
     }
+
 
     // Friendship endpoints
     async getFriends(userId: string): Promise<User[]> {
