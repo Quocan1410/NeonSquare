@@ -13,6 +13,7 @@ public class PostDTO {
     private UserDTO author;
     private PostVisibility visibility;
     private LocalDate updateAt;
+    private List<ReactionDTO> reactions;
     private List<String> imageUrls;
     private int commentCount;
     private int reactionCount;
@@ -26,6 +27,7 @@ public class PostDTO {
         imageUrls = post.getImages() != null ? post.getImages().stream().map(image -> "/api/images/" + image.getId()).toList() : List.of();
         commentCount = post.getComments() != null ? post.getComments().size() : 0;
         reactionCount = post.getReactions() != null ? post.getReactions().size() : 0;
+        reactions = post.getReactions() != null ? post.getReactions().stream().map(reaction -> new ReactionDTO(reaction)).toList() : List.of();
     }
 
     public UUID getId() {
@@ -90,5 +92,13 @@ public class PostDTO {
 
     public void setReactionCount(int reactionCount) {
         this.reactionCount = reactionCount;
+    }
+
+    public List<ReactionDTO> getReactions() {
+        return reactions;
+    }
+
+    public void setReactions(List<ReactionDTO> reactions) {
+        this.reactions = reactions;
     }
 }

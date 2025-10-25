@@ -39,4 +39,9 @@ public class PostService {
         }
         return false;
     }
+
+    @Transactional
+    public Post updatePost(Post post){
+        return postRepository.save(post);
+    }
 }
