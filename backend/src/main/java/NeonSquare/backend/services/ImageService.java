@@ -9,6 +9,8 @@ import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.multipart.MultipartFile;
 
 import java.io.IOException;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.UUID;
 
 @Service
@@ -51,5 +53,22 @@ public class ImageService {
         Image image = repository.findById(imageId)
                 .orElseThrow(() -> new RuntimeException("Image not found"));
         repository.delete(image);
+    }
+
+    @Transactional
+    public List<Image> saveImages(List<MultipartFile> files) throws IOException {
+        List<Image> savedImages = new ArrayList<>();
+
+        for (MultipartFile file : files) {
+            Image image = new Image();
+            image.setName(file.getOriginalFilename());
+            image.setData(file.getBytes());
+            String mimeType = tika.detect(file.getBytes());
+            image.setType(mimeType);
+
+            savedImages.add(repository.save(image));
+        }
+
+        return savedImages;
     }
 }
