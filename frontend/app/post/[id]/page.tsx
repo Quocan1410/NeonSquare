@@ -7,7 +7,6 @@ import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { Badge } from '@/components/ui/badge';
 import { 
   ArrowLeft, 
-  Heart, 
   MessageCircle, 
   Share, 
   Bookmark, 
@@ -278,10 +277,10 @@ export default function PostDetailPage({ params }: { params: { id: string } }) {
                     variant="ghost"
                     onClick={handleLike}
                     className={`flex items-center space-x-2 ${
-                      isLiked ? 'text-destructive' : 'text-forum-secondary hover:text-destructive'
+                      isLiked ? 'text-blue-600' : 'text-forum-secondary hover:text-blue-600'
                     }`}
                   >
-                    <Heart className={`w-5 h-5 ${isLiked ? 'fill-current' : ''}`} />
+                    <ThumbsUp className={`w-5 h-5 ${isLiked ? 'fill-current' : ''}`} />
                     <span>{likeCount}</span>
                   </Button>
                   
@@ -368,7 +367,7 @@ export default function PostDetailPage({ params }: { params: { id: string } }) {
                               variant="ghost"
                               size="sm"
                               className={`flex items-center space-x-1 ${
-                                comment.isLiked ? 'text-destructive' : 'text-forum-secondary hover:text-destructive'
+                                comment.isLiked ? 'text-blue-600' : 'text-forum-secondary hover:text-blue-600'
                               }`}
                             >
                               <ThumbsUp className="w-4 h-4" />
@@ -410,7 +409,7 @@ export default function PostDetailPage({ params }: { params: { id: string } }) {
                                         variant="ghost"
                                         size="sm"
                                         className={`flex items-center space-x-1 ${
-                                          reply.isLiked ? 'text-destructive' : 'text-forum-secondary hover:text-destructive'
+                                          reply.isLiked ? 'text-blue-600' : 'text-forum-secondary hover:text-blue-600'
                                         }`}
                                       >
                                         <ThumbsUp className="w-3 h-3" />

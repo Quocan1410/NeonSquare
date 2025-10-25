@@ -50,9 +50,12 @@ export interface Comment {
 
 export interface Reaction {
     id: string;
-    type: string;
+    type: ReactionType;
     user: User;
+    createdAt: string;
 }
+
+export type ReactionType = 'LIKE' | 'LOVE' | 'WOW' | 'SAD' | 'ANGRY';
 
 export interface AuthResponse {
     token: string;
@@ -199,6 +202,27 @@ class ApiService {
             method: 'POST',
             body: formData,
         });
+    }
+
+    // Reactions
+    async addReaction(postId: string, reactionType: ReactionType, userId: string): Promise<Reaction> {
+        const formData = new FormData();
+        formData.append('reaction', JSON.stringify({
+            type: reactionType,
+            userId: userId,
+            createdAt: new Date().toISOString()
+        }));
+
+        return this.request<Reaction>(`/posts/${postId}/reaction`, {
+            method: 'POST',
+            body: formData,
+        });
+    }
+
+    async removeReaction(postId: string, userId: string): Promise<void> {
+        // Note: Backend doesn't have remove reaction endpoint yet
+        // This would need to be implemented
+        throw new Error('Remove reaction not implemented yet');
     }
 
 
