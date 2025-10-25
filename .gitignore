@@ -40,12 +40,10 @@ pnpm-debug.log*
 **/.env*
 !**/.env.example
 !**/*.example
+/backend/.env
 # Cloud Run env file (private, not committed)
 **/env.yaml
 !**/env.example.yaml
-# Optional local env helpers
-.envrc
-/NeonSquare/backend/.env
 
 # ──────────────────────────────
 # TypeScript
@@ -115,8 +113,6 @@ serverless/
 .rts2_cache_*/
 .yarn-integrity
 *.tgz
-**/.eslintcache
-**/.stylelintcache
 
 # ──────────────────────────────
 # Keep Docker & build configs tracked
