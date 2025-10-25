@@ -1,7 +1,7 @@
 'use client';
 
 import React from 'react';
-import { Heart, ThumbsUp, Zap, Frown, Angry } from 'lucide-react';
+import { ThumbsUp } from 'lucide-react';
 import { ReactionType } from '@/lib/api';
 
 interface ReactionHoverPickerProps {
@@ -25,34 +25,6 @@ const reactions: Array<{
     color: 'text-blue-500',
     bgColor: 'bg-blue-50 hover:bg-blue-100',
     animation: 'animate-bounce'
-  },
-  {
-    type: 'LOVE',
-    icon: Heart,
-    color: 'text-red-500',
-    bgColor: 'bg-red-50 hover:bg-red-100',
-    animation: 'animate-pulse'
-  },
-  {
-    type: 'WOW',
-    icon: Zap,
-    color: 'text-purple-500',
-    bgColor: 'bg-purple-50 hover:bg-purple-100',
-    animation: 'animate-pulse'
-  },
-  {
-    type: 'SAD',
-    icon: Frown,
-    color: 'text-gray-500',
-    bgColor: 'bg-gray-50 hover:bg-gray-100',
-    animation: 'animate-bounce'
-  },
-  {
-    type: 'ANGRY',
-    icon: Angry,
-    color: 'text-orange-500',
-    bgColor: 'bg-orange-50 hover:bg-orange-100',
-    animation: 'animate-pulse'
   },
 ];
 

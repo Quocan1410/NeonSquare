@@ -2,6 +2,7 @@
 
 import { useState } from 'react';
 import { PostCard } from '@/components/posts/PostCard';
+import ReactionBar from '@/components/posts/ReactionBar';
 import { Post, ReactionType } from '@/lib/api';
 
 // Mock data for testing
@@ -33,7 +34,7 @@ const mockPost: Post = {
     },
     {
       id: 'reaction-2',
-      type: 'LOVE',
+      type: 'LIKE',
       user: {
         id: 'user-3',
         firstName: 'Bob',
@@ -46,7 +47,7 @@ const mockPost: Post = {
     },
     {
       id: 'reaction-4',
-      type: 'WOW',
+      type: 'LIKE',
       user: {
         id: 'user-5',
         firstName: 'Diana',
@@ -88,21 +89,28 @@ export default function TestReactionsPage() {
         <div className="space-y-6">
           <PostCard post={mockPost} />
           
+          {/* Standalone Reaction Bar Demo */}
+          <div className="bg-white rounded-lg shadow-md p-6">
+            <h2 className="text-xl font-semibold mb-4">Reaction Bar Demo</h2>
+            <ReactionBar
+              postId="demo-post"
+              userId="current-user"
+              currentReaction={null}
+              onReactionChange={(reaction) => console.log('Selected reaction:', reaction)}
+            />
+          </div>
+          
           <div className="bg-white rounded-lg shadow-md p-6">
             <h2 className="text-xl font-semibold mb-4">Hướng dẫn sử dụng:</h2>
             <ul className="space-y-2 text-gray-700">
-              <li>• <strong>Hover vào nút "Like"</strong> để hiện tất cả 6 loại reaction (Like, Love, Haha, Wow, Sad, Angry)</li>
-              <li>• Click vào bất kỳ reaction nào để chọn</li>
-              <li>• Click vào nút "Like" để like/unlike bài viết</li>
-              <li>• Click vào các icon reaction chồng lên nhau để mở reaction picker</li>
-              <li>• Click vào icon emoji bên cạnh nút Like để mở reaction picker</li>
-              <li>• Click vào nút "Comment" để mở modal bình luận</li>
-              <li>• Click vào nút "Share" để chia sẻ bài viết</li>
+              <li>• <strong>Click vào nút Like</strong> trong thanh reaction để like/unlike</li>
+              <li>• <strong>Click vào nút "Like"</strong> ở dưới để like/unlike bài viết</li>
+              <li>• <strong>Click vào nút "Comment"</strong> để mở modal bình luận</li>
             </ul>
             
             <div className="mt-4 p-3 bg-blue-50 rounded-lg">
               <p className="text-sm text-blue-800">
-                <strong>💡 Tip:</strong> Hover vào nút "Like" để xem tất cả 6 loại reaction có sẵn! Giống Facebook.
+                <strong>💡 Tip:</strong> Đơn giản chỉ có Like! Click để like, click lần 2 để unlike.
               </p>
             </div>
           </div>

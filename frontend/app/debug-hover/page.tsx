@@ -1,7 +1,7 @@
 'use client';
 
 import { useState } from 'react';
-import { ThumbsUp, Heart, Zap, Frown, Angry } from 'lucide-react';
+import { ThumbsUp } from 'lucide-react';
 import { ReactionType } from '@/lib/api';
 
 export default function DebugHoverPage() {
@@ -21,34 +21,6 @@ export default function DebugHoverPage() {
       label: 'Like',
       color: 'text-blue-500',
       bgColor: 'bg-blue-50 hover:bg-blue-100',
-    },
-    {
-      type: 'LOVE',
-      icon: Heart,
-      label: 'Love',
-      color: 'text-red-500',
-      bgColor: 'bg-red-50 hover:bg-red-100',
-    },
-    {
-      type: 'WOW',
-      icon: Zap,
-      label: 'Wow',
-      color: 'text-purple-500',
-      bgColor: 'bg-purple-50 hover:bg-purple-100',
-    },
-    {
-      type: 'SAD',
-      icon: Frown,
-      label: 'Sad',
-      color: 'text-gray-500',
-      bgColor: 'bg-gray-50 hover:bg-gray-100',
-    },
-    {
-      type: 'ANGRY',
-      icon: Angry,
-      label: 'Angry',
-      color: 'text-orange-500',
-      bgColor: 'bg-orange-50 hover:bg-orange-100',
     },
   ];
 

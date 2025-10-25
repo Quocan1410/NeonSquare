@@ -44,14 +44,19 @@ public class ReactionService {
     }
 
     @Transactional
-    public boolean removeReactionFromPost(UUID postId, UUID reactionId) {
+    public boolean removeReactionFromPost(UUID postId, UUID userId) {
         Post post = postRepository.findById(postId)
                 .orElseThrow(() -> new RuntimeException("Post not found"));
 
-        post.getReactions().removeIf(r -> r.getId().equals(reactionId));
-
-        postRepository.save(post);
-        return true;
+        // Find and remove the user's reaction
+        Reaction userReaction = findReactionByUserAndPost(userId, postId);
+        if (userReaction != null) {
+            post.getReactions().removeIf(r -> r.getId().equals(userReaction.getId()));
+            reactionRepository.delete(userReaction);
+            postRepository.save(post);
+            return true;
+        }
+        return false;
     }
 
 }

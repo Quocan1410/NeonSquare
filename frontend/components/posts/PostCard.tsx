@@ -9,11 +9,7 @@ import { Heart, MessageCircle, MoreHorizontal, Eye, ThumbsUp, Laugh, Zap, Frown,
 import Link from 'next/link';
 import { Post } from '@/lib/api';
 import { CommentModal } from './CommentModal';
-import ReactionButton from './ReactionButton';
-import ReactionDisplay from './ReactionDisplay';
-import ReactionCounter from './ReactionCounter';
-import ReactionPicker from './ReactionPicker';
-import ReactionHoverPicker from './ReactionHoverPicker';
+import ReactionBar from './ReactionBar';
 import { ReactionType } from '@/lib/api';
 
 interface PostCardProps {
@@ -51,8 +47,6 @@ export function PostCard({ post }: PostCardProps) {
   
   // Find current user's reaction
   const currentReaction = reactions.find(r => r.user.id === currentUserId)?.type || null;
-  const [isReactionPickerOpen, setIsReactionPickerOpen] = useState(false);
-  const [isHoveringLike, setIsHoveringLike] = useState(false);
 
   // Add null checks
   if (!post || !post.author) {
@@ -216,140 +210,35 @@ export function PostCard({ post }: PostCardProps) {
         </div>
       )}
 
-      {/* Reactions Summary */}
-      {reactions.length > 0 && (
-        <div className="px-6 py-3 border-t border-slate-200 dark:border-slate-700 bg-slate-50/30 dark:bg-slate-900/30">
-          <div className="flex items-center justify-between">
-            <div className="flex items-center space-x-2">
-              {/* Reaction Icons Stack - Clickable */}
-              <button
-                onClick={() => setIsReactionPickerOpen(true)}
-                className="flex items-center -space-x-1 hover:opacity-80 transition-opacity cursor-pointer"
-              >
-                {(() => {
-                  // Filter out current user from display
-                  const otherReactions = reactions.filter(r => r.user.id !== currentUserId);
-                  const displayReactions = otherReactions.slice(0, 3);
-                  
-                  return (
-                    <>
-                      {displayReactions.map((reaction, index) => {
-                        const Icon = reactionIcons[reaction.type];
-                        const color = reactionColors[reaction.type];
-                        
-                        return (
-                          <div
-                            key={reaction.id}
-                            className={`
-                              w-6 h-6 rounded-full border-2 border-white flex items-center justify-center
-                              ${color} bg-white shadow-sm
-                              ${index > 0 ? '-ml-1' : ''}
-                            `}
-                            style={{ zIndex: 3 - index }}
-                          >
-                            <Icon className="w-3 h-3" />
-                          </div>
-                        );
-                      })}
-                      {otherReactions.length > 3 && (
-                        <div className="w-6 h-6 rounded-full border-2 border-white bg-gray-100 text-gray-600 text-xs font-medium flex items-center justify-center -ml-1">
-                          +{otherReactions.length - 3}
-                        </div>
-                      )}
-                    </>
-                  );
-                })()}
-              </button>
-              
-              {/* Reaction Text */}
-              <div className="flex items-center space-x-1 text-sm text-gray-600 dark:text-gray-400">
-                {(() => {
-                  // Filter out current user from display
-                  const otherReactions = reactions.filter(r => r.user.id !== currentUserId);
-                  const currentUserReaction = reactions.find(r => r.user.id === currentUserId);
-                  
-                  if (otherReactions.length === 0 && currentUserReaction) {
-                    return <span className="font-medium">You reacted with {currentUserReaction.type}</span>;
-                  } else if (otherReactions.length > 0) {
-                    const firstOther = otherReactions[0];
-                    const othersCount = otherReactions.length - 1;
-                    return (
-                      <>
-                        <span className="font-medium">
-                          {firstOther.user.firstName} {firstOther.user.lastName}
-                        </span>
-                        {othersCount > 0 && (
-                          <>
-                            <span>and</span>
-                            <span className="font-medium">{othersCount} others</span>
-                          </>
-                        )}
-                        {currentUserReaction && (
-                          <span className="text-blue-600">(You reacted with {currentUserReaction.type})</span>
-                        )}
-                      </>
-                    );
-                  } else {
-                    return <span className="font-medium">No reactions yet</span>;
-                  }
-                })()}
-              </div>
-            </div>
-            
-            {/* Comment Count */}
-            <div className="text-sm text-gray-500 dark:text-gray-400">
-              {post.commentCount || 0} comments
-            </div>
-          </div>
-        </div>
-      )}
+      {/* Reaction Bar */}
+      <div className="px-6 py-3 border-t border-slate-200 dark:border-slate-700 bg-slate-50/30 dark:bg-slate-900/30">
+        <ReactionBar
+          postId={post.id}
+          userId={currentUserId}
+          currentReaction={currentReaction}
+          onReactionChange={handleReactionChange}
+        />
+      </div>
 
       {/* Action Buttons */}
-      <div className="px-6 py-3 border-t border-slate-200 dark:border-slate-700 bg-slate-50/50 dark:bg-slate-900/50 overflow-visible">
-        <div className="flex items-center justify-between overflow-visible">
+      <div className="px-6 py-3 border-t border-slate-200 dark:border-slate-700 bg-slate-50/50 dark:bg-slate-900/50">
+        <div className="flex items-center justify-between">
           <div className="flex items-center space-x-1">
-            {/* Like Button with Hover Picker */}
-            <div className="relative flex-1 overflow-visible">
-              <button
-                onClick={() => handleReactionChange(currentReaction === 'LIKE' ? null : 'LIKE')}
-                onMouseEnter={() => {
-                  console.log('Hovering Like button');
-                  setIsHoveringLike(true);
-                }}
-                onMouseLeave={() => {
-                  console.log('Leaving Like button');
-                  setIsHoveringLike(false);
-                }}
-                className={`
-                  w-full flex items-center space-x-2 px-4 py-2 rounded-lg transition-all duration-200 justify-center
-                  ${currentReaction === 'LIKE' 
-                    ? 'bg-blue-50 text-blue-600 border border-blue-200' 
-                    : 'text-gray-600 hover:bg-gray-100 dark:hover:bg-gray-700'
-                  }
-                `}
-              >
-                <ThumbsUp className={`w-5 h-5 ${currentReaction === 'LIKE' ? 'fill-current' : ''}`} />
-                <span className="font-medium">Like</span>
-              </button>
-              
-              {/* Hover Reaction Picker - Always show all 6 reactions */}
-              <ReactionHoverPicker
-                isVisible={isHoveringLike}
-                onSelect={handleReactionChange}
-                onMouseEnter={() => setIsHoveringLike(true)}
-                onMouseLeave={() => setIsHoveringLike(false)}
-              />
-            </div>
-            
-            {/* Reaction Picker Button */}
+            {/* Like Button */}
             <button
-              onClick={() => setIsReactionPickerOpen(true)}
-              className="flex items-center justify-center w-10 h-10 rounded-lg text-gray-600 hover:bg-gray-100 dark:hover:bg-gray-700 transition-all duration-200"
-              title="More reactions"
+              onClick={() => handleReactionChange(currentReaction === 'LIKE' ? null : 'LIKE')}
+              className={`
+                flex items-center space-x-2 px-4 py-2 rounded-lg transition-all duration-200 flex-1 justify-center
+                ${currentReaction === 'LIKE' 
+                  ? 'bg-blue-50 text-blue-600 border border-blue-200' 
+                  : 'text-gray-600 hover:bg-gray-100 dark:hover:bg-gray-700'
+                }
+              `}
             >
-              <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M14.828 14.828a4 4 0 01-5.656 0M9 10h.01M15 10h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
-              </svg>
+              <ThumbsUp className={`w-5 h-5 ${currentReaction === 'LIKE' ? 'fill-current' : ''}`} />
+              <span className="font-medium">
+                {currentReaction === 'LIKE' ? 'Liked' : 'Like'}
+              </span>
             </button>
             
             {/* Comment Button */}
@@ -379,13 +268,6 @@ export function PostCard({ post }: PostCardProps) {
         post={post}
       />
 
-      {/* Reaction Picker Modal */}
-      <ReactionPicker
-        isOpen={isReactionPickerOpen}
-        onClose={() => setIsReactionPickerOpen(false)}
-        onSelect={handleReactionChange}
-        currentReaction={currentReaction}
-      />
     </article>
   );
 }

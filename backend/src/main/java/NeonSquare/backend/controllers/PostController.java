@@ -110,7 +110,7 @@ public class PostController {
         }
         Reaction createReaction = new Reaction();
         createReaction.setCreatedAt(reactionDTO.getCreatedAt());
-        createReaction.setType(createReaction.getType());
+        createReaction.setType(reactionDTO.getType());
         createReaction.setUser(user);
 
         Reaction saveReaction = reactionService.createReaction(createReaction);
