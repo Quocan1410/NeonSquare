@@ -225,6 +225,10 @@ class ApiService {
         });
     }
 
+    async getPostReactions(postId: string): Promise<Reaction[]> {
+        return this.request<Reaction[]>(`/posts/${postId}/reactions`);
+    }
+
 
     // Friendship endpoints
     async getFriends(userId: string): Promise<User[]> {

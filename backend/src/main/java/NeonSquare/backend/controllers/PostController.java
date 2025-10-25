@@ -154,4 +154,18 @@ public class PostController {
             return ResponseEntity.notFound().build(); // 404 Not Found
         }
     }
+
+    @GetMapping("/{id}/reactions")
+    public ResponseEntity<List<ReactionDTO>> getPostReactions(@PathVariable UUID id) {
+        Post post = postService.getPost(id);
+        if (post == null) {
+            return ResponseEntity.notFound().build();
+        }
+        
+        List<ReactionDTO> reactionDTOs = post.getReactions().stream()
+            .map(ReactionDTO::new)
+            .collect(Collectors.toList());
+            
+        return ResponseEntity.ok(reactionDTOs);
+    }
 }
