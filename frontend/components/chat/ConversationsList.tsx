@@ -2,7 +2,6 @@
 
 import { Badge } from '@/components/ui/badge';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
-import { OnlineIndicator } from '@/components/ui/online-indicator';
 import { ArrowLeft } from 'lucide-react';
 
 interface ConversationsListProps {
@@ -23,9 +22,16 @@ export default function ConversationsList({
   setShowArchived
 }: ConversationsListProps) {
   const filtered = conversations.filter(conv => {
-    const matchesSearch = conv.user.fullName.toLowerCase().includes(searchQuery.toLowerCase()) ||
-                         conv.user.username.toLowerCase().includes(searchQuery.toLowerCase()) ||
-                         conv.lastMessage.toLowerCase().includes(searchQuery.toLowerCase());
+    const fullName = conv?.user?.fullName ?? '';
+    const username = conv?.user?.username ?? '';
+    const lastMessage = conv?.lastMessage ?? '';
+
+    const q = searchQuery.toLowerCase();
+    const matchesSearch =
+      fullName.toLowerCase().includes(q) ||
+      username.toLowerCase().includes(q) ||
+      lastMessage.toLowerCase().includes(q);
+
     const matchesArchive = showArchived ? conv.isArchived : !conv.isArchived;
     return matchesSearch && matchesArchive;
   });
@@ -33,34 +39,48 @@ export default function ConversationsList({
   const pinned = filtered.filter(conv => conv.isPinned);
   const regular = filtered.filter(conv => !conv.isPinned);
 
-  const renderConversation = (conv: any) => (
-    <div
-      key={conv.id}
-      onClick={() => setSelectedConversation(conv.id)}
-      className={`p-3 rounded-lg cursor-pointer transition-colors ${
-        selectedConversation === conv.id
-          ? 'bg-primary text-primary-foreground'
-          : 'hover:bg-muted/50'
-      }`}
-    >
-      <div className="flex items-center space-x-3">
-        <Avatar className="avatar-forum w-10 h-10">
-          <AvatarImage src={conv.user.profilePic} alt={conv.user.fullName} />
-          <AvatarFallback className="gradient-primary text-primary-foreground">
-            {conv.user.fullName.split(' ').map((n: string[]) => n[0]).join('')}
-          </AvatarFallback>
-        </Avatar>
-        <div className="flex-1 min-w-0">
-          <div className="flex items-center justify-between">
-            <h4 className="font-medium text-forum-primary truncate">{conv.user.fullName}</h4>
-            <span className="text-xs text-forum-secondary">{conv.time}</span>
+  const renderConversation = (conv: any) => {
+    const name = conv?.user?.fullName ?? 'Unknown User';
+    const avatar = conv?.user?.profilePic ?? '';
+    const initials =
+      name
+        .split(' ')
+        .map((n: string) => n[0])
+        .join('') || 'U';
+
+    return (
+      <div
+        key={conv.id}
+        onClick={() => setSelectedConversation(conv.id)}
+        className={`p-3 rounded-lg cursor-pointer transition-colors ${
+          selectedConversation === conv.id
+            ? 'bg-primary text-primary-foreground'
+            : 'hover:bg-muted/50'
+        }`}
+      >
+        <div className="flex items-center space-x-3">
+          <Avatar className="avatar-forum w-10 h-10">
+            <AvatarImage src={avatar} alt={name} />
+            <AvatarFallback className="gradient-primary text-primary-foreground">
+              {initials}
+            </AvatarFallback>
+          </Avatar>
+          <div className="flex-1 min-w-0">
+            <div className="flex items-center justify-between">
+              <h4 className="font-medium text-forum-primary truncate">{name}</h4>
+              <span className="text-xs text-forum-secondary">{conv?.time ?? ''}</span>
+            </div>
+            <p className="text-sm text-forum-secondary truncate">{conv?.lastMessage ?? ''}</p>
           </div>
-          <p className="text-sm text-forum-secondary truncate">{conv.lastMessage}</p>
+          {(conv?.unreadCount ?? 0) > 0 && (
+            <Badge className="bg-primary text-primary-foreground text-xs">
+              {conv.unreadCount}
+            </Badge>
+          )}
         </div>
-        {conv.unreadCount > 0 && <Badge className="bg-primary text-primary-foreground text-xs">{conv.unreadCount}</Badge>}
       </div>
-    </div>
-  );
+    );
+  };
 
   return (
     <div className="w-1/3 border-r border-border flex flex-col">
@@ -68,7 +88,6 @@ export default function ConversationsList({
         <div className="p-4 border-b border-border flex items-center justify-between">
           <h2 className="text-xl font-semibold text-forum-primary">Messages</h2>
 
-          {/* Show back button only when viewing archived */}
           {showArchived && (
             <button
               onClick={() => setShowArchived(false)}
@@ -83,7 +102,9 @@ export default function ConversationsList({
         <div className="flex-1 overflow-y-auto">
           {pinned.length > 0 && (
             <div className="p-2">
-              <h3 className="text-xs font-medium text-forum-secondary uppercase tracking-wide mb-2 px-2">Pinned</h3>
+              <h3 className="text-xs font-medium text-forum-secondary uppercase tracking-wide mb-2 px-2">
+                Pinned
+              </h3>
               <div className="space-y-1">{pinned.map(renderConversation)}</div>
             </div>
           )}

@@ -1,12 +1,5 @@
 import { io, Socket } from 'socket.io-client';
-
-export type Message = {
-  id?: string;
-  conversationId: string;
-  senderId: string;
-  content: string;
-  createdAt: string;
-};
+import { Message } from '@/types';
 
 interface ServerToClientEvents {
   receiveMessage: (message: Message) => void;
