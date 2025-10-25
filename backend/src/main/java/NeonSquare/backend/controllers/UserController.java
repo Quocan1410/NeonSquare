@@ -1,5 +1,6 @@
 package NeonSquare.backend.controllers;
 
+import NeonSquare.backend.dto.UserDTO;
 import NeonSquare.backend.models.User;
 import NeonSquare.backend.services.UserService;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -9,7 +10,9 @@ import org.springframework.web.multipart.MultipartFile;
 import tools.jackson.databind.ObjectMapper;
 
 import java.io.IOException;
+import java.util.List;
 import java.util.UUID;
+import java.util.stream.Collectors;
 
 @RestController
 @RequestMapping("/api/users")
@@ -23,23 +26,34 @@ public class UserController {
     }
 
     @PostMapping
-    public ResponseEntity<User> createUser( @RequestParam("user") String user,
-                                           @RequestPart(value = "profilePic", required = false) MultipartFile profilePic) throws IOException {
+    public ResponseEntity<UserDTO> createUser(@RequestParam("user") String user,
+                                              @RequestPart(value = "profilePic", required = false) MultipartFile profilePic) throws IOException {
         ObjectMapper mapper = new ObjectMapper();
         User createUser = mapper.readValue(user, User.class);
         User savedUser = userService.createUser(createUser, profilePic);
-        return ResponseEntity.ok(savedUser);
+        return ResponseEntity.ok(new UserDTO(savedUser));
     }
 
     @GetMapping("/{id}")
-    public ResponseEntity<User> getUser(@PathVariable UUID id) {
-        return ResponseEntity.ok(userService.getUser(id));
+    public ResponseEntity<UserDTO> getUser(@PathVariable UUID id) {
+        User user = userService.getUser(id);
+        return ResponseEntity.ok(new UserDTO(user));
     }
 
     @PostMapping("/{id}/profile-pic")
-    public ResponseEntity<User> uploadProfilePic(@PathVariable UUID id,
-                                                 @RequestParam("file") MultipartFile file) throws IOException {
+    public ResponseEntity<UserDTO> uploadProfilePic(
+            @PathVariable UUID id,
+            @RequestParam("file") MultipartFile file
+    ) throws IOException {
+
         User updatedUser = userService.updateProfilePic(id, file);
-        return ResponseEntity.ok(updatedUser);
+        return ResponseEntity.ok(new UserDTO(updatedUser));
+    }
+
+    @GetMapping("/search")
+    public ResponseEntity<List<UserDTO>> searchUsersByName(@RequestParam("name") String name) {
+        List<User> users = userService.findUsersByName(name);
+        List<UserDTO> dtos = users.stream().map(UserDTO::new).collect(Collectors.toList());
+        return ResponseEntity.ok(dtos);
     }
 }
