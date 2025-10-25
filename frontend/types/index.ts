@@ -122,7 +122,7 @@ export interface Message {
 export type PostVisibility = 'public' | 'friends' | 'private';
 export type GroupVisibility = 'public' | 'private';
 export type NotificationType = 'friendRequest' | 'postUpdate' | 'groupCreation' | 'memberRequest';
-export type ReactionType = 'like';
+export type ReactionType = 'LIKE';
 
 export interface ApiResponse<T = any> {
     success: boolean;

@@ -6,61 +6,23 @@ import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { Button } from '@/components/ui/button';
 import { OnlineIndicator } from '@/components/ui/online-indicator';
 import { ImageGallery } from '@/components/ui/image-gallery';
-import { Heart, MessageCircle, MoreHorizontal, Eye, ThumbsUp, Laugh, Zap, Frown, Angry } from 'lucide-react';
+import { MoreHorizontal, Eye } from 'lucide-react';
 import Link from 'next/link';
-import { Post, apiService } from '@/lib/api';
+import { Post } from '@/lib/api';
 import { CommentModal } from './CommentModal';
-import { ReactionType } from '@/lib/api';
+import ReactionSystem from './ReactionSystem';
 
 interface PostCardProps {
   post: Post;
 }
-
-// Reaction icons and colors mapping
-const reactionIcons = {
-  LIKE: ThumbsUp,
-  LOVE: Heart,
-  WOW: Zap,
-  SAD: Frown,
-  ANGRY: Angry,
-};
-
-const reactionColors = {
-  LIKE: 'text-blue-500',
-  LOVE: 'text-red-500',
-  WOW: 'text-purple-500',
-  SAD: 'text-gray-500',
-  ANGRY: 'text-orange-500',
-};
 
 export function PostCard({ post }: PostCardProps) {
   const [isGalleryOpen, setIsGalleryOpen] = useState(false);
   const [galleryIndex, setGalleryIndex] = useState(0);
   const [isHovered, setIsHovered] = useState(false);
   const [isCommentModalOpen, setIsCommentModalOpen] = useState(false);
-  const [reactions, setReactions] = useState(post.reactions || []);
-  
   // Mock current user ID - in real app, get from auth context
   const currentUserId = 'current-user-id';
-  
-  // Find current user's reaction
-  const currentReaction = reactions.find(r => r.user.id === currentUserId)?.type || null;
-  
-  // Load reactions from backend when component mounts
-  useEffect(() => {
-    const loadReactions = async () => {
-      try {
-        const postReactions = await apiService.getPostReactions(post.id);
-        setReactions(postReactions);
-      } catch (error) {
-        console.error('Error loading reactions:', error);
-        // Fallback to post.reactions if API fails
-        setReactions(post.reactions || []);
-      }
-    };
-    
-    loadReactions();
-  }, [post.id, post.reactions]);
 
   // Add null checks
   if (!post || !post.author) {
@@ -82,60 +44,6 @@ export function PostCard({ post }: PostCardProps) {
   }
 
 
-  const handleReactionChange = async (reaction: ReactionType | null) => {
-    try {
-      if (reaction) {
-        // Check if user already has this reaction
-        const existingReaction = reactions.find(r => r.user.id === currentUserId && r.type === reaction);
-        
-        if (existingReaction) {
-          // If same reaction, remove it (unclick)
-          await apiService.removeReaction(post.id, currentUserId);
-          setReactions(prev => prev.filter(r => r.id !== existingReaction.id));
-        } else {
-          // Remove any existing reaction from current user first
-          const filteredReactions = reactions.filter(r => r.user.id !== currentUserId);
-          
-          // Add new reaction via API
-          const newReaction = await apiService.addReaction(post.id, reaction, currentUserId);
-          
-          // Add new reaction to local state
-          setReactions([...filteredReactions, newReaction]);
-        }
-      } else {
-        // Remove current user's reaction
-        await apiService.removeReaction(post.id, currentUserId);
-        setReactions(prev => prev.filter(r => r.user.id !== currentUserId));
-      }
-    } catch (error) {
-      console.error('Error handling reaction:', error);
-      // Fallback to local state update
-      if (reaction) {
-        const existingReaction = reactions.find(r => r.user.id === currentUserId && r.type === reaction);
-        if (existingReaction) {
-          setReactions(prev => prev.filter(r => r.id !== existingReaction.id));
-        } else {
-          const filteredReactions = reactions.filter(r => r.user.id !== currentUserId);
-          const newReaction = {
-            id: Date.now().toString(),
-            type: reaction,
-            user: {
-              id: currentUserId,
-              firstName: 'You',
-              lastName: '',
-              email: 'you@example.com',
-              isOnline: true,
-              lastSeen: 'Online now'
-            },
-            createdAt: new Date().toISOString()
-          };
-          setReactions([...filteredReactions, newReaction]);
-        }
-      } else {
-        setReactions(prev => prev.filter(r => r.user.id !== currentUserId));
-      }
-    }
-  };
 
   const handleImageClick = (index: number) => {
     setGalleryIndex(index);
@@ -239,75 +147,13 @@ export function PostCard({ post }: PostCardProps) {
         </div>
       )}
 
-      {/* Likes Count */}
-      {reactions.length > 0 && (
-        <div className="px-6 py-2 border-t border-slate-200 dark:border-slate-700 bg-slate-50/30 dark:bg-slate-900/30">
-          <div className="flex items-center space-x-2">
-            <div className="flex items-center -space-x-1">
-              {reactions.slice(0, 3).map((reaction, index) => {
-                const Icon = reactionIcons[reaction.type];
-                const color = reactionColors[reaction.type];
-                
-                return (
-                  <div
-                    key={reaction.id}
-                    className={`
-                      w-6 h-6 rounded-full border-2 border-white flex items-center justify-center
-                      ${color} bg-white shadow-sm
-                      ${index > 0 ? '-ml-1' : ''}
-                    `}
-                    style={{ zIndex: 3 - index }}
-                  >
-                    <Icon className="w-3 h-3" />
-                  </div>
-                );
-              })}
-              {reactions.length > 3 && (
-                <div className="w-6 h-6 rounded-full border-2 border-white bg-gray-100 text-gray-600 text-xs font-medium flex items-center justify-center -ml-1">
-                  +{reactions.length - 3}
-                </div>
-              )}
-            </div>
-            
-            <div className="text-sm text-gray-600 dark:text-gray-400">
-              {reactions.length} {reactions.length === 1 ? 'like' : 'likes'}
-            </div>
-          </div>
-        </div>
-      )}
-
-      {/* Action Buttons */}
-      <div className="px-6 py-3 border-t border-slate-200 dark:border-slate-700 bg-slate-50/50 dark:bg-slate-900/50">
-        <div className="flex items-center justify-between">
-          <div className="flex items-center space-x-1">
-            {/* Like Button */}
-            <button
-              onClick={() => handleReactionChange(currentReaction === 'LIKE' ? null : 'LIKE')}
-              className={`
-                flex items-center space-x-2 px-4 py-2 rounded-lg transition-all duration-200 flex-1 justify-center
-                ${currentReaction === 'LIKE' 
-                  ? 'bg-blue-50 text-blue-600 border border-blue-200' 
-                  : 'text-gray-600 hover:bg-gray-100 dark:hover:bg-gray-700'
-                }
-              `}
-            >
-              <ThumbsUp className={`w-5 h-5 ${currentReaction === 'LIKE' ? 'fill-current' : ''}`} />
-              <span className="font-medium">
-                {currentReaction === 'LIKE' ? 'Liked' : 'Like'}
-              </span>
-            </button>
-            
-            {/* Comment Button */}
-            <button
-              onClick={handleCommentClick}
-              className="flex items-center space-x-2 px-4 py-2 rounded-lg text-gray-600 hover:bg-gray-100 dark:hover:bg-gray-700 transition-all duration-200 flex-1 justify-center"
-            >
-              <MessageCircle className="w-5 h-5" />
-              <span className="font-medium">Comment</span>
-            </button>
-          </div>
-        </div>
-      </div>
+      {/* Reaction System */}
+      <ReactionSystem
+        postId={post.id}
+        userId={currentUserId}
+        initialReactions={post.reactions || []}
+        className="border-t border-slate-200 dark:border-slate-700"
+      />
 
       {/* Image Gallery Modal */}
       <ImageGallery

@@ -10,6 +10,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.util.List;
 import java.util.UUID;
 
 @Service
@@ -34,6 +35,8 @@ public class ReactionService {
     public Reaction updateReaction(Reaction reaction){return reactionRepository.save(reaction);}
 
     public Reaction findReactionByUserAndPost(UUID userId, UUID postId) {return reactionRepository.findReactionByUserAndPost(userId,postId);}
+    
+    public List<Reaction> findByPostId(UUID postId) {return reactionRepository.findByPostId(postId);}
 
     @Transactional
     public boolean removeReaction(UUID postId) {

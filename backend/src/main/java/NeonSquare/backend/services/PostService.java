@@ -23,8 +23,7 @@ public class PostService {
     }
 
     public Post getPost(UUID id) {
-        return postRepository.findById(id)
-                .orElseThrow(() -> new RuntimeException("Post not found"));
+        return postRepository.findById(id).orElse(null);
     }
 
     @Transactional

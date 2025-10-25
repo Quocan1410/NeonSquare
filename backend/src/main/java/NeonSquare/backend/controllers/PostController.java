@@ -18,6 +18,7 @@ import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
+import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 
@@ -134,6 +135,32 @@ public class PostController {
             }
         } catch (Exception ignored) {}
 
-        return ResponseEntity.ok(reactionDTO);
+        return ResponseEntity.ok(new ReactionDTO(saveReaction));
+    }
+
+    @PatchMapping("/{id}/{userId}/delete")
+    public ResponseEntity<Void> deleteReaction(@PathVariable UUID id, @PathVariable UUID userId) {
+        boolean deleted = reactionService.removeReactionFromPost(id, userId);
+        if (deleted) {
+            return ResponseEntity.noContent().build(); // 204 No Content
+        } else {
+            return ResponseEntity.notFound().build(); // 404 Not Found
+        }
+    }
+
+    @GetMapping("/{id}/reactions")
+    @Transactional(readOnly = true)
+    public ResponseEntity<List<ReactionDTO>> getPostReactions(@PathVariable UUID id) {
+        Post post = postService.getPost(id);
+        if (post == null) {
+            return ResponseEntity.notFound().build();
+        }
+        
+        List<Reaction> reactions = reactionService.findByPostId(id);
+        List<ReactionDTO> reactionDTOs = reactions.stream()
+            .map(ReactionDTO::new)
+            .collect(Collectors.toList());
+            
+        return ResponseEntity.ok(reactionDTOs);
     }
 }

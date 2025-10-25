@@ -6,6 +6,7 @@ import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.stereotype.Repository;
 
+import java.util.List;
 import java.util.UUID;
 
 @Repository
@@ -16,4 +17,11 @@ public interface ReactionRepository extends JpaRepository<Reaction, UUID> {
     WHERE rp.post_id = :postId AND r.user_id = :userId
     """, nativeQuery = true)
     Reaction findReactionByUserAndPost(UUID userId, UUID postId);
+    
+    @Query(value = """
+    SELECT r.* FROM reaction r
+    JOIN reaction_post rp ON r.id = rp.reaction_id
+    WHERE rp.post_id = :postId
+    """, nativeQuery = true)
+    List<Reaction> findByPostId(UUID postId);
 }

@@ -11,6 +11,10 @@ public class ReactionDTO {
     private ReactionType type;
     private UUID userId;
     private LocalDateTime createdAt;
+    private UserDTO user;
+
+    public ReactionDTO() {
+    }
 
     public ReactionDTO(ReactionType type, UUID userId, LocalDateTime createdAt) {
         this.type = type;
@@ -23,6 +27,7 @@ public class ReactionDTO {
         this.type = reaction.getType();
         this.userId = reaction.getUser().getId();
         this.createdAt = reaction.getCreatedAt();
+        this.user = new UserDTO(reaction.getUser());
     }
 
     public ReactionType getType() {
@@ -55,5 +60,13 @@ public class ReactionDTO {
 
     public void setId(UUID id) {
         this.id = id;
+    }
+
+    public UserDTO getUser() {
+        return user;
+    }
+
+    public void setUser(UserDTO user) {
+        this.user = user;
     }
 }
