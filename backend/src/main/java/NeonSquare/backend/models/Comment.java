@@ -1,6 +1,7 @@
 package NeonSquare.backend.models;
 
 import NeonSquare.backend.models.enums.Status;
+import com.fasterxml.jackson.annotation.JsonFormat;
 import jakarta.persistence.*;
 import lombok.*;
 import org.hibernate.annotations.UuidGenerator;
@@ -31,6 +32,11 @@ public class Comment {
     @JoinColumn(name = "author_id")
     private User author;
 
+    @ManyToOne
+    @JoinColumn(name = "comment_id")
+    private Comment comment;
+
+
     @OneToMany
     @JoinTable(
             name = "reaction_comment",
@@ -39,11 +45,10 @@ public class Comment {
     )
     private List<Reaction> reactions;
 
+    @JsonFormat(pattern = "yyyy-MM-dd'T'HH:mm:ss")
     @Column(name = "created_at")
     private LocalDateTime createdAt;
 
-    @Enumerated(EnumType.ORDINAL)
-    private Status status;
 
     public UUID getId() {
         return id;
@@ -93,11 +98,11 @@ public class Comment {
         this.createdAt = createdAt;
     }
 
-    public Status getStatus() {
-        return status;
+    public Comment getComment() {
+        return comment;
     }
 
-    public void setStatus(Status status) {
-        this.status = status;
+    public void setComment(Comment comment) {
+        this.comment = comment;
     }
 }
