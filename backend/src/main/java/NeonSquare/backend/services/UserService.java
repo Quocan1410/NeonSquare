@@ -1,3 +1,4 @@
+// backend/src/main/java/NeonSquare/backend/services/UserService.java
 package NeonSquare.backend.services;
 
 import NeonSquare.backend.dto.UserDTO;
@@ -34,6 +35,12 @@ public class UserService {
         return userRepository.save(user);
     }
 
+    @Transactional(readOnly = true)
+    public List<User> getAllUsers() {
+        return userRepository.findAll();
+    }
+
+    @Transactional(readOnly = true)
     public User getUser(UUID id) {
         return userRepository.findById(id).orElse(null);
     }
@@ -41,6 +48,9 @@ public class UserService {
     @Transactional
     public User updateProfilePic(UUID userId, MultipartFile file) throws IOException {
         User user = getUser(userId);
+        if (file == null || file.isEmpty()) {
+            return user; // or throw new IllegalArgumentException("Empty file");
+        }
         if (user.getProfilePic() != null) {
             Image updatedImage = imageService.updateImage(file, user.getProfilePic().getId());
             user.setProfilePic(updatedImage);
@@ -51,8 +61,15 @@ public class UserService {
         return userRepository.save(user);
     }
 
+    @Transactional(readOnly = true)
     public List<User> findUsersByName(String name){
-        return  userRepository.searchByName(name);
+        return userRepository.searchByName(name);
+    }
+
+    // Optional alias to keep older controllers happy (if any call searchUsers)
+    @Transactional(readOnly = true)
+    public List<User> searchUsers(String name) {
+        return findUsersByName(name);
     }
 
     @Transactional
