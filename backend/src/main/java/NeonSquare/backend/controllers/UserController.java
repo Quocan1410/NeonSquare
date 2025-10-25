@@ -1,3 +1,4 @@
+// backend/src/main/java/NeonSquare/backend/controllers/UserController.java
 package NeonSquare.backend.controllers;
 
 import NeonSquare.backend.dto.UserDTO;
@@ -5,6 +6,7 @@ import NeonSquare.backend.models.User;
 import NeonSquare.backend.services.UserService;
 import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
@@ -26,9 +28,19 @@ public class UserController {
         this.userService = userService;
     }
 
-    @PostMapping
-    public ResponseEntity<UserDTO> createUser(@RequestParam("user") String user,
-                                              @RequestPart(value = "profilePic", required = false) MultipartFile profilePic) throws IOException {
+    // NEW: List all users
+    @GetMapping(produces = MediaType.APPLICATION_JSON_VALUE)
+    public ResponseEntity<List<UserDTO>> getAllUsers() {
+        List<User> users = userService.getAllUsers();
+        List<UserDTO> dtos = users.stream().map(UserDTO::new).collect(Collectors.toList());
+        return ResponseEntity.ok(dtos);
+    }
+
+    // Create user (multipart: JSON string + optional file)
+    @PostMapping(consumes = MediaType.MULTIPART_FORM_DATA_VALUE, produces = MediaType.APPLICATION_JSON_VALUE)
+    public ResponseEntity<UserDTO> createUser(
+            @RequestParam("user") String user,
+            @RequestPart(value = "profilePic", required = false) MultipartFile profilePic) throws IOException {
         ObjectMapper mapper = new ObjectMapper();
         mapper.registerModule(new JavaTimeModule());
         User createUser = mapper.readValue(user, User.class);
@@ -36,25 +48,35 @@ public class UserController {
         return ResponseEntity.ok(new UserDTO(savedUser));
     }
 
-    @GetMapping("/{id}")
+    // Get one by id
+    @GetMapping(path = "/{id}", produces = MediaType.APPLICATION_JSON_VALUE)
     public ResponseEntity<UserDTO> getUser(@PathVariable UUID id) {
         User user = userService.getUser(id);
+        if (user == null) {
+            return ResponseEntity.notFound().build();
+        }
         return ResponseEntity.ok(new UserDTO(user));
     }
 
-    @PostMapping("/{id}/profile-pic")
+    // Upload/replace profile picture
+    @PostMapping(path = "/{id}/profile-pic", consumes = MediaType.MULTIPART_FORM_DATA_VALUE, produces = MediaType.APPLICATION_JSON_VALUE)
     public ResponseEntity<UserDTO> uploadProfilePic(
             @PathVariable UUID id,
-            @RequestParam("file") MultipartFile file
-    ) throws IOException {
-
+            @RequestParam("file") MultipartFile file) throws IOException {
         User updatedUser = userService.updateProfilePic(id, file);
         return ResponseEntity.ok(new UserDTO(updatedUser));
     }
 
-    @GetMapping("/search")
-    public ResponseEntity<List<UserDTO>> searchUsersByName(@RequestParam("name") String name) {
-        List<User> users = userService.findUsersByName(name);
+    // Search by name; accepts q OR query OR name to be frontend-friendly
+    @GetMapping(path = "/search", produces = MediaType.APPLICATION_JSON_VALUE)
+    public ResponseEntity<List<UserDTO>> searchUsers(
+            @RequestParam(name = "q", required = false) String q,
+            @RequestParam(name = "query", required = false) String query,
+            @RequestParam(name = "name", required = false) String name) {
+        String term = firstNonBlank(q, query, name);
+        List<User> users = (term == null || term.isBlank())
+                ? List.of()
+                : userService.findUsersByName(term);
         List<UserDTO> dtos = users.stream().map(UserDTO::new).collect(Collectors.toList());
         return ResponseEntity.ok(dtos);
     }
@@ -72,4 +94,13 @@ public class UserController {
         User user = userService.getCurrentUserFromToken(token);
         return ResponseEntity.ok(new UserDTO(user));
     }
+
+    private static String firstNonBlank(String... values) {
+        for (String v : values) {
+            if (v != null && !v.isBlank())
+                return v;
+        }
+        return null;
+    }
+
 }

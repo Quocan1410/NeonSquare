@@ -1,4 +1,17 @@
-const API_BASE_URL = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:8080/api';
+// frontend/lib/api.ts
+
+// Normalize the configured base and ensure "/api" appears exactly once
+const raw = (process.env.NEXT_PUBLIC_API_URL || process.env.NEXT_PUBLIC_API_BASE || '').trim();
+function normalizeBase(u: string) {
+    if (!u) return 'http://localhost:8080/api';
+    // strip trailing slashes
+    let v = u.replace(/\/+$/, '');
+    // add /api if not present
+    if (!/\/api$/i.test(v)) v = v + '/api';
+    return v;
+}
+
+const API_BASE_URL = normalizeBase(raw);
 
 export interface User {
     id: string;
@@ -18,17 +31,21 @@ export interface Post {
     comments: Comment[];
     reactions: Reaction[];
     visibility: string;
-    updateAt: string;
-    imageUrls: string[];
-    commentCount: number;
-    reactionCount: number;
+    updateAt?: string;
+    imageUrls?: string[];
+    commentCount?: number;
+    reactionCount?: number;
 }
 
 export interface Comment {
     id: string;
-    text: string;
-    author: User;
+    content: string;
+    userId: string;
+    postId: string;
     createdAt: string;
+    author?: User; // Will be populated when needed
+    replies?: Comment[]; // Nested replies
+    parentCommentId?: string; // Reference to parent comment
 }
 
 export interface Reaction {
@@ -65,7 +82,6 @@ class ApiService {
 
     constructor() {
         this.baseURL = API_BASE_URL;
-        // Get token from localStorage if available
         if (typeof window !== 'undefined') {
             this.token = localStorage.getItem('auth_token');
         }
@@ -76,9 +92,12 @@ class ApiService {
         options: RequestInit = {}
     ): Promise<T> {
         const url = `${this.baseURL}${endpoint}`;
+
+        // Don't set Content-Type for FormData, let browser set it with boundary
+        const isFormData = options.body instanceof FormData;
         const config: RequestInit = {
             headers: {
-                'Content-Type': 'application/json',
+                ...(isFormData ? {} : { 'Content-Type': 'application/json' }),
                 ...(this.token && { Authorization: `Bearer ${this.token}` }),
                 ...options.headers,
             },
@@ -87,30 +106,26 @@ class ApiService {
 
         try {
             const response = await fetch(url, config);
-
             if (!response.ok) {
                 const errorData = await response.json().catch(() => ({}));
                 throw new Error(errorData.message || `HTTP error! status: ${response.status}`);
             }
-
-            return await response.json();
+            // Some endpoints return empty body; guard that
+            const text = await response.text();
+            return (text ? JSON.parse(text) : {}) as T;
         } catch (error) {
             console.error('API request failed:', error);
             throw error;
         }
     }
 
-    // Auth endpoints
+    // Auth
     async login(credentials: LoginRequest): Promise<AuthResponse> {
         const response = await this.request<AuthResponse>('/auth/login', {
             method: 'POST',
             body: JSON.stringify(credentials),
         });
-
-        if (response.success && response.token) {
-            this.setToken(response.token);
-        }
-
+        if (response.success && response.token) this.setToken(response.token);
         return response;
     }
 
@@ -119,11 +134,7 @@ class ApiService {
             method: 'POST',
             body: JSON.stringify(userData),
         });
-
-        if (response.success && response.token) {
-            this.setToken(response.token);
-        }
-
+        if (response.success && response.token) this.setToken(response.token);
         return response;
     }
 
@@ -143,6 +154,27 @@ class ApiService {
         return this.request<User>('/users/me');
     }
 
+    async getUser(userId: string): Promise<User> {
+        try {
+            return await this.request<User>(`/users/${userId}`);
+        } catch (error: any) {
+            if (error.message.includes('404')) {
+                // Return fallback user data when user not found
+                return {
+                    id: userId,
+                    firstName: 'Unknown',
+                    lastName: 'User',
+                    email: 'unknown@example.com',
+                    profilePicUrl: undefined,
+                    status: 'OFFLINE' as any,
+                    isOnline: false,
+                    lastSeen: new Date().toISOString()
+                };
+            }
+            throw error;
+        }
+    }
+
     async updateUser(userId: string, userData: Partial<User>): Promise<User> {
         return this.request<User>(`/users/${userId}`, {
             method: 'PUT',
@@ -150,11 +182,10 @@ class ApiService {
         });
     }
 
-    // Post endpoints
+    // Posts
     async getPosts(): Promise<Post[]> {
         return this.request<Post[]>('/posts');
     }
-
 
     async createPost(text: string, userId: string, visibility: string = 'PUBLIC'): Promise<Post> {
         const formData = new FormData();
@@ -170,13 +201,14 @@ class ApiService {
         });
     }
 
+
     // Friendship endpoints
     async getFriends(userId: string): Promise<User[]> {
         const friendships = await this.request<any[]>(`/friendships/${userId}/accepted`);
         return friendships.map(f => f.receiver || f.sender).filter(u => u.id !== userId);
     }
 
-    async getFriendRequests(userId: string): Promise<any[]> {
+    async getFriendRequests(_userId: string): Promise<any[]> {
         return this.request<any[]>(`/friendships`);
     }
 
@@ -186,7 +218,7 @@ class ApiService {
             body: JSON.stringify({
                 sender: { id: senderId },
                 receiver: { id: receiverId },
-                status: 'PENDING'
+                status: 'PENDING',
             }),
         });
     }
@@ -205,7 +237,7 @@ class ApiService {
         });
     }
 
-    // Group endpoints
+    // Groups
     async getGroups(): Promise<any[]> {
         return this.request<any[]>('/groups');
     }
@@ -222,12 +254,49 @@ class ApiService {
         });
     }
 
+    // Comment endpoints
+    async getComments(postId: string): Promise<Comment[]> {
+        return this.request<Comment[]>(`/comment/post/${postId}/comments`);
+    }
+
+    async createComment(postId: string, content: string, userId: string): Promise<Comment> {
+        const formData = new FormData();
+        formData.append('comment', JSON.stringify({
+            content,
+            userId,
+            createdAt: new Date().toISOString()
+        }));
+
+        return this.request<Comment>(`/comment/${postId}/post`, {
+            method: 'POST',
+            body: formData,
+        });
+    }
+
+    async createReply(commentId: string, content: string, userId: string): Promise<Comment> {
+        const formData = new FormData();
+        formData.append('comment', JSON.stringify({
+            content,
+            userId,
+            createdAt: new Date().toISOString()
+        }));
+
+        return this.request<Comment>(`/comment/${commentId}/comment`, {
+            method: 'POST',
+            body: formData,
+        });
+    }
+
+    async getReplies(commentId: string): Promise<Comment[]> {
+        return this.request<Comment[]>(`/comment/${commentId}/replies`);
+    }
+
     // Notification endpoints (commented out until backend endpoints are ready)
     // async getNotifications(): Promise<any[]> {
     //     return this.request<any[]>('/notifications');
     // }
 
-    // Utility methods
+    // Utils
     setToken(token: string): void {
         this.token = token;
         if (typeof window !== 'undefined') {
@@ -240,7 +309,6 @@ class ApiService {
     }
 
     isAuthenticated(): boolean {
-        // Check both in-memory token and localStorage
         if (this.token) return true;
         if (typeof window !== 'undefined') {
             const storedToken = localStorage.getItem('auth_token');

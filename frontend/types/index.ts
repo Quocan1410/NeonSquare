@@ -1,3 +1,4 @@
+// frontend/types/index.ts
 // Common types used across the application
 
 export interface User {
@@ -96,6 +97,26 @@ export interface Notification {
     status: 'new' | 'seen';
     createdAt: Date;
 }
+
+export interface Conversation {
+  id: string;
+  user: Partial<User>;
+  lastMessage: string;
+  time: string;
+  unreadCount: number;
+  isPinned: boolean;
+  isArchived: boolean;
+}
+
+export interface Message {
+  id: string;
+  senderId: string;
+  content: string;
+  time: string;
+  isRead: boolean;
+  conversationId: string;
+}
+
 
 // Enums
 export type PostVisibility = 'public' | 'friends' | 'private';

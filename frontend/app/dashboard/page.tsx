@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useCallback } from 'react';
 import { Sidebar } from '@/components/layout/Sidebar';
 import { CreatePost } from '@/components/posts/CreatePost';
 import { PostCard } from '@/components/posts/PostCard';
@@ -48,12 +48,14 @@ function Dashboard() {
   const { announcement, announce } = useScreenReaderAnnouncement();
 
   // Fetch posts from API
-  const fetchPosts = async () => {
+  const fetchPosts = useCallback(async () => {
     try {
       setIsLoading(true);
+      console.log('Fetching posts...');
       // Add delay to ensure BE is ready
       await new Promise(resolve => setTimeout(resolve, 1000));
       const fetchedPosts = await apiService.getPosts();
+      console.log('Fetched posts:', fetchedPosts);
       setPosts(fetchedPosts);
       announce('Posts loaded successfully');
     } catch (error) {
@@ -68,13 +70,13 @@ function Dashboard() {
     } finally {
       setIsLoading(false);
     }
-  };
+  }, [announce]);
 
   useEffect(() => {
     if (isAuthenticated) {
       fetchPosts();
     }
-  }, [isAuthenticated, announce]);
+  }, [isAuthenticated]);
 
   // Listen for post creation events
   useEffect(() => {
@@ -84,7 +86,7 @@ function Dashboard() {
 
     window.addEventListener('postCreated', handlePostCreated);
     return () => window.removeEventListener('postCreated', handlePostCreated);
-  }, []);
+  }, [fetchPosts]);
 
   // Reset to first page when search query changes
   useEffect(() => {
@@ -136,6 +138,10 @@ function Dashboard() {
   const startIndex = (currentPage - 1) * postsPerPage;
   const endIndex = startIndex + postsPerPage;
   const currentPosts = filteredPosts.slice(startIndex, endIndex);
+
+  console.log('Posts state:', posts);
+  console.log('Filtered posts:', filteredPosts);
+  console.log('Current posts:', currentPosts);
 
 
   return (
