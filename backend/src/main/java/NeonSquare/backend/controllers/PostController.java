@@ -79,5 +79,14 @@ public class PostController {
         return ResponseEntity.ok(new PostDTO(savedPost));
     }
 
+    @DeleteMapping("/{id}")
+    public ResponseEntity<Void> deletePost(@PathVariable UUID id) {
+        boolean deleted = postService.removePost(id);
+        if (deleted) {
+            return ResponseEntity.noContent().build(); // 204 No Content
+        } else {
+            return ResponseEntity.notFound().build(); // 404 Not Found
+        }
+    }
 
 }
