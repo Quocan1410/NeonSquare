@@ -8,7 +8,6 @@ interface SidebarProps {
   conversations: typeof allConversations;
   searchQuery: string;
   setSearchQuery: (q: string) => void;
-  showArchived: boolean;
   setShowArchived: (b: boolean) => void;
 }
 
@@ -16,7 +15,6 @@ export default function Sidebar({
   conversations,
   searchQuery,
   setSearchQuery,
-  showArchived,
   setShowArchived
 }: SidebarProps) {
 
@@ -49,10 +47,10 @@ export default function Sidebar({
             <Button 
               variant="outline" 
               className="w-full btn-forum"
-              onClick={() => setShowArchived(!showArchived)}
+              onClick={() => setShowArchived(true)}
             >
               <Archive className="w-4 h-4 mr-2" />
-              {showArchived ? 'Show Active' : 'Show Archived'}
+              Show Archived
             </Button>
           </div>
 

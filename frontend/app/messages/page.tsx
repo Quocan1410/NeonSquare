@@ -22,7 +22,6 @@ export default function MessagesPage() {
           conversations={conversations}
           searchQuery={searchQuery}
           setSearchQuery={setSearchQuery}
-          showArchived={showArchived}
           setShowArchived={setShowArchived}
         />
 
@@ -34,6 +33,7 @@ export default function MessagesPage() {
               setSelectedConversation={setSelectedConversation}
               searchQuery={searchQuery}
               showArchived={showArchived}
+              setShowArchived={setShowArchived}
             />
 
             <ChatArea

@@ -44,7 +44,7 @@ export default function ChatArea({ conversation, messages, newMessage, setNewMes
           <Avatar className="avatar-forum w-10 h-10">
             <AvatarImage src={conversation.user.profilePic} alt={conversation.user.fullName} />
             <AvatarFallback className="gradient-primary text-primary-foreground">
-              {conversation.user.fullName.split(' ').map(n => n[0]).join('')}
+              {conversation.user.fullName.split(' ').map((n: string[]) => n[0]).join('')}
             </AvatarFallback>
           </Avatar>
           <div>

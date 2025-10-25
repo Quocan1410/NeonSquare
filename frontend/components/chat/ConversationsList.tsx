@@ -1,6 +1,7 @@
 import { Badge } from '@/components/ui/badge';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { OnlineIndicator } from '@/components/ui/online-indicator';
+import { ArrowLeft } from 'lucide-react';
 
 interface ConversationsListProps {
   conversations: any[];
@@ -8,6 +9,7 @@ interface ConversationsListProps {
   setSelectedConversation: (id: string) => void;
   searchQuery: string;
   showArchived: boolean;
+  setShowArchived: (val: boolean) => void;
 }
 
 export default function ConversationsList({
@@ -15,7 +17,8 @@ export default function ConversationsList({
   selectedConversation,
   setSelectedConversation,
   searchQuery,
-  showArchived
+  showArchived,
+  setShowArchived
 }: ConversationsListProps) {
   const filtered = conversations.filter(conv => {
     const matchesSearch = conv.user.fullName.toLowerCase().includes(searchQuery.toLowerCase()) ||
@@ -60,8 +63,19 @@ export default function ConversationsList({
   return (
     <div className="w-1/3 border-r border-border flex flex-col">
       <div className="h-full flex flex-col">
-        <div className="p-4 border-b border-border">
+        <div className="p-4 border-b border-border flex items-center justify-between">
           <h2 className="text-xl font-semibold text-forum-primary">Messages</h2>
+
+          {/* Show back button only when viewing archived */}
+          {showArchived && (
+            <button
+              onClick={() => setShowArchived(false)}
+              className="text-forum-secondary hover:text-forum-primary transition-colors flex items-center space-x-1"
+            >
+              <ArrowLeft className="w-4 h-4" />
+              <span>Back</span>
+            </button>
+          )}
         </div>
 
         <div className="flex-1 overflow-y-auto">
