@@ -3,6 +3,7 @@ package NeonSquare.backend.controllers;
 import NeonSquare.backend.dto.UserDTO;
 import NeonSquare.backend.models.User;
 import NeonSquare.backend.services.UserService;
+import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -29,6 +30,7 @@ public class UserController {
     public ResponseEntity<UserDTO> createUser(@RequestParam("user") String user,
                                               @RequestPart(value = "profilePic", required = false) MultipartFile profilePic) throws IOException {
         ObjectMapper mapper = new ObjectMapper();
+        mapper.registerModule(new JavaTimeModule());
         User createUser = mapper.readValue(user, User.class);
         User savedUser = userService.createUser(createUser, profilePic);
         return ResponseEntity.ok(new UserDTO(savedUser));

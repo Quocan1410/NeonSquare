@@ -8,6 +8,7 @@ import NeonSquare.backend.services.ImageService;
 import NeonSquare.backend.services.PostService;
 import NeonSquare.backend.services.UserService;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -57,6 +58,7 @@ public class PostController {
                                                    @RequestPart(value = "files", required = false) List<MultipartFile> files) throws IOException {
 
         ObjectMapper mapper = new ObjectMapper();
+        mapper.registerModule(new JavaTimeModule());
         PostRequest postRequest = mapper.readValue(post, PostRequest.class);
 
         User user = userService.getUser(postRequest.getUserId());
