@@ -5,14 +5,37 @@ import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { Button } from '@/components/ui/button';
 import { OnlineIndicator } from '@/components/ui/online-indicator';
 import { ImageGallery } from '@/components/ui/image-gallery';
-import { Heart, MessageCircle, MoreHorizontal, Eye } from 'lucide-react';
+import { Heart, MessageCircle, MoreHorizontal, Eye, ThumbsUp, Laugh, Zap, Frown, Angry } from 'lucide-react';
 import Link from 'next/link';
 import { Post } from '@/lib/api';
 import { CommentModal } from './CommentModal';
+import ReactionButton from './ReactionButton';
+import ReactionDisplay from './ReactionDisplay';
+import ReactionCounter from './ReactionCounter';
+import ReactionPicker from './ReactionPicker';
+import ReactionHoverPicker from './ReactionHoverPicker';
+import { ReactionType } from '@/lib/api';
 
 interface PostCardProps {
   post: Post;
 }
+
+// Reaction icons and colors mapping
+const reactionIcons = {
+  LIKE: ThumbsUp,
+  LOVE: Heart,
+  WOW: Zap,
+  SAD: Frown,
+  ANGRY: Angry,
+};
+
+const reactionColors = {
+  LIKE: 'text-blue-500',
+  LOVE: 'text-red-500',
+  WOW: 'text-purple-500',
+  SAD: 'text-gray-500',
+  ANGRY: 'text-orange-500',
+};
 
 export function PostCard({ post }: PostCardProps) {
   const [isLiked, setIsLiked] = useState(false);
@@ -21,6 +44,15 @@ export function PostCard({ post }: PostCardProps) {
   const [galleryIndex, setGalleryIndex] = useState(0);
   const [isHovered, setIsHovered] = useState(false);
   const [isCommentModalOpen, setIsCommentModalOpen] = useState(false);
+  const [reactions, setReactions] = useState(post.reactions || []);
+  
+  // Mock current user ID - in real app, get from auth context
+  const currentUserId = 'current-user-id';
+  
+  // Find current user's reaction
+  const currentReaction = reactions.find(r => r.user.id === currentUserId)?.type || null;
+  const [isReactionPickerOpen, setIsReactionPickerOpen] = useState(false);
+  const [isHoveringLike, setIsHoveringLike] = useState(false);
 
   // Add null checks
   if (!post || !post.author) {
@@ -44,6 +76,42 @@ export function PostCard({ post }: PostCardProps) {
   const handleLike = () => {
     setIsLiked(!isLiked);
     setLikeCount(prev => isLiked ? prev - 1 : prev + 1);
+  };
+
+  const handleReactionChange = (reaction: ReactionType | null) => {
+    // Update reactions list
+    if (reaction) {
+      // Check if user already has this reaction
+      const existingReaction = reactions.find(r => r.user.id === currentUserId && r.type === reaction);
+      
+      if (existingReaction) {
+        // If same reaction, remove it (unclick)
+        setReactions(prev => prev.filter(r => r.id !== existingReaction.id));
+      } else {
+        // Remove any existing reaction from current user first
+        const filteredReactions = reactions.filter(r => r.user.id !== currentUserId);
+        
+        // Add new reaction
+        const newReaction = {
+          id: Date.now().toString(),
+          type: reaction,
+          user: {
+            id: currentUserId,
+            firstName: 'You',
+            lastName: '',
+            email: 'you@example.com',
+            isOnline: true,
+            lastSeen: 'Online now'
+          },
+          createdAt: new Date().toISOString()
+        };
+        
+        setReactions([...filteredReactions, newReaction]);
+      }
+    } else {
+      // Remove current user's reaction
+      setReactions(prev => prev.filter(r => r.user.id !== currentUserId));
+    }
   };
 
   const handleImageClick = (index: number) => {
@@ -148,37 +216,150 @@ export function PostCard({ post }: PostCardProps) {
         </div>
       )}
 
-      {/* Post Actions */}
-      <div className="px-6 py-4 border-t border-slate-200 dark:border-slate-700 bg-slate-50/50 dark:bg-slate-900/50">
-        <div className="flex items-center justify-between">
-          <div className="flex items-center space-x-6">
-            <Button
-              variant="ghost"
-              size="sm"
-              onClick={handleLike}
-              className={`flex items-center space-x-2 px-4 py-2 rounded-full transition-all duration-200 ${
-                isLiked 
-                  ? 'text-red-500 bg-red-50 dark:bg-red-900/20 hover:bg-red-100 dark:hover:bg-red-900/30' 
-                  : 'text-slate-600 dark:text-slate-400 hover:text-red-500 hover:bg-red-50 dark:hover:bg-red-900/20'
-              }`}
-            >
-              <Heart className={`w-5 h-5 transition-transform duration-200 ${isLiked ? 'fill-current scale-110' : 'hover:scale-110'}`} />
-              <span className="font-medium">{likeCount || 0}</span>
-            </Button>
+      {/* Reactions Summary */}
+      {reactions.length > 0 && (
+        <div className="px-6 py-3 border-t border-slate-200 dark:border-slate-700 bg-slate-50/30 dark:bg-slate-900/30">
+          <div className="flex items-center justify-between">
+            <div className="flex items-center space-x-2">
+              {/* Reaction Icons Stack - Clickable */}
+              <button
+                onClick={() => setIsReactionPickerOpen(true)}
+                className="flex items-center -space-x-1 hover:opacity-80 transition-opacity cursor-pointer"
+              >
+                {(() => {
+                  // Filter out current user from display
+                  const otherReactions = reactions.filter(r => r.user.id !== currentUserId);
+                  const displayReactions = otherReactions.slice(0, 3);
+                  
+                  return (
+                    <>
+                      {displayReactions.map((reaction, index) => {
+                        const Icon = reactionIcons[reaction.type];
+                        const color = reactionColors[reaction.type];
+                        
+                        return (
+                          <div
+                            key={reaction.id}
+                            className={`
+                              w-6 h-6 rounded-full border-2 border-white flex items-center justify-center
+                              ${color} bg-white shadow-sm
+                              ${index > 0 ? '-ml-1' : ''}
+                            `}
+                            style={{ zIndex: 3 - index }}
+                          >
+                            <Icon className="w-3 h-3" />
+                          </div>
+                        );
+                      })}
+                      {otherReactions.length > 3 && (
+                        <div className="w-6 h-6 rounded-full border-2 border-white bg-gray-100 text-gray-600 text-xs font-medium flex items-center justify-center -ml-1">
+                          +{otherReactions.length - 3}
+                        </div>
+                      )}
+                    </>
+                  );
+                })()}
+              </button>
+              
+              {/* Reaction Text */}
+              <div className="flex items-center space-x-1 text-sm text-gray-600 dark:text-gray-400">
+                {(() => {
+                  // Filter out current user from display
+                  const otherReactions = reactions.filter(r => r.user.id !== currentUserId);
+                  const currentUserReaction = reactions.find(r => r.user.id === currentUserId);
+                  
+                  if (otherReactions.length === 0 && currentUserReaction) {
+                    return <span className="font-medium">You reacted with {currentUserReaction.type}</span>;
+                  } else if (otherReactions.length > 0) {
+                    const firstOther = otherReactions[0];
+                    const othersCount = otherReactions.length - 1;
+                    return (
+                      <>
+                        <span className="font-medium">
+                          {firstOther.user.firstName} {firstOther.user.lastName}
+                        </span>
+                        {othersCount > 0 && (
+                          <>
+                            <span>and</span>
+                            <span className="font-medium">{othersCount} others</span>
+                          </>
+                        )}
+                        {currentUserReaction && (
+                          <span className="text-blue-600">(You reacted with {currentUserReaction.type})</span>
+                        )}
+                      </>
+                    );
+                  } else {
+                    return <span className="font-medium">No reactions yet</span>;
+                  }
+                })()}
+              </div>
+            </div>
             
-            <Button
-              variant="ghost"
-              size="sm"
-              onClick={handleCommentClick}
-              className="flex items-center space-x-2 px-4 py-2 rounded-full text-slate-600 dark:text-slate-400 hover:text-blue-500 hover:bg-blue-50 dark:hover:bg-blue-900/20 transition-all duration-200"
-            >
-              <MessageCircle className="w-5 h-5 hover:scale-110 transition-transform duration-200" />
-              <span className="font-medium">{post.commentCount || 0}</span>
-            </Button>
+            {/* Comment Count */}
+            <div className="text-sm text-gray-500 dark:text-gray-400">
+              {post.commentCount || 0} comments
+            </div>
           </div>
-          
-          <div className="text-xs text-slate-500 dark:text-slate-400">
-            {post.commentCount || 0} comments • {likeCount || 0} likes
+        </div>
+      )}
+
+      {/* Action Buttons */}
+      <div className="px-6 py-3 border-t border-slate-200 dark:border-slate-700 bg-slate-50/50 dark:bg-slate-900/50 overflow-visible">
+        <div className="flex items-center justify-between overflow-visible">
+          <div className="flex items-center space-x-1">
+            {/* Like Button with Hover Picker */}
+            <div className="relative flex-1 overflow-visible">
+              <button
+                onClick={() => handleReactionChange(currentReaction === 'LIKE' ? null : 'LIKE')}
+                onMouseEnter={() => {
+                  console.log('Hovering Like button');
+                  setIsHoveringLike(true);
+                }}
+                onMouseLeave={() => {
+                  console.log('Leaving Like button');
+                  setIsHoveringLike(false);
+                }}
+                className={`
+                  w-full flex items-center space-x-2 px-4 py-2 rounded-lg transition-all duration-200 justify-center
+                  ${currentReaction === 'LIKE' 
+                    ? 'bg-blue-50 text-blue-600 border border-blue-200' 
+                    : 'text-gray-600 hover:bg-gray-100 dark:hover:bg-gray-700'
+                  }
+                `}
+              >
+                <ThumbsUp className={`w-5 h-5 ${currentReaction === 'LIKE' ? 'fill-current' : ''}`} />
+                <span className="font-medium">Like</span>
+              </button>
+              
+              {/* Hover Reaction Picker - Always show all 6 reactions */}
+              <ReactionHoverPicker
+                isVisible={isHoveringLike}
+                onSelect={handleReactionChange}
+                onMouseEnter={() => setIsHoveringLike(true)}
+                onMouseLeave={() => setIsHoveringLike(false)}
+              />
+            </div>
+            
+            {/* Reaction Picker Button */}
+            <button
+              onClick={() => setIsReactionPickerOpen(true)}
+              className="flex items-center justify-center w-10 h-10 rounded-lg text-gray-600 hover:bg-gray-100 dark:hover:bg-gray-700 transition-all duration-200"
+              title="More reactions"
+            >
+              <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M14.828 14.828a4 4 0 01-5.656 0M9 10h.01M15 10h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+              </svg>
+            </button>
+            
+            {/* Comment Button */}
+            <button
+              onClick={handleCommentClick}
+              className="flex items-center space-x-2 px-4 py-2 rounded-lg text-gray-600 hover:bg-gray-100 dark:hover:bg-gray-700 transition-all duration-200 flex-1 justify-center"
+            >
+              <MessageCircle className="w-5 h-5" />
+              <span className="font-medium">Comment</span>
+            </button>
           </div>
         </div>
       </div>
@@ -196,6 +377,14 @@ export function PostCard({ post }: PostCardProps) {
         isOpen={isCommentModalOpen}
         onClose={() => setIsCommentModalOpen(false)}
         post={post}
+      />
+
+      {/* Reaction Picker Modal */}
+      <ReactionPicker
+        isOpen={isReactionPickerOpen}
+        onClose={() => setIsReactionPickerOpen(false)}
+        onSelect={handleReactionChange}
+        currentReaction={currentReaction}
       />
     </article>
   );
