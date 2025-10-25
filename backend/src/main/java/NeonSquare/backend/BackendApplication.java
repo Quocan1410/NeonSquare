@@ -1,3 +1,4 @@
+// backend/src/main/java/NeonSquare/backend/BackendApplication.java
 package NeonSquare.backend;
 
 import org.springframework.boot.SpringApplication;

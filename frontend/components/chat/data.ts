@@ -1,3 +1,4 @@
+// Mock data for chat conversations and messages
 export const conversations = [
   {
     id: '1',

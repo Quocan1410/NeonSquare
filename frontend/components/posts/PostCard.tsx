@@ -1,3 +1,4 @@
+// NeonSquare/frontend/components/posts/PostCard.tsx
 'use client';
 
 import { useState } from 'react';

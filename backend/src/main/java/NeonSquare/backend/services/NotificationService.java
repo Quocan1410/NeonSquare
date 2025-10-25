@@ -61,15 +61,34 @@ public class NotificationService {
     }
 
     @Transactional
+    public int markAllRead(UUID userId) {
+        List<Notification> news = notificationRepository
+                .findByUserIdAndStatusOrderByCreateDateDesc(userId, NotificationStatus.New);
+        if (news.isEmpty()) return 0;
+        news.forEach(n -> n.setStatus(NotificationStatus.Seen));
+        notificationRepository.saveAll(news);
+        return news.size();
+    }
+
+    @Transactional
     public NotificationDTO createAndPush(UUID userId, NotificationType type, String content) {
+        if (type == null) {
+            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "type");
+        }
+        if (content == null || content.isBlank()) {
+            content = type.name();
+        }
+
         User user = userRepository.findById(userId)
                 .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "user"));
+
         Notification n = new Notification();
         n.setUser(user);
         n.setCreateDate(LocalDateTime.now());
         n.setStatus(NotificationStatus.New);
         n.setType(type);
         n.setContent(content);
+
         n = notificationRepository.save(n);
 
         NotificationDTO dto = toDTO(n);

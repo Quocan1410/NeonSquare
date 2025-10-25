@@ -1,3 +1,5 @@
+// NeonSquare/frontend/components/posts/CreatePost.tsx
+
 'use client';
 
 import { useState } from 'react';

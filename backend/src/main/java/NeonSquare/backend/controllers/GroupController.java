@@ -1,15 +1,22 @@
+// NeonSquare/backend/src/main/java/NeonSquare/backend/controllers/GroupController.java
 package NeonSquare.backend.controllers;
 
 import NeonSquare.backend.models.Group;
+import NeonSquare.backend.models.Post;
 import NeonSquare.backend.models.User;
 import NeonSquare.backend.models.enums.GroupVisibility;
+import NeonSquare.backend.models.enums.NotificationType;
 import NeonSquare.backend.repositories.GroupRepository;
+import NeonSquare.backend.repositories.PostRepository;
 import NeonSquare.backend.repositories.UserRepository;
+import NeonSquare.backend.services.NotificationService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
 import java.util.UUID;
 import java.util.stream.Collectors;
 
@@ -23,6 +30,12 @@ public class GroupController {
 
     @Autowired
     private UserRepository userRepository;
+
+    @Autowired
+    private PostRepository postRepository;
+
+    @Autowired
+    private NotificationService notificationService;
 
     @GetMapping
     public ResponseEntity<List<GroupResponse>> getAllGroups() {
@@ -58,6 +71,50 @@ public class GroupController {
         return ResponseEntity.ok(convertToGroupResponse(savedGroup));
     }
 
+    // ✅ Add a member to a group (needed for testing notifications)
+    @PostMapping("/{groupId}/members/{userId}")
+    public ResponseEntity<String> addMember(@PathVariable UUID groupId, @PathVariable UUID userId) {
+        Group group = groupRepository.findById(groupId).orElse(null);
+        User user = userRepository.findById(userId).orElse(null);
+        if (group == null || user == null) return ResponseEntity.notFound().build();
+
+        Set<User> members = new HashSet<>(group.getMembers() == null ? List.of() : group.getMembers());
+        if (members.add(user)) {
+            group.setMembers(List.copyOf(members));
+            groupRepository.save(group);
+        }
+        return ResponseEntity.ok("Member added");
+    }
+
+    // ✅ Attach a post to a group and notify all members (except the author)
+    @PostMapping("/{groupId}/posts/{postId}")
+    public ResponseEntity<String> addPostToGroup(@PathVariable UUID groupId, @PathVariable UUID postId) {
+        Group group = groupRepository.findById(groupId).orElse(null);
+        Post post = postRepository.findById(postId).orElse(null);
+        if (group == null || post == null) return ResponseEntity.notFound().build();
+
+        var posts = new HashSet<>(group.getPosts() == null ? List.<Post>of() : group.getPosts());
+        if (posts.add(post)) {
+            group.setPosts(List.copyOf(posts));
+            groupRepository.save(group);
+        }
+
+        try {
+            User author = post.getAuthor();
+            if (group.getMembers() != null) {
+                for (User m : group.getMembers()) {
+                    if (author != null && m.getId().equals(author.getId())) continue; // don't notify self
+                    String who = author == null ? "Someone" : (author.getFirstName() + " " + author.getLastName()).trim();
+                    String msg = who + " posted in " + group.getName();
+                    NotificationType type = NotificationType.valueOf("postUpdate");
+                    notificationService.createAndPush(m.getId(), type, msg);
+                }
+            }
+        } catch (Exception ignored) {}
+
+        return ResponseEntity.ok("Post attached to group");
+    }
+
     private GroupResponse convertToGroupResponse(Group group) {
         GroupResponse response = new GroupResponse();
         response.setId(group.getId());
@@ -66,23 +123,19 @@ public class GroupController {
         response.setVisibility(group.getVisibility().toString());
         response.setCreatedAt(group.getCreatedAt());
         response.setMemberCount(group.getMembers() != null ? group.getMembers().size() : 0);
-        
-        // Convert creator
+
         if (group.getCreatedBy() != null) {
             response.setCreatedBy(group.getCreatedBy().getFirstName() + " " + group.getCreatedBy().getLastName());
         }
-        
         return response;
     }
 
-    // Inner class for create group request
     public static class CreateGroupRequest {
         private UUID userId;
         private String name;
         private String description;
         private String visibility;
 
-        // Getters and setters
         public UUID getUserId() { return userId; }
         public void setUserId(UUID userId) { this.userId = userId; }
         public String getName() { return name; }
@@ -93,7 +146,6 @@ public class GroupController {
         public void setVisibility(String visibility) { this.visibility = visibility; }
     }
 
-    // Inner class for group response
     public static class GroupResponse {
         private UUID id;
         private String name;
@@ -103,7 +155,6 @@ public class GroupController {
         private String createdBy;
         private int memberCount;
 
-        // Getters and setters
         public UUID getId() { return id; }
         public void setId(UUID id) { this.id = id; }
         public String getName() { return name; }

@@ -1,6 +1,8 @@
+// frontend/components/layout/Header.tsx
 import React from 'react';
 import { Button } from '@/components/ui/button';
 import { cn } from '@/lib/utils';
+import { NotificationDropdown } from '@/components/ui/notification-dropdown';
 
 interface HeaderProps {
   className?: string;
@@ -19,7 +21,7 @@ export function Header({ className }: HeaderProps) {
         </div>
         <div className="flex flex-1 items-center justify-between space-x-2 md:justify-end">
           <div className="w-full flex-1 md:w-auto md:flex-none">
-            {/* Search can be added here */}
+            {/* search placeholder */}
           </div>
           <nav className="flex items-center space-x-2">
             <Button variant="ghost" size="sm" className="btn-forum premium-hover">
@@ -31,6 +33,10 @@ export function Header({ className }: HeaderProps) {
             <Button variant="ghost" size="sm" className="btn-forum premium-hover">
               About
             </Button>
+
+            {/* 🔔 Notifications */}
+            <NotificationDropdown className="ml-1" />
+
             <Button variant="outline" size="sm" className="btn-forum premium-hover">
               Sign In
             </Button>

@@ -1,3 +1,4 @@
+// NeonSquare/backend/src/main/java/NeonSquare/backend/controllers/FriendshipController.java
 package NeonSquare.backend.controllers;
 
 import NeonSquare.backend.models.Friendship;

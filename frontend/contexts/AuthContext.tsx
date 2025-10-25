@@ -49,6 +49,7 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
         } catch (error) {
           console.error('Auth check failed:', error);
           apiService.logout();
+          setUser(null);
         }
       }
       setIsLoading(false);
@@ -61,9 +62,9 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
     try {
       const response = await apiService.login(credentials);
       if (response.success) {
-        // Set token in apiService
-        apiService.setToken(response.token);
-        
+        // Persist BOTH token and userId for stable identity
+        apiService.setSession(response.token, response.userId);
+
         setUser({
           id: response.userId,
           firstName: response.firstName,
@@ -84,9 +85,9 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
     try {
       const response = await apiService.register(userData);
       if (response.success) {
-        // Set token in apiService
-        apiService.setToken(response.token);
-        
+        // Persist BOTH token and userId
+        apiService.setSession(response.token, response.userId);
+
         setUser({
           id: response.userId,
           firstName: response.firstName,
@@ -144,4 +145,3 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
     </AuthContext.Provider>
   );
 };
-

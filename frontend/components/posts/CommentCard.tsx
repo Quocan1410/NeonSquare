@@ -1,3 +1,4 @@
+// NeonSquare/frontend/components/posts/CommentCard.tsx
 'use client';
 
 import { useState } from 'react';

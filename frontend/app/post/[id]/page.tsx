@@ -1,3 +1,4 @@
+// NeonSquare/frontend/app/post/%5Bid%5D/page.tsx
 'use client';
 
 import { useState } from 'react';

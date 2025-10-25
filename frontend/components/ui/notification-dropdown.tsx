@@ -6,6 +6,7 @@ import { Button } from '@/components/ui/button';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { Bell, Heart, MessageCircle, UserPlus, CheckCircle, X } from 'lucide-react';
 import { cn } from '@/lib/utils';
+import { useAuth } from '@/contexts/AuthContext';
 
 type IncomingDTO = {
   id: string;
@@ -16,14 +17,12 @@ type IncomingDTO = {
   createDate: string; // ISO
 };
 
+type UiType = 'like' | 'comment' | 'follow' | 'mention' | 'system';
+
 interface Notification {
   id: string;
-  type: 'like' | 'comment' | 'follow' | 'mention' | 'system';
-  user: {
-    id: string;
-    fullName: string;
-    profilePic: string;
-  };
+  type: UiType;
+  user: { id: string; fullName: string; profilePic: string };
   message: string;
   timestamp: string;
   read: boolean;
@@ -34,7 +33,7 @@ interface NotificationDropdownProps {
   className?: string;
 }
 
-const getIcon = (type: string) => {
+const getIcon = (type: UiType) => {
   switch (type) {
     case 'like': return <Heart className="w-4 h-4 text-red-500" />;
     case 'comment': return <MessageCircle className="w-4 h-4 text-blue-500" />;
@@ -43,57 +42,68 @@ const getIcon = (type: string) => {
   }
 };
 
+const BASE = process.env.NEXT_PUBLIC_API_URL!; // e.g. http://localhost:8080/api
+
 export function NotificationDropdown({ className }: NotificationDropdownProps) {
+  const { user } = useAuth();
+  const userId = user?.id;
+
   const [isOpen, setIsOpen] = useState(false);
   const [notifications, setNotifications] = useState<Notification[]>([]);
   const [isLoading, setIsLoading] = useState(false);
   const dropdownRef = useRef<HTMLDivElement>(null);
 
-  const unreadCount = notifications.filter(n => !n.read).length;
+  // ---- helpers
+  const mapDtoToUi = (dto: IncomingDTO): Notification => ({
+    id: dto.id,
+    type: 'system',
+    user: { id: dto.userId, fullName: 'Someone', profilePic: '/avatars/01.png' },
+    message: dto.content,
+    timestamp: new Date(dto.createDate).toLocaleString(),
+    read: dto.status === 'Seen',
+  });
 
-  // Initial fetch (optional – still empty until you add REST)
+  const unreadCount = notifications.filter(n => !n.read).length;
+  const badgeText = unreadCount > 99 ? '99+' : unreadCount.toString();
+
+  // ---- initial fetch (persisted notifications)
   useEffect(() => {
-    const fetchNotifications = async () => {
+    if (!userId) return;
+
+    const load = async () => {
       try {
         setIsLoading(true);
-        // TODO: replace with apiService.getNotifications()
-        setNotifications([]);
+        const res = await fetch(`${BASE}/notifications/${userId}`);
+        const list = (await res.json()) as IncomingDTO[];
+        const mapped = list.map(mapDtoToUi);
+        setNotifications(mapped);
       } catch (e) {
         console.error('Failed to fetch notifications', e);
       } finally {
         setIsLoading(false);
       }
     };
-    fetchNotifications();
-  }, []);
 
-  // Listen to real-time push from NotificationListener
+    load();
+  }, [userId]);
+
+  // ---- live events
   useEffect(() => {
+    if (!userId) return;
+
     const handler = (e: Event) => {
       const dto = (e as CustomEvent).detail as IncomingDTO;
+      // ignore if somehow another user's event arrives
+      if (!dto || dto.userId !== userId) return;
 
-      // Map DTO to UI shape. You can enrich with user’s name/avatar via another call if you want.
-      const mapped: Notification = {
-        id: dto.id,
-        type: 'system',
-        user: {
-          id: dto.userId,
-          fullName: 'Someone',
-          profilePic: '/avatars/01.png',
-        },
-        message: dto.content,
-        timestamp: new Date(dto.createDate).toLocaleString(),
-        read: dto.status === 'Seen',
-      };
-
-      setNotifications(prev => [mapped, ...prev]);
+      setNotifications(prev => [mapDtoToUi(dto), ...prev]);
     };
 
     window.addEventListener('notification:new', handler as EventListener);
     return () => window.removeEventListener('notification:new', handler as EventListener);
-  }, []);
+  }, [userId]);
 
-  // Close on outside click
+  // ---- close on outside click
   useEffect(() => {
     const fn = (event: MouseEvent) => {
       if (dropdownRef.current && !dropdownRef.current.contains(event.target as Node)) {
@@ -104,18 +114,65 @@ export function NotificationDropdown({ className }: NotificationDropdownProps) {
     return () => document.removeEventListener('mousedown', fn);
   }, []);
 
-  const markAsRead = (id: string) =>
+  // ---- actions
+  const markAsReadLocal = (id: string) =>
     setNotifications(prev => prev.map(n => (n.id === id ? { ...n, read: true } : n)));
-  const markAllAsRead = () =>
+
+  const markAsRead = async (id: string) => {
+    if (!userId) return;
+    markAsReadLocal(id);
+    try {
+      await fetch(`${BASE}/notifications/${userId}/${id}/read`, { method: 'POST' });
+    } catch (e) {
+      console.error('Failed to mark read', e);
+    }
+  };
+
+  const markAllAsReadLocal = () =>
     setNotifications(prev => prev.map(n => ({ ...n, read: true })));
+
+  const markAllAsRead = async () => {
+    if (!userId) return;
+    markAllAsReadLocal();
+    try {
+      // uses new backend endpoint; if not found, fall back to per-item
+      const r = await fetch(`${BASE}/notifications/${userId}/read-all`, { method: 'POST' });
+      if (!r.ok) {
+        await Promise.all(
+          notifications.filter(n => !n.read).map(n =>
+            fetch(`${BASE}/notifications/${userId}/${n.id}/read`, { method: 'POST' })
+          )
+        );
+      }
+    } catch (e) {
+      console.error('Failed to mark all read', e);
+    }
+  };
+
   const removeNotification = (id: string) =>
     setNotifications(prev => prev.filter(n => n.id !== id));
 
+  // ---- render
+  const disabled = !userId;
+
   return (
     <div className={cn('relative', className)} ref={dropdownRef}>
-      <Button variant="ghost" size="sm" className="relative btn-forum" onClick={() => setIsOpen(!isOpen)} aria-label={`Notifications (${unreadCount} unread)`}>
+      <Button
+        variant="ghost"
+        size="sm"
+        className="relative btn-forum"
+        onClick={() => !disabled && setIsOpen(!isOpen)}
+        aria-label={`Notifications (${unreadCount} unread)`}
+        disabled={disabled}
+      >
         <Bell className="w-5 h-5" />
-        {unreadCount > 0 && <span className="absolute -top-1 -right-1 w-3 h-3 bg-destructive rounded-full" />}
+        {unreadCount > 0 && (
+          <span
+            className="absolute -top-1 -right-1 min-w-[16px] h-[16px] px-1 rounded-full bg-destructive text-white text-[10px] leading-4 text-center"
+          >
+            {badgeText}
+          </span>
+        )}
       </Button>
 
       {isOpen && (
@@ -153,12 +210,15 @@ export function NotificationDropdown({ className }: NotificationDropdownProps) {
                 {notifications.map((n) => (
                   <div
                     key={n.id}
-                    className={cn('p-4 hover:bg-muted/50 transition-colors cursor-pointer', !n.read && 'bg-primary/5 border-l-2 border-l-primary')}
+                    className={cn(
+                      'p-4 hover:bg-muted/50 transition-colors cursor-pointer',
+                      !n.read ? 'bg-primary/5 border-l-2 border-l-primary' : 'opacity-80'
+                    )}
                     onClick={() => { markAsRead(n.id); if (n.link) window.location.href = n.link; }}
                   >
                     <div className="flex items-start space-x-3">
-                      <div className="flex-shrink-0">{getIcon(n.type)}</div>
-                      <Avatar className="avatar-forum w-8 h-8 flex-shrink-0">
+                      <div className="shrink-0">{getIcon(n.type)}</div>
+                      <Avatar className="avatar-forum w-8 h-8 shrink-0">
                         <AvatarImage src={n.user.profilePic} alt={n.user.fullName} />
                         <AvatarFallback className="gradient-primary text-primary-foreground text-xs">
                           {n.user.fullName.split(' ').map(x => x[0]).join('')}
@@ -194,7 +254,12 @@ export function NotificationDropdown({ className }: NotificationDropdownProps) {
 
           {notifications.length > 0 && (
             <div className="p-3 border-t border-border bg-muted/20">
-              <Button variant="ghost" size="sm" className="w-full btn-forum text-xs" onClick={() => { setIsOpen(false); window.location.href = '/notifications'; }}>
+              <Button
+                variant="ghost"
+                size="sm"
+                className="w-full btn-forum text-xs"
+                onClick={() => { setIsOpen(false); window.location.href = '/notifications'; }}
+              >
                 View all notifications
               </Button>
             </div>

@@ -1,3 +1,4 @@
+// NeonSquare/backend/src/main/java/NeonSquare/backend/models/Group.java
 package NeonSquare.backend.models;
 
 import NeonSquare.backend.models.enums.GroupVisibility;

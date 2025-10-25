@@ -1,3 +1,4 @@
+// NeonSquare/backend/src/main/java/NeonSquare/backend/controllers/PostController.java
 package NeonSquare.backend.controllers;
 
 import NeonSquare.backend.dto.PostDTO;
@@ -6,13 +7,15 @@ import NeonSquare.backend.dto.ReactionDTO;
 import NeonSquare.backend.models.Post;
 import NeonSquare.backend.models.Reaction;
 import NeonSquare.backend.models.User;
+import NeonSquare.backend.models.enums.NotificationType;
 import NeonSquare.backend.services.ImageService;
+import NeonSquare.backend.services.NotificationService;
 import NeonSquare.backend.services.PostService;
 import NeonSquare.backend.services.ReactionService;
 import NeonSquare.backend.services.UserService;
+import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -28,22 +31,23 @@ import java.util.stream.Collectors;
 public class PostController {
 
     private final ImageService imageService;
-
-    private  final PostService postService;
-
-    private  final UserService userService;
-
+    private final PostService postService;
+    private final UserService userService;
     private final ReactionService reactionService;
+    private final NotificationService notificationService;
 
     @Autowired
-    public PostController(ImageService imageService, PostService postService, UserService userService, ReactionService reactionService) {
+    public PostController(ImageService imageService,
+                          PostService postService,
+                          UserService userService,
+                          ReactionService reactionService,
+                          NotificationService notificationService) {
         this.imageService = imageService;
         this.postService = postService;
         this.userService = userService;
         this.reactionService = reactionService;
+        this.notificationService = notificationService;
     }
-
-
 
     @GetMapping
     public ResponseEntity<List<PostDTO>> getAllFilterPosts() {
@@ -62,7 +66,7 @@ public class PostController {
 
     @PostMapping
     public ResponseEntity<PostDTO> createPost(@RequestParam("post") String post,
-                                                   @RequestPart(value = "files", required = false) List<MultipartFile> files) throws IOException {
+                                              @RequestPart(value = "files", required = false) List<MultipartFile> files) throws IOException {
 
         ObjectMapper mapper = new ObjectMapper();
         mapper.registerModule(new JavaTimeModule());
@@ -90,14 +94,15 @@ public class PostController {
     public ResponseEntity<Void> deletePost(@PathVariable UUID id) {
         boolean deleted = postService.removePost(id);
         if (deleted) {
-            return ResponseEntity.noContent().build(); // 204 No Content
+            return ResponseEntity.noContent().build();
         } else {
-            return ResponseEntity.notFound().build(); // 404 Not Found
+            return ResponseEntity.notFound().build();
         }
     }
 
     @PostMapping("/{id}/reaction")
-    public ResponseEntity<ReactionDTO> createReaction(@PathVariable UUID id, @RequestParam("reaction") String reaction) throws IOException {
+    public ResponseEntity<ReactionDTO> createReaction(@PathVariable UUID id,
+                                                      @RequestParam("reaction") String reaction) throws IOException {
         ObjectMapper mapper = new ObjectMapper();
         mapper.registerModule(new JavaTimeModule());
         ReactionDTO reactionDTO = mapper.readValue(reaction, ReactionDTO.class);
@@ -108,14 +113,27 @@ public class PostController {
         if (post == null || user == null) {
             return ResponseEntity.badRequest().build();
         }
+
         Reaction createReaction = new Reaction();
         createReaction.setCreatedAt(reactionDTO.getCreatedAt());
-        createReaction.setType(createReaction.getType());
+        createReaction.setType(reactionDTO.getType()); // ✅ fix bug: use DTO value
         createReaction.setUser(user);
 
         Reaction saveReaction = reactionService.createReaction(createReaction);
         post.getReactions().add(saveReaction);
         postService.updatePost(post);
-        return  ResponseEntity.ok(reactionDTO);
+
+        // 🔔 notify post author (except self)
+        try {
+            if (post.getAuthor() != null && !post.getAuthor().getId().equals(user.getId())) {
+                String who = (user.getFirstName() + " " + user.getLastName()).trim();
+                String msg = who.isBlank() ? "Someone liked your post"
+                                           : who + " liked your post";
+                NotificationType type = NotificationType.valueOf("postUpdate");
+                notificationService.createAndPush(post.getAuthor().getId(), type, msg);
+            }
+        } catch (Exception ignored) {}
+
+        return ResponseEntity.ok(reactionDTO);
     }
 }

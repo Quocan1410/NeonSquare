@@ -1,3 +1,4 @@
+// NeonSquare/backend/src/main/java/NeonSquare/backend/repositories/FriendshipRepository.java
 package NeonSquare.backend.repositories;
 
 import NeonSquare.backend.models.Friendship;
@@ -38,4 +39,7 @@ public interface FriendshipRepository extends JpaRepository<Friendship, UUID> {
             @Param("senderId") UUID senderId,
             @Param("receiverId") UUID receiverId
     );
+
+    // Needed for notification content after accept
+    Friendship findBySender_IdAndReceiver_Id(UUID senderId, UUID receiverId);
 }

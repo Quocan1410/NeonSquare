@@ -1,3 +1,4 @@
+// NeonSquare/backend/src/main/java/NeonSquare/backend/repositories/ImageRepository.java
 package NeonSquare.backend.repositories;
 
 import NeonSquare.backend.models.Image;

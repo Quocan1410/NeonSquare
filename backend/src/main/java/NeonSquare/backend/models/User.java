@@ -1,3 +1,4 @@
+// NeonSquare/backend/src/main/java/NeonSquare/backend/models/User.java
 package NeonSquare.backend.models;
 
 import NeonSquare.backend.models.enums.UserStatus;

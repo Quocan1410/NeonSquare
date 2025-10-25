@@ -32,6 +32,11 @@ public class NotificationController {
         service.markRead(userId, notificationId);
     }
 
+    @PostMapping("/{userId}/read-all")
+    public int markAllRead(@PathVariable UUID userId) {
+        return service.markAllRead(userId);
+    }
+
     // quick test endpoint
     @PostMapping("/test")
     public NotificationDTO test(@RequestParam UUID userId,

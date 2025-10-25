@@ -1,3 +1,4 @@
+// backend/src/main/java/NeonSquare/backend/config/CorsConfig.java
 package NeonSquare.backend.config;
 
 import org.springframework.beans.factory.annotation.Value;

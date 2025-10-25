@@ -1,3 +1,4 @@
+// NeonSquare/frontend/components/notifications/NotificationItem.tsx
 'use client';
 
 import { useState } from 'react';

@@ -1,3 +1,4 @@
+// NeonSquare/frontend/lib/socket.ts
 import { io, Socket } from 'socket.io-client';
 import { Message } from '@/types';
 

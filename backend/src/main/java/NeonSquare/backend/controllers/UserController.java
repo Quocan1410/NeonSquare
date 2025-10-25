@@ -64,6 +64,7 @@ public class UserController {
             @PathVariable UUID id,
             @RequestParam("file") MultipartFile file) throws IOException {
         User updatedUser = userService.updateProfilePic(id, file);
+        if (updatedUser == null) return ResponseEntity.notFound().build();
         return ResponseEntity.ok(new UserDTO(updatedUser));
     }
 
@@ -84,14 +85,15 @@ public class UserController {
     @PutMapping("/{id}")
     public ResponseEntity<UserDTO> updateUser(@PathVariable UUID id, @RequestBody UserDTO userDTO) {
         User updatedUser = userService.updateUser(id, userDTO);
+        if (updatedUser == null) return ResponseEntity.notFound().build();
         return ResponseEntity.ok(new UserDTO(updatedUser));
     }
 
     @GetMapping("/me")
-    public ResponseEntity<UserDTO> getCurrentUser(@RequestHeader("Authorization") String token) {
-        // Extract user ID from token (simplified for now)
-        // In a real app, you'd validate the JWT token and extract user info
-        User user = userService.getCurrentUserFromToken(token);
+    public ResponseEntity<UserDTO> getCurrentUser(
+            @RequestHeader(value = "Authorization", required = false) String authorization,
+            @RequestHeader(value = "X-User-Id", required = false) String userIdHeader) {
+        User user = userService.getCurrentUserFromToken(authorization, userIdHeader);
         return ResponseEntity.ok(new UserDTO(user));
     }
 

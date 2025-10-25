@@ -1,3 +1,4 @@
+// NeonSquare/frontend/components/posts/CommentModal.tsx
 'use client';
 
 import { useState, useEffect } from 'react';

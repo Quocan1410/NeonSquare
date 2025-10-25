@@ -1,3 +1,4 @@
+// NeonSquare/backend/src/main/java/NeonSquare/backend/repositories/UserRepository.java
 package NeonSquare.backend.repositories;
 
 import NeonSquare.backend.models.User;
