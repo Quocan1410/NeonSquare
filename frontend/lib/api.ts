@@ -14,33 +14,36 @@ function normalizeBase(u: string) {
 const API_BASE_URL = normalizeBase(raw);
 
 export interface User {
-  id: string;
-  firstName: string;
-  lastName: string;
-  email: string;
-  profilePicUrl?: string;
-  isOnline: boolean;
-  lastSeen: string;
+    id: string;
+    firstName: string;
+    lastName: string;
+    email: string;
+    profilePicUrl?: string;
+    status?: string;
+    isOnline: boolean;
+    lastSeen: string;
 }
 
 export interface Post {
-  id: string;
-  text: string;
-  author: User;
-  comments: Comment[];
-  reactions: Reaction[];
-  visibility: string;
-  updateAt: string;
-  imageUrls: string[];
-  commentCount: number;
-  reactionCount: number;
+    id: string;
+    text: string;
+    author: User;
+    comments: Comment[];
+    reactions: Reaction[];
+    visibility: string;
+    updateAt?: string;
+    imageUrls?: string[];
+    commentCount?: number;
+    reactionCount?: number;
 }
 
 export interface Comment {
-  id: string;
-  text: string;
-  author: User;
-  createdAt: string;
+    id: string;
+    content: string;
+    userId: string;
+    postId: string;
+    createdAt: string;
+    author?: User; // Will be populated when needed
 }
 
 export interface Reaction {
@@ -82,16 +85,22 @@ class ApiService {
     }
   }
 
-  private async request<T>(endpoint: string, options: RequestInit = {}): Promise<T> {
-    const url = `${this.baseURL}${endpoint}`;
-    const config: RequestInit = {
-      headers: {
-        'Content-Type': 'application/json',
-        ...(this.token && { Authorization: `Bearer ${this.token}` }),
-        ...options.headers,
-      },
-      ...options,
-    };
+    private async request<T>(
+        endpoint: string,
+        options: RequestInit = {}
+    ): Promise<T> {
+        const url = `${this.baseURL}${endpoint}`;
+
+        // Don't set Content-Type for FormData, let browser set it with boundary
+        const isFormData = options.body instanceof FormData;
+        const config: RequestInit = {
+            headers: {
+                ...(isFormData ? {} : { 'Content-Type': 'application/json' }),
+                ...(this.token && { Authorization: `Bearer ${this.token}` }),
+                ...options.headers,
+            },
+            ...options,
+        };
 
     try {
       const response = await fetch(url, config);
@@ -134,29 +143,51 @@ class ApiService {
     }
   }
 
-  // Users
-  async searchUsers(query: string): Promise<User[]> {
-    // Backend expects ?q=..., not ?query=...
-    return this.request<User[]>(`/users/search?q=${encodeURIComponent(query)}`);
-  }
+    // User endpoints
+    async searchUsers(query: string): Promise<User[]> {
+        return this.request<User[]>(`/users/search?query=${encodeURIComponent(query)}`);
+    }
+
+    async getCurrentUser(): Promise<User> {
+        return this.request<User>('/users/me');
+    }
+
+    async getUser(userId: string): Promise<User> {
+        return this.request<User>(`/users/${userId}`);
+    }
+
+    async updateUser(userId: string, userData: Partial<User>): Promise<User> {
+        return this.request<User>(`/users/${userId}`, {
+            method: 'PUT',
+            body: JSON.stringify(userData),
+        });
+    }
 
   // Posts
   async getPosts(): Promise<Post[]> {
     return this.request<Post[]>('/posts');
   }
 
-  async createPost(text: string, userId: string, visibility: string = 'PUBLIC'): Promise<Post> {
-    return this.request<Post>('/posts', {
-      method: 'POST',
-      body: JSON.stringify({ text, userId, visibility }),
-    });
+    async createPost(text: string, userId: string, visibility: string = 'PUBLIC'): Promise<Post> {
+        const formData = new FormData();
+        formData.append('post', JSON.stringify({
+            text,
+            userId,
+            visibility,
+        }));
+
+        return this.request<Post>('/posts', {
+            method: 'POST',
+            body: formData,
+        });
     }
 
-  // Friendships
-  async getFriends(userId: string): Promise<User[]> {
-    const friendships = await this.request<any[]>(`/friendships/${userId}/accepted`);
-    return friendships.map(f => f.receiver || f.sender).filter((u: User) => u.id !== userId);
-  }
+
+    // Friendship endpoints
+    async getFriends(userId: string): Promise<User[]> {
+        const friendships = await this.request<any[]>(`/friendships/${userId}/accepted`);
+        return friendships.map(f => f.receiver || f.sender).filter(u => u.id !== userId);
+    }
 
   async getFriendRequests(_userId: string): Promise<any[]> {
     return this.request<any[]>(`/friendships`);
@@ -192,12 +223,55 @@ class ApiService {
     return this.request<any[]>('/groups');
   }
 
-  async createGroup(name: string, description: string, visibility: string, userId: string): Promise<any> {
-    return this.request<any>('/groups', {
-      method: 'POST',
-      body: JSON.stringify({ name, description, visibility, userId }),
-    });
-  }
+    async createGroup(name: string, description: string, visibility: string, userId: string): Promise<any> {
+        return this.request<any>('/groups', {
+            method: 'POST',
+            body: JSON.stringify({
+                name,
+                description,
+                visibility,
+                userId,
+            }),
+        });
+    }
+
+    // Comment endpoints
+    async getComments(postId: string): Promise<Comment[]> {
+        return this.request<Comment[]>(`/comment/post/${postId}/comments`);
+    }
+
+    async createComment(postId: string, content: string, userId: string): Promise<Comment> {
+        const formData = new FormData();
+        formData.append('comment', JSON.stringify({
+            content,
+            userId,
+            createdAt: new Date().toISOString()
+        }));
+
+        return this.request<Comment>(`/comment/${postId}/post`, {
+            method: 'POST',
+            body: formData,
+        });
+    }
+
+    async createReply(commentId: string, content: string, userId: string): Promise<Comment> {
+        const formData = new FormData();
+        formData.append('comment', JSON.stringify({
+            content,
+            userId,
+            createdAt: new Date().toISOString()
+        }));
+
+        return this.request<Comment>(`/comment/${commentId}/comment`, {
+            method: 'POST',
+            body: formData,
+        });
+    }
+
+    // Notification endpoints (commented out until backend endpoints are ready)
+    // async getNotifications(): Promise<any[]> {
+    //     return this.request<any[]>('/notifications');
+    // }
 
   // Utils
   setToken(token: string): void {

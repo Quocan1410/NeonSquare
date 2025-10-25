@@ -1,0 +1,47 @@
+version: "3.9"
+
+services:
+  backend:
+    container_name: neonsquare-backend
+    build:
+      context: ./backend
+    ports:
+      - "8080:8080"
+    environment:
+      # --- Supabase (POOLER) ---
+      SPRING_DATASOURCE_URL: jdbc:postgresql://aws-1-ap-south-1.pooler.supabase.com:6543/postgres?sslmode=require&preparedStatementCacheQueries=0&prepareThreshold=0
+      SPRING_DATASOURCE_USERNAME: postgres.vejapunmvtuixzhgtifg
+      SPRING_DATASOURCE_PASSWORD: ${SUPABASE_DB_PASSWORD}
+
+      # --- JPA/Hibernate ---
+      JPA_DDL_AUTO: update
+
+      # --- CORS ---
+      CORS_ALLOWED_ORIGINS: http://localhost:3000
+
+    # (Optional) if your network DNS is weird, force public DNS:
+    dns:
+      - 8.8.8.8
+      - 1.1.1.1
+
+    restart: unless-stopped
+
+  frontend:
+    container_name: neonsquare-frontend
+    build:
+      context: ./frontend
+      args:
+        # These are read by Next **at build time**
+        NEXT_PUBLIC_API_URL: "http://localhost:8080/api"
+        NEXT_PUBLIC_SUPABASE_URL: "https://vejapunmvtuixzhgtifg.supabase.co"
+        NEXT_PUBLIC_SUPABASE_ANON_KEY: "${NEXT_PUBLIC_SUPABASE_ANON_KEY}"
+        NEXT_PUBLIC_MOCK_MODE: "false"
+    ports:
+      - "3000:3000"
+    depends_on:
+      - backend
+    environment:
+      # (Not strictly used by the standalone server; helpful for clarity)
+      PORT: "3000"
+      HOSTNAME: "0.0.0.0"
+    restart: unless-stopped

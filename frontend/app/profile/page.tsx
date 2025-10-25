@@ -1,6 +1,6 @@
 'use client';
 
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
@@ -17,75 +17,81 @@ import {
   Heart, 
   Share,
   MoreHorizontal,
-  ArrowLeft
+  ArrowLeft,
+  Save,
+  Loader2
 } from 'lucide-react';
 import Link from 'next/link';
+import { useAuth } from '@/contexts/AuthContext';
+import { apiService } from '@/lib/api';
 
-const user = {
-  id: '1',
-  fullName: 'John Doe',
-  username: '@johndoe',
-  email: 'john.doe@example.com',
-  phone: '+1 234 567 8900',
-  location: 'San Francisco, CA',
-  joinDate: 'January 2023',
-  profilePic: '/avatars/user.png',
-  coverPic: '/covers/cover.jpg',
-  bio: 'Passionate about technology and education. Love sharing knowledge and helping others learn.',
-  isOnline: true,
-  followers: 1250,
-  following: 890,
-  posts: 156,
-  verified: true
-};
-
-const recentPosts = [
-  {
-    id: '1',
-    content: 'Just finished an amazing coding project! The feeling of solving complex problems is incredible.',
-    time: '2 hours ago',
-    likes: 24,
-    comments: 8,
-    shares: 3
-  },
-  {
-    id: '2',
-    content: 'Sharing some useful resources for learning React. Check out the link in comments!',
-    time: '1 day ago',
-    likes: 45,
-    comments: 12,
-    shares: 7
-  },
-  {
-    id: '3',
-    content: 'Attended an amazing tech conference today. So many inspiring talks and networking opportunities!',
-    time: '3 days ago',
-    likes: 67,
-    comments: 15,
-    shares: 9
-  }
-];
-
-const achievements = [
-  { name: 'First Post', icon: '📝', description: 'Created your first post' },
-  { name: 'Popular Post', icon: '🔥', description: 'Got 100+ likes on a post' },
-  { name: 'Active Member', icon: '💬', description: 'Made 50+ comments' },
-  { name: 'Helper', icon: '🤝', description: 'Helped 10+ community members' }
-];
 
 export default function ProfilePage() {
+  const { user, refreshUser } = useAuth();
   const [isEditing, setIsEditing] = useState(false);
-  const [editedBio, setEditedBio] = useState(user.bio);
+  const [isLoading, setIsLoading] = useState(false);
+  const [formData, setFormData] = useState({
+    firstName: '',
+    lastName: '',
+    email: ''
+  });
+
+  useEffect(() => {
+    if (user) {
+      setFormData({
+        firstName: user.firstName || '',
+        lastName: user.lastName || '',
+        email: user.email || ''
+      });
+    }
+  }, [user]);
 
   const handleEditProfile = () => {
     setIsEditing(!isEditing);
+    if (isEditing) {
+      // Reset form data when canceling edit
+      if (user) {
+        setFormData({
+          firstName: user.firstName || '',
+          lastName: user.lastName || '',
+          email: user.email || ''
+        });
+      }
+    }
   };
 
-  const handleSaveBio = () => {
-    // Here you would save the bio to your backend
-    console.log('Saving bio:', editedBio);
-    setIsEditing(false);
+  const handleInputChange = (field: string, value: string) => {
+    setFormData(prev => ({
+      ...prev,
+      [field]: value
+    }));
   };
+
+  const handleSaveProfile = async () => {
+    if (!user) return;
+    
+    setIsLoading(true);
+    try {
+      await apiService.updateUser(user.id, formData);
+      await refreshUser();
+      setIsEditing(false);
+    } catch (error) {
+      console.error('Failed to update profile:', error);
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
+  if (!user) {
+    return (
+      <div className="min-h-screen forum-layout flex items-center justify-center">
+        <div className="text-forum-secondary">Loading profile...</div>
+      </div>
+    );
+  }
+
+  const fullName = `${user.firstName} ${user.lastName}`;
+  const username = `@${user.firstName.toLowerCase()}${user.lastName.toLowerCase()}`;
 
   return (
     <div className="min-h-screen forum-layout">
@@ -104,54 +110,19 @@ export default function ProfilePage() {
               <div className="forum-card p-4 premium-hover">
                 <div className="flex items-center space-x-3">
                   <Avatar className="avatar-forum w-12 h-12">
-                    <AvatarImage src={user.profilePic} alt={user.fullName} />
+                    <AvatarImage src={user.profilePicUrl} alt={fullName} />
                     <AvatarFallback className="gradient-primary text-primary-foreground">
-                      {user.fullName.split(' ').map(n => n[0]).join('')}
+                      {fullName.split(' ').map(n => n[0]).join('')}
                     </AvatarFallback>
                   </Avatar>
                   <div>
-                    <h3 className="font-semibold text-forum-primary">{user.fullName}</h3>
-                    <p className="text-sm text-forum-secondary">{user.username}</p>
+                    <h3 className="font-semibold text-forum-primary">{fullName}</h3>
+                    <p className="text-sm text-forum-secondary">{username}</p>
                     <div className="flex items-center space-x-1 mt-1">
                       <div className="status-online"></div>
                       <span className="text-xs text-forum-secondary">Online</span>
                     </div>
                   </div>
-                </div>
-              </div>
-
-              {/* Quick Stats */}
-              <div className="forum-card p-4">
-                <h4 className="font-semibold text-forum-primary mb-3">Quick Stats</h4>
-                <div className="space-y-2">
-                  <div className="flex justify-between">
-                    <span className="text-forum-secondary">Posts</span>
-                    <span className="text-forum-primary font-semibold">{user.posts}</span>
-                  </div>
-                  <div className="flex justify-between">
-                    <span className="text-forum-secondary">Followers</span>
-                    <span className="text-forum-primary font-semibold">{user.followers.toLocaleString()}</span>
-                  </div>
-                  <div className="flex justify-between">
-                    <span className="text-forum-secondary">Following</span>
-                    <span className="text-forum-primary font-semibold">{user.following.toLocaleString()}</span>
-                  </div>
-                </div>
-              </div>
-
-              {/* Achievements */}
-              <div className="forum-card p-4">
-                <h4 className="font-semibold text-forum-primary mb-3">Achievements</h4>
-                <div className="space-y-2">
-                  {achievements.map((achievement, index) => (
-                    <div key={index} className="flex items-center space-x-2">
-                      <span className="text-lg">{achievement.icon}</span>
-                      <div>
-                        <p className="text-sm font-medium text-forum-primary">{achievement.name}</p>
-                        <p className="text-xs text-forum-secondary">{achievement.description}</p>
-                      </div>
-                    </div>
-                  ))}
                 </div>
               </div>
             </div>
@@ -169,14 +140,38 @@ export default function ProfilePage() {
                   <p className="text-forum-secondary">Manage your profile and settings</p>
                 </div>
                 <div className="flex space-x-3">
-                  <Button variant="outline" className="btn-forum">
-                    <MessageCircle className="w-4 h-4 mr-2" />
-                    Message
+                  <Button 
+                    onClick={handleEditProfile}
+                    className="btn-primary hover-glow"
+                    disabled={isLoading}
+                  >
+                    {isLoading ? (
+                      <>
+                        <Loader2 className="w-4 h-4 mr-2 animate-spin" />
+                        Saving...
+                      </>
+                    ) : isEditing ? (
+                      <>
+                        <Settings className="w-4 h-4 mr-2" />
+                        Cancel
+                      </>
+                    ) : (
+                      <>
+                        <Edit className="w-4 h-4 mr-2" />
+                        Edit Profile
+                      </>
+                    )}
                   </Button>
-                  <Button className="btn-primary hover-glow">
-                    <Edit className="w-4 h-4 mr-2" />
-                    Edit Profile
-                  </Button>
+                  {isEditing && (
+                    <Button 
+                      onClick={handleSaveProfile}
+                      className="btn-primary hover-glow"
+                      disabled={isLoading}
+                    >
+                      <Save className="w-4 h-4 mr-2" />
+                      Save Changes
+                    </Button>
+                  )}
                 </div>
               </div>
             </div>
@@ -189,21 +184,21 @@ export default function ProfilePage() {
                 <div className="absolute bottom-4 left-6">
                   <div className="flex items-end space-x-4">
                     <Avatar className="avatar-forum w-24 h-24 border-4 border-background">
-                      <AvatarImage src={user.profilePic} alt={user.fullName} />
+                      <AvatarImage src={user.profilePicUrl} alt={fullName} />
                       <AvatarFallback className="gradient-primary text-primary-foreground text-2xl">
-                        {user.fullName.split(' ').map(n => n[0]).join('')}
+                        {fullName.split(' ').map(n => n[0]).join('')}
                       </AvatarFallback>
                     </Avatar>
                     <div>
                       <div className="flex items-center space-x-2">
-                        <h2 className="text-2xl font-bold text-white">{user.fullName}</h2>
-                        {user.verified && (
+                        <h2 className="text-2xl font-bold text-white">{fullName}</h2>
+                        {user.status === 'ACTIVE' && (
                           <Badge className="bg-primary text-primary-foreground">
-                            ✓ Verified
+                            ✓ Active
                           </Badge>
                         )}
                       </div>
-                      <p className="text-white/80">{user.username}</p>
+                      <p className="text-white/80">{username}</p>
                     </div>
                   </div>
                 </div>
@@ -211,82 +206,61 @@ export default function ProfilePage() {
 
               {/* Profile Details */}
               <div className="p-6">
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                  {/* Bio Section */}
+                <div className="space-y-6">
+                  {/* Personal Information */}
                   <div className="space-y-4">
-                    <div className="flex items-center justify-between">
-                      <h3 className="text-lg font-semibold text-forum-primary">About</h3>
-                      <Button 
-                        variant="ghost" 
-                        size="sm" 
-                        onClick={handleEditProfile}
-                        className="btn-forum"
-                      >
-                        <Edit className="w-4 h-4" />
-                      </Button>
-                    </div>
-                    
-                    {isEditing ? (
-                      <div className="space-y-3">
-                        <textarea
-                          value={editedBio}
-                          onChange={(e) => setEditedBio(e.target.value)}
-                          className="w-full p-3 rounded-lg input-forum resize-none h-24"
-                          placeholder="Tell us about yourself..."
-                        />
-                        <div className="flex space-x-2">
-                          <Button size="sm" onClick={handleSaveBio} className="btn-primary">
-                            Save
-                          </Button>
-                          <Button size="sm" variant="outline" onClick={() => setIsEditing(false)} className="btn-forum">
-                            Cancel
-                          </Button>
-                        </div>
+                    <h3 className="text-lg font-semibold text-forum-primary">Personal Information</h3>
+                    <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                      <div>
+                        <label className="block text-sm font-medium text-forum-primary mb-2">First Name</label>
+                        {isEditing ? (
+                          <Input
+                            value={formData.firstName}
+                            onChange={(e) => handleInputChange('firstName', e.target.value)}
+                            className="input-forum"
+                            placeholder="Enter first name"
+                          />
+                        ) : (
+                          <p className="text-forum-secondary p-2 bg-muted rounded-lg">{user.firstName || 'Not set'}</p>
+                        )}
                       </div>
-                    ) : (
-                      <p className="text-forum-secondary leading-relaxed">{user.bio}</p>
-                    )}
-
-                    {/* Contact Info */}
-                    <div className="space-y-3">
-                      <div className="flex items-center space-x-3">
-                        <Mail className="w-4 h-4 text-forum-secondary" />
-                        <span className="text-forum-secondary">{user.email}</span>
+                      <div>
+                        <label className="block text-sm font-medium text-forum-primary mb-2">Last Name</label>
+                        {isEditing ? (
+                          <Input
+                            value={formData.lastName}
+                            onChange={(e) => handleInputChange('lastName', e.target.value)}
+                            className="input-forum"
+                            placeholder="Enter last name"
+                          />
+                        ) : (
+                          <p className="text-forum-secondary p-2 bg-muted rounded-lg">{user.lastName || 'Not set'}</p>
+                        )}
                       </div>
-                      <div className="flex items-center space-x-3">
-                        <Phone className="w-4 h-4 text-forum-secondary" />
-                        <span className="text-forum-secondary">{user.phone}</span>
-                      </div>
-                      <div className="flex items-center space-x-3">
-                        <MapPin className="w-4 h-4 text-forum-secondary" />
-                        <span className="text-forum-secondary">{user.location}</span>
-                      </div>
-                      <div className="flex items-center space-x-3">
-                        <Calendar className="w-4 h-4 text-forum-secondary" />
-                        <span className="text-forum-secondary">Joined {user.joinDate}</span>
+                      <div className="md:col-span-2">
+                        <label className="block text-sm font-medium text-forum-primary mb-2">Email</label>
+                        {isEditing ? (
+                          <Input
+                            value={formData.email}
+                            onChange={(e) => handleInputChange('email', e.target.value)}
+                            className="input-forum"
+                            placeholder="Enter email"
+                            type="email"
+                          />
+                        ) : (
+                          <p className="text-forum-secondary p-2 bg-muted rounded-lg">{user.email || 'Not set'}</p>
+                        )}
                       </div>
                     </div>
                   </div>
 
-                  {/* Stats Section */}
+                  {/* Account Information */}
                   <div className="space-y-4">
-                    <h3 className="text-lg font-semibold text-forum-primary">Statistics</h3>
-                    <div className="grid grid-cols-2 gap-4">
-                      <div className="text-center p-4 rounded-lg bg-muted">
-                        <div className="text-2xl font-bold text-forum-primary">{user.posts}</div>
-                        <div className="text-sm text-forum-secondary">Posts</div>
-                      </div>
-                      <div className="text-center p-4 rounded-lg bg-muted">
-                        <div className="text-2xl font-bold text-forum-primary">{user.followers.toLocaleString()}</div>
-                        <div className="text-sm text-forum-secondary">Followers</div>
-                      </div>
-                      <div className="text-center p-4 rounded-lg bg-muted">
-                        <div className="text-2xl font-bold text-forum-primary">{user.following.toLocaleString()}</div>
-                        <div className="text-sm text-forum-secondary">Following</div>
-                      </div>
-                      <div className="text-center p-4 rounded-lg bg-muted">
-                        <div className="text-2xl font-bold text-forum-primary">98%</div>
-                        <div className="text-sm text-forum-secondary">Activity</div>
+                    <h3 className="text-lg font-semibold text-forum-primary">Account Information</h3>
+                    <div className="space-y-3">
+                      <div className="flex items-center space-x-3">
+                        <User className="w-4 h-4 text-forum-secondary" />
+                        <span className="text-forum-secondary">Status: {user.status || 'Active'}</span>
                       </div>
                     </div>
                   </div>
@@ -294,34 +268,6 @@ export default function ProfilePage() {
               </div>
             </div>
 
-            {/* Recent Posts */}
-            <div className="forum-card p-6">
-              <h3 className="text-lg font-semibold text-forum-primary mb-4">Recent Posts</h3>
-              <div className="space-y-4">
-                {recentPosts.map((post) => (
-                  <div key={post.id} className="p-4 rounded-lg bg-muted/50 hover:bg-muted transition-colors">
-                    <p className="text-forum-primary mb-3">{post.content}</p>
-                    <div className="flex items-center justify-between text-sm text-forum-secondary">
-                      <span>{post.time}</span>
-                      <div className="flex items-center space-x-4">
-                        <div className="flex items-center space-x-1">
-                          <Heart className="w-4 h-4" />
-                          <span>{post.likes}</span>
-                        </div>
-                        <div className="flex items-center space-x-1">
-                          <MessageCircle className="w-4 h-4" />
-                          <span>{post.comments}</span>
-                        </div>
-                        <div className="flex items-center space-x-1">
-                          <Share className="w-4 h-4" />
-                          <span>{post.shares}</span>
-                        </div>
-                      </div>
-                    </div>
-                  </div>
-                ))}
-              </div>
-            </div>
           </div>
         </div>
       </div>
