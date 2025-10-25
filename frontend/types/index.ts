@@ -97,6 +97,25 @@ export interface Notification {
     createdAt: Date;
 }
 
+export interface Conversation {
+  id: string;
+  user: User;
+  lastMessage: string;
+  time: string;
+  unreadCount: number;
+  isPinned: boolean;
+  isArchived: boolean;
+}
+
+export interface Message {
+  id: string;
+  senderId: string;
+  content: string;
+  time: string;
+  isRead: boolean;
+}
+
+
 // Enums
 export type PostVisibility = 'public' | 'friends' | 'private';
 export type GroupVisibility = 'public' | 'private';
