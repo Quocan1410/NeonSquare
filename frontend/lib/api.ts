@@ -26,9 +26,11 @@ export interface Post {
 
 export interface Comment {
     id: string;
-    text: string;
-    author: User;
+    content: string;
+    userId: string;
+    postId: string;
     createdAt: string;
+    author?: User; // Will be populated when needed
 }
 
 export interface Reaction {
@@ -146,6 +148,10 @@ class ApiService {
         return this.request<User>('/users/me');
     }
 
+    async getUser(userId: string): Promise<User> {
+        return this.request<User>(`/users/${userId}`);
+    }
+
     async updateUser(userId: string, userData: Partial<User>): Promise<User> {
         return this.request<User>(`/users/${userId}`, {
             method: 'PUT',
@@ -223,6 +229,39 @@ class ApiService {
                 visibility,
                 userId,
             }),
+        });
+    }
+
+    // Comment endpoints
+    async getComments(postId: string): Promise<Comment[]> {
+        return this.request<Comment[]>(`/comment/post/${postId}/comments`);
+    }
+
+    async createComment(postId: string, content: string, userId: string): Promise<Comment> {
+        const formData = new FormData();
+        formData.append('comment', JSON.stringify({
+            content,
+            userId,
+            createdAt: new Date().toISOString()
+        }));
+
+        return this.request<Comment>(`/comment/${postId}/post`, {
+            method: 'POST',
+            body: formData,
+        });
+    }
+
+    async createReply(commentId: string, content: string, userId: string): Promise<Comment> {
+        const formData = new FormData();
+        formData.append('comment', JSON.stringify({
+            content,
+            userId,
+            createdAt: new Date().toISOString()
+        }));
+
+        return this.request<Comment>(`/comment/${commentId}/comment`, {
+            method: 'POST',
+            body: formData,
         });
     }
 

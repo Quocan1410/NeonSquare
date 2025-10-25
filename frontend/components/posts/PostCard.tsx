@@ -8,6 +8,7 @@ import { ImageGallery } from '@/components/ui/image-gallery';
 import { Heart, MessageCircle, MoreHorizontal, Clock, Eye } from 'lucide-react';
 import Link from 'next/link';
 import { Post } from '@/lib/api';
+import { CommentModal } from './CommentModal';
 
 interface PostCardProps {
   post: Post;
@@ -19,6 +20,7 @@ export function PostCard({ post }: PostCardProps) {
   const [isGalleryOpen, setIsGalleryOpen] = useState(false);
   const [galleryIndex, setGalleryIndex] = useState(0);
   const [isHovered, setIsHovered] = useState(false);
+  const [isCommentModalOpen, setIsCommentModalOpen] = useState(false);
 
   // Add null checks
   if (!post || !post.author) {
@@ -47,6 +49,10 @@ export function PostCard({ post }: PostCardProps) {
   const handleImageClick = (index: number) => {
     setGalleryIndex(index);
     setIsGalleryOpen(true);
+  };
+
+  const handleCommentClick = () => {
+    setIsCommentModalOpen(true);
   };
 
   const formatTimeAgo = (dateString: string) => {
@@ -177,6 +183,7 @@ export function PostCard({ post }: PostCardProps) {
             <Button
               variant="ghost"
               size="sm"
+              onClick={handleCommentClick}
               className="flex items-center space-x-2 px-4 py-2 rounded-full text-slate-600 dark:text-slate-400 hover:text-blue-500 hover:bg-blue-50 dark:hover:bg-blue-900/20 transition-all duration-200"
             >
               <MessageCircle className="w-5 h-5 hover:scale-110 transition-transform duration-200" />
@@ -196,6 +203,13 @@ export function PostCard({ post }: PostCardProps) {
         isOpen={isGalleryOpen}
         onClose={() => setIsGalleryOpen(false)}
         initialIndex={galleryIndex}
+      />
+
+      {/* Comment Modal */}
+      <CommentModal
+        isOpen={isCommentModalOpen}
+        onClose={() => setIsCommentModalOpen(false)}
+        post={post}
       />
     </article>
   );
