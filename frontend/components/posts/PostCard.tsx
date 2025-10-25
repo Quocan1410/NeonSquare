@@ -5,7 +5,7 @@ import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { Button } from '@/components/ui/button';
 import { OnlineIndicator } from '@/components/ui/online-indicator';
 import { ImageGallery } from '@/components/ui/image-gallery';
-import { Heart, MessageCircle, MoreHorizontal, Clock, Eye } from 'lucide-react';
+import { Heart, MessageCircle, MoreHorizontal, Eye } from 'lucide-react';
 import Link from 'next/link';
 import { Post } from '@/lib/api';
 import { CommentModal } from './CommentModal';
@@ -55,17 +55,6 @@ export function PostCard({ post }: PostCardProps) {
     setIsCommentModalOpen(true);
   };
 
-  const formatTimeAgo = (dateString: string) => {
-    if (!dateString) return 'Just now';
-    const date = new Date(dateString);
-    const now = new Date();
-    const diffInSeconds = Math.floor((now.getTime() - date.getTime()) / 1000);
-    
-    if (diffInSeconds < 60) return 'Just now';
-    if (diffInSeconds < 3600) return `${Math.floor(diffInSeconds / 60)}m ago`;
-    if (diffInSeconds < 86400) return `${Math.floor(diffInSeconds / 3600)}h ago`;
-    return `${Math.floor(diffInSeconds / 86400)}d ago`;
-  };
 
   return (
     <article 
@@ -97,9 +86,6 @@ export function PostCard({ post }: PostCardProps) {
                 {post.author.firstName || ''} {post.author.lastName || ''}
               </h3>
               <div className="flex items-center space-x-2 text-sm text-slate-500 dark:text-slate-400">
-                <Clock className="w-3 h-3" />
-                <span>{formatTimeAgo(post.updateAt || '')}</span>
-                <span>•</span>
                 <div className="flex items-center space-x-1">
                   <Eye className="w-3 h-3" />
                   <span>{post.visibility?.toLowerCase() || 'public'}</span>
