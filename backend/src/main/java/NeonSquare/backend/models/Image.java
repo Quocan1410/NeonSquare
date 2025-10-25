@@ -1,3 +1,4 @@
+// backend/src/main/java/NeonSquare/backend/models/Image.java
 package NeonSquare.backend.models;
 
 import jakarta.persistence.*;

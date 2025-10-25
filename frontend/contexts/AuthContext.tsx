@@ -1,4 +1,4 @@
-// frontend/contexts/AuthContext.tsx
+// NeonSquare/frontend/contexts/AuthContext.tsx
 'use client';
 
 import React, { createContext, useContext, useState, useEffect, ReactNode } from 'react';
@@ -35,19 +35,21 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
   const isAuthenticated = !!user;
 
   useEffect(() => {
-    // Check if user is already authenticated on mount
     const checkAuth = async () => {
       if (apiService.isAuthenticated()) {
         try {
-          // Get user info from backend
           const userData = await apiService.getCurrentUser();
           setUser({
-            ...userData,
+            id: userData.id,                                    // already string in api types
+            firstName: userData.firstName ?? '',               // defensive fallback
+            lastName: userData.lastName ?? '',
+            email: userData.email ?? '',
+            profilePicUrl: userData.profilePicUrl,
+            status: userData.status,
             isOnline: true,
-            lastSeen: 'Online now'
+            lastSeen: 'Online now',
           });
-        } catch (error) {
-          console.error('Auth check failed:', error);
+        } catch {
           apiService.logout();
           setUser(null);
         }
@@ -59,55 +61,43 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
   }, []);
 
   const login = async (credentials: LoginRequest): Promise<AuthResponse> => {
-    try {
-      const response = await apiService.login(credentials);
-      if (response.success) {
-        // Persist BOTH token and userId for stable identity
-        apiService.setSession(response.token, response.userId);
+    const response = await apiService.login(credentials); // soft: never throws
+    if (response.success && response.token && response.userId) {
+      // Persist ONLY when we have both values
+      apiService.setSession(response.token, response.userId);
 
-        setUser({
-          id: response.userId,
-          firstName: response.firstName,
-          lastName: response.lastName,
-          email: response.email,
-          isOnline: true,
-          lastSeen: 'Online now'
-        });
-      }
-      return response;
-    } catch (error) {
-      console.error('Login failed:', error);
-      throw error;
+      setUser({
+        id: response.userId,                                  // safe: non-null under guard
+        firstName: response.firstName ?? '',
+        lastName: response.lastName ?? '',
+        email: response.email ?? '',
+        isOnline: true,
+        lastSeen: 'Online now',
+      });
     }
+    return response;
   };
 
   const register = async (userData: RegisterRequest): Promise<AuthResponse> => {
-    try {
-      const response = await apiService.register(userData);
-      if (response.success) {
-        // Persist BOTH token and userId
-        apiService.setSession(response.token, response.userId);
+    const response = await apiService.register(userData); // soft: never throws
+    if (response.success && response.token && response.userId) {
+      apiService.setSession(response.token, response.userId);
 
-        setUser({
-          id: response.userId,
-          firstName: response.firstName,
-          lastName: response.lastName,
-          email: response.email,
-          isOnline: true,
-          lastSeen: 'Online now'
-        });
-      }
-      return response;
-    } catch (error) {
-      console.error('Registration failed:', error);
-      throw error;
+      setUser({
+        id: response.userId,
+        firstName: response.firstName ?? '',
+        lastName: response.lastName ?? '',
+        email: response.email ?? '',
+        isOnline: true,
+        lastSeen: 'Online now',
+      });
     }
+    return response;
   };
 
   const logout = () => {
     apiService.logout();
     setUser(null);
-    // Redirect to login page
     if (typeof window !== 'undefined') {
       window.location.href = '/login';
     }
@@ -118,12 +108,16 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
       try {
         const userData = await apiService.getCurrentUser();
         setUser({
-          ...userData,
+          id: userData.id,
+          firstName: userData.firstName ?? '',
+          lastName: userData.lastName ?? '',
+          email: userData.email ?? '',
+          profilePicUrl: userData.profilePicUrl,
+          status: userData.status,
           isOnline: true,
-          lastSeen: 'Online now'
+          lastSeen: 'Online now',
         });
-      } catch (error) {
-        console.error('Failed to refresh user:', error);
+      } catch {
         logout();
       }
     }

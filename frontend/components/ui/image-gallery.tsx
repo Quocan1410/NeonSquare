@@ -1,3 +1,4 @@
+// NeonSquare/frontend/components/ui/image-gallery.tsx
 'use client';
 
 import { useState, useEffect } from 'react';

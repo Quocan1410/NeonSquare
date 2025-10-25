@@ -1,4 +1,4 @@
-// NeonSquare/backend/src/main/java/NeonSquare/backend/repositories/FriendshipRepository.java
+// backend/src/main/java/NeonSquare/backend/repositories/FriendshipRepository.java
 package NeonSquare.backend.repositories;
 
 import NeonSquare.backend.models.Friendship;
@@ -15,8 +15,9 @@ import java.util.UUID;
 
 @Repository
 public interface FriendshipRepository extends JpaRepository<Friendship, UUID> {
+
     @Query("SELECT f FROM Friendship f " +
-            "WHERE f.status = :status AND (f.sender.id = :userId OR f.receiver.id = :userId)")
+           "WHERE f.status = :status AND (f.sender.id = :userId OR f.receiver.id = :userId)")
     List<Friendship> findAcceptedFriendshipsForUser(
             @Param("status") FriendshipStatus status,
             @Param("userId") UUID userId
@@ -25,7 +26,7 @@ public interface FriendshipRepository extends JpaRepository<Friendship, UUID> {
     @Modifying
     @Transactional
     @Query("UPDATE Friendship f SET f.status = :status " +
-            "WHERE f.sender.id = :senderId AND f.receiver.id = :receiverId")
+           "WHERE f.sender.id = :senderId AND f.receiver.id = :receiverId")
     int acceptFriendship(
             @Param("senderId") UUID senderId,
             @Param("receiverId") UUID receiverId,
@@ -40,6 +41,16 @@ public interface FriendshipRepository extends JpaRepository<Friendship, UUID> {
             @Param("receiverId") UUID receiverId
     );
 
-    // Needed for notification content after accept
     Friendship findBySender_IdAndReceiver_Id(UUID senderId, UUID receiverId);
+
+    // Pending requests for a specific receiver
+    List<Friendship> findByReceiver_IdAndStatus(UUID userId, FriendshipStatus status);
+
+    // Find existing friendship regardless of direction (A,B) or (B,A)
+    @Query("""
+           SELECT f FROM Friendship f
+           WHERE (f.sender.id = :a AND f.receiver.id = :b)
+              OR (f.sender.id = :b AND f.receiver.id = :a)
+           """)
+    Friendship findByPair(@Param("a") UUID a, @Param("b") UUID b);
 }

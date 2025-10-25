@@ -1,3 +1,4 @@
+// backend/src/main/java/NeonSquare/backend/models/Friendship.java
 package NeonSquare.backend.models;
 
 import NeonSquare.backend.models.enums.FriendshipStatus;
@@ -7,68 +8,40 @@ import org.hibernate.annotations.UuidGenerator;
 
 import java.time.LocalDateTime;
 import java.util.UUID;
+
 @Entity
 @Getter
 @Setter
 @NoArgsConstructor
 @AllArgsConstructor
 @ToString
+@Table(name = "friendship")
 public class Friendship {
+
     @Id
     @GeneratedValue
     @UuidGenerator
     private UUID id;
 
-    @OneToOne
+    // A user can send requests to many people, and receive from many people
+    @ManyToOne(optional = false)
+    @JoinColumn(name = "sender_id", nullable = false)
     private User sender;
 
-    @OneToOne
+    @ManyToOne(optional = false)
+    @JoinColumn(name = "receiver_id", nullable = false)
     private User receiver;
 
     @Enumerated(EnumType.STRING)
     private FriendshipStatus status;
 
-    @Column(name = "created_at")
+    @Column(name = "created_at", nullable = false)
     private LocalDateTime createdAt;
 
-
-    public UUID getId() {
-        return id;
-    }
-
-    public void setId(UUID id) {
-        this.id = id;
-    }
-
-    public User getSender() {
-        return sender;
-    }
-
-    public void setSender(User sender) {
-        this.sender = sender;
-    }
-
-    public FriendshipStatus getStatus() {
-        return status;
-    }
-
-    public void setStatus(FriendshipStatus status) {
-        this.status = status;
-    }
-
-    public LocalDateTime getCreatedAt() {
-        return createdAt;
-    }
-
-    public void setCreatedAt(LocalDateTime createdAt) {
-        this.createdAt = createdAt;
-    }
-
-    public User getReceiver() {
-        return receiver;
-    }
-
-    public void setReceiver(User receiver) {
-        this.receiver = receiver;
+    @PrePersist
+    private void onCreate() {
+        if (createdAt == null) {
+            createdAt = LocalDateTime.now();
+        }
     }
 }

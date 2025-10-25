@@ -1,3 +1,4 @@
+// NeonSquare/frontend/components/posts/ReactionCounter.tsx
 'use client';
 
 import React from 'react';

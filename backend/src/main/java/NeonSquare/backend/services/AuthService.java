@@ -1,3 +1,4 @@
+// backend/src/main/java/NeonSquare/backend/services/AuthService.java
 package NeonSquare.backend.services;
 
 import NeonSquare.backend.dto.AuthResponse;

@@ -1,3 +1,4 @@
+// backend/src/main/java/NeonSquare/backend/dto/AuthResponse.java
 package NeonSquare.backend.dto;
 
 import lombok.*;

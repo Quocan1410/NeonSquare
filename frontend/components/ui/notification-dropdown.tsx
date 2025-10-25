@@ -1,4 +1,4 @@
-// frontend/components/ui/notification-dropdown.tsx
+// NeonSquare/frontend/components/ui/notification-dropdown.tsx
 'use client';
 
 import { useState, useEffect, useRef } from 'react';
@@ -12,8 +12,8 @@ type IncomingDTO = {
   id: string;
   userId: string;
   content: string;
-  type: 'friendRequest' | 'postUpdate' | 'groupCreation' | 'memberRequest';
-  status: 'New' | 'Seen';
+  type: 'friendRequest' | 'postUpdate' | 'groupCreation' | 'memberRequest' | string;
+  status: 'New' | 'Seen' | 'NEW' | 'SEEN' | string;
   createDate: string; // ISO
 };
 
@@ -42,7 +42,15 @@ const getIcon = (type: UiType) => {
   }
 };
 
-const BASE = process.env.NEXT_PUBLIC_API_URL!; // e.g. http://localhost:8080/api
+// Normalize BASE and ensure /api suffix
+const rawBase = (process.env.NEXT_PUBLIC_API_URL || process.env.NEXT_PUBLIC_API_BASE || '').trim();
+function normalizeBase(u: string) {
+  const fallback = 'http://localhost:8080';
+  let v = (u || fallback).replace(/\/+$/, '');
+  if (!/\/api$/i.test(v)) v += '/api';
+  return v;
+}
+const BASE = normalizeBase(rawBase);
 
 export function NotificationDropdown({ className }: NotificationDropdownProps) {
   const { user } = useAuth();
@@ -54,31 +62,61 @@ export function NotificationDropdown({ className }: NotificationDropdownProps) {
   const dropdownRef = useRef<HTMLDivElement>(null);
 
   // ---- helpers
-  const mapDtoToUi = (dto: IncomingDTO): Notification => ({
-    id: dto.id,
-    type: 'system',
-    user: { id: dto.userId, fullName: 'Someone', profilePic: '/avatars/01.png' },
-    message: dto.content,
-    timestamp: new Date(dto.createDate).toLocaleString(),
-    read: dto.status === 'Seen',
-  });
+  const mapDtoToUi = (dto: IncomingDTO): Notification => {
+    const read = String(dto.status).toUpperCase() === 'SEEN';
+    return {
+      id: String(dto.id),
+      type: 'system',
+      user: {
+        id: String(dto.userId),
+        // IMPORTANT: don't preface the message with a hard-coded name
+        fullName: '',
+        profilePic: '/avatars/01.png',
+      },
+      // Use server text as-is to avoid "Someone John Doe …" duplication
+      message: String(dto.content ?? ''),
+      timestamp: dto.createDate ? new Date(dto.createDate).toLocaleString() : new Date().toLocaleString(),
+      read,
+    };
+  };
 
   const unreadCount = notifications.filter(n => !n.read).length;
-  const badgeText = unreadCount > 99 ? '99+' : unreadCount.toString();
+  const badgeText = unreadCount > 99 ? '99+' : String(unreadCount);
 
   // ---- initial fetch (persisted notifications)
   useEffect(() => {
     if (!userId) return;
 
     const load = async () => {
+      setIsLoading(true);
       try {
-        setIsLoading(true);
-        const res = await fetch(`${BASE}/notifications/${userId}`);
-        const list = (await res.json()) as IncomingDTO[];
-        const mapped = list.map(mapDtoToUi);
+        const res = await fetch(`${BASE}/notifications/${encodeURIComponent(userId)}`);
+        let data: any = null;
+        try {
+          data = await res.json();
+        } catch {
+          data = null;
+        }
+
+        if (!res.ok) {
+          console.warn('Notifications fetch failed', res.status, data);
+          setNotifications([]);
+          return;
+        }
+
+        const arr: any[] = Array.isArray(data)
+          ? data
+          : Array.isArray(data?.data)
+          ? data.data
+          : Array.isArray(data?.content)
+          ? data.content
+          : [];
+
+        const mapped = arr.map(mapDtoToUi);
         setNotifications(mapped);
       } catch (e) {
-        console.error('Failed to fetch notifications', e);
+        console.warn('Failed to fetch notifications', e);
+        setNotifications([]);
       } finally {
         setIsLoading(false);
       }
@@ -93,9 +131,7 @@ export function NotificationDropdown({ className }: NotificationDropdownProps) {
 
     const handler = (e: Event) => {
       const dto = (e as CustomEvent).detail as IncomingDTO;
-      // ignore if somehow another user's event arrives
-      if (!dto || dto.userId !== userId) return;
-
+      if (!dto || String(dto.userId) !== String(userId)) return;
       setNotifications(prev => [mapDtoToUi(dto), ...prev]);
     };
 
@@ -122,9 +158,9 @@ export function NotificationDropdown({ className }: NotificationDropdownProps) {
     if (!userId) return;
     markAsReadLocal(id);
     try {
-      await fetch(`${BASE}/notifications/${userId}/${id}/read`, { method: 'POST' });
+      await fetch(`${BASE}/notifications/${encodeURIComponent(userId)}/${encodeURIComponent(id)}/read`, { method: 'POST' });
     } catch (e) {
-      console.error('Failed to mark read', e);
+      console.warn('Failed to mark read', e);
     }
   };
 
@@ -135,24 +171,22 @@ export function NotificationDropdown({ className }: NotificationDropdownProps) {
     if (!userId) return;
     markAllAsReadLocal();
     try {
-      // uses new backend endpoint; if not found, fall back to per-item
-      const r = await fetch(`${BASE}/notifications/${userId}/read-all`, { method: 'POST' });
+      const r = await fetch(`${BASE}/notifications/${encodeURIComponent(userId)}/read-all`, { method: 'POST' });
       if (!r.ok) {
         await Promise.all(
           notifications.filter(n => !n.read).map(n =>
-            fetch(`${BASE}/notifications/${userId}/${n.id}/read`, { method: 'POST' })
+            fetch(`${BASE}/notifications/${encodeURIComponent(userId)}/${encodeURIComponent(n.id)}/read`, { method: 'POST' })
           )
         );
       }
     } catch (e) {
-      console.error('Failed to mark all read', e);
+      console.warn('Failed to mark all read', e);
     }
   };
 
   const removeNotification = (id: string) =>
     setNotifications(prev => prev.filter(n => n.id !== id));
 
-  // ---- render
   const disabled = !userId;
 
   return (
@@ -219,18 +253,16 @@ export function NotificationDropdown({ className }: NotificationDropdownProps) {
                     <div className="flex items-start space-x-3">
                       <div className="shrink-0">{getIcon(n.type)}</div>
                       <Avatar className="avatar-forum w-8 h-8 shrink-0">
-                        <AvatarImage src={n.user.profilePic} alt={n.user.fullName} />
+                        <AvatarImage src={n.user.profilePic} alt={n.user.fullName || 'User'} />
                         <AvatarFallback className="gradient-primary text-primary-foreground text-xs">
-                          {n.user.fullName.split(' ').map(x => x[0]).join('')}
+                          {(n.user.fullName || 'U').split(' ').filter(Boolean).map(x => x[0]).join('') || 'U'}
                         </AvatarFallback>
                       </Avatar>
                       <div className="flex-1 min-w-0">
                         <div className="flex items-start justify-between">
                           <div className="flex-1">
-                            <p className="text-sm text-forum-primary">
-                              <span className="font-medium">{n.user.fullName}</span>{' '}
-                              {n.message}
-                            </p>
+                            {/* Render server message directly (no extra "Someone") */}
+                            <p className="text-sm text-forum-primary">{n.message}</p>
                             <p className="text-xs text-forum-secondary mt-1">{n.timestamp}</p>
                           </div>
                           <div className="flex items-center space-x-1 ml-2">

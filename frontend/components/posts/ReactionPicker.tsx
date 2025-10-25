@@ -1,3 +1,4 @@
+// NeonSquare/frontend/components/posts/ReactionPicker.tsx
 'use client';
 
 import React, { useState } from 'react';

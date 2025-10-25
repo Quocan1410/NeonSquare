@@ -1,3 +1,4 @@
+// NeonSquare/frontend/components/chat/Sidebar.tsx
 'use client';
 
 import Link from 'next/link';

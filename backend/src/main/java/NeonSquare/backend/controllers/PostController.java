@@ -3,18 +3,12 @@ package NeonSquare.backend.controllers;
 
 import NeonSquare.backend.dto.PostDTO;
 import NeonSquare.backend.dto.PostRequest;
-import NeonSquare.backend.dto.ReactionDTO;
 import NeonSquare.backend.models.Post;
-import NeonSquare.backend.models.Reaction;
 import NeonSquare.backend.models.User;
-import NeonSquare.backend.models.enums.NotificationType;
 import NeonSquare.backend.services.ImageService;
-import NeonSquare.backend.services.NotificationService;
 import NeonSquare.backend.services.PostService;
-import NeonSquare.backend.services.ReactionService;
 import NeonSquare.backend.services.UserService;
 import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule;
-import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
@@ -33,20 +27,14 @@ public class PostController {
     private final ImageService imageService;
     private final PostService postService;
     private final UserService userService;
-    private final ReactionService reactionService;
-    private final NotificationService notificationService;
 
     @Autowired
     public PostController(ImageService imageService,
                           PostService postService,
-                          UserService userService,
-                          ReactionService reactionService,
-                          NotificationService notificationService) {
+                          UserService userService) {
         this.imageService = imageService;
         this.postService = postService;
         this.userService = userService;
-        this.reactionService = reactionService;
-        this.notificationService = notificationService;
     }
 
     @GetMapping
@@ -98,42 +86,5 @@ public class PostController {
         } else {
             return ResponseEntity.notFound().build();
         }
-    }
-
-    @PostMapping("/{id}/reaction")
-    public ResponseEntity<ReactionDTO> createReaction(@PathVariable UUID id,
-                                                      @RequestParam("reaction") String reaction) throws IOException {
-        ObjectMapper mapper = new ObjectMapper();
-        mapper.registerModule(new JavaTimeModule());
-        ReactionDTO reactionDTO = mapper.readValue(reaction, ReactionDTO.class);
-
-        Post post = postService.getPost(id);
-        User user = userService.getUser(reactionDTO.getUserId());
-
-        if (post == null || user == null) {
-            return ResponseEntity.badRequest().build();
-        }
-
-        Reaction createReaction = new Reaction();
-        createReaction.setCreatedAt(reactionDTO.getCreatedAt());
-        createReaction.setType(reactionDTO.getType()); // ✅ fix bug: use DTO value
-        createReaction.setUser(user);
-
-        Reaction saveReaction = reactionService.createReaction(createReaction);
-        post.getReactions().add(saveReaction);
-        postService.updatePost(post);
-
-        // 🔔 notify post author (except self)
-        try {
-            if (post.getAuthor() != null && !post.getAuthor().getId().equals(user.getId())) {
-                String who = (user.getFirstName() + " " + user.getLastName()).trim();
-                String msg = who.isBlank() ? "Someone liked your post"
-                                           : who + " liked your post";
-                NotificationType type = NotificationType.valueOf("postUpdate");
-                notificationService.createAndPush(post.getAuthor().getId(), type, msg);
-            }
-        } catch (Exception ignored) {}
-
-        return ResponseEntity.ok(reactionDTO);
     }
 }

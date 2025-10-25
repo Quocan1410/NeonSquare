@@ -12,7 +12,7 @@ import java.util.UUID;
 
 @RestController
 @RequestMapping("/api/friendships")
-@CrossOrigin(origins = {"http://localhost:3000", "http://localhost:3001"})
+@CrossOrigin(origins = { "http://localhost:3000", "http://localhost:3001" })
 public class FriendshipController {
 
     private final FriendshipService service;
@@ -56,8 +56,7 @@ public class FriendshipController {
     @PostMapping("/accept")
     public ResponseEntity<String> acceptFriendship(
             @RequestParam UUID senderId,
-            @RequestParam UUID receiverId
-    ) {
+            @RequestParam UUID receiverId) {
         boolean success = service.acceptFriendship(senderId, receiverId);
         if (success) {
             return ResponseEntity.ok("Friendship accepted!");
@@ -69,14 +68,30 @@ public class FriendshipController {
     @DeleteMapping("/delete")
     public ResponseEntity<String> deleteFriendship(
             @RequestParam UUID senderId,
-            @RequestParam UUID receiverId
-    ) {
-        boolean success = service.removeFriendship(senderId, receiverId);
+            @RequestParam UUID receiverId) {
+        boolean success = service.deleteFriendship(senderId, receiverId);
         if (success) {
             return ResponseEntity.ok("Friendship deleted!");
         } else {
             return ResponseEntity.badRequest().body("No such friendship found.");
         }
+    }
+
+    @GetMapping("/{userId}/requests")
+    public ResponseEntity<List<Friendship>> pendingForReceiver(@PathVariable UUID userId) {
+        return ResponseEntity.ok(service.listPendingForReceiver(userId));
+    }
+
+    @PostMapping("/requests/{id}/accept")
+    public ResponseEntity<String> acceptById(@PathVariable UUID id) {
+        boolean ok = service.acceptById(id);
+        return ok ? ResponseEntity.ok("Accepted") : ResponseEntity.badRequest().body("Not found");
+    }
+
+    @DeleteMapping("/requests/{id}")
+    public ResponseEntity<String> rejectById(@PathVariable UUID id) {
+        boolean ok = service.rejectById(id);
+        return ok ? ResponseEntity.ok("Deleted") : ResponseEntity.badRequest().body("Not found");
     }
 
 }

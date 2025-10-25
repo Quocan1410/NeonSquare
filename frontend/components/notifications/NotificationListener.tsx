@@ -1,4 +1,4 @@
-// frontend/app/notifications/NotificationListener.tsx
+// frontend/components/notifications/NotificationListener.tsx
 'use client';
 
 import { useEffect } from 'react';

@@ -2,8 +2,9 @@
 package NeonSquare.backend.models.enums;
 
 public enum NotificationType {
-    friendRequest,
-    postUpdate,
-    groupCreation,
-    memberRequest
+    FRIEND_REQUEST,
+    FRIEND_ACCEPTED,
+    COMMENT,
+    MENTION,
+    LIKE
 }

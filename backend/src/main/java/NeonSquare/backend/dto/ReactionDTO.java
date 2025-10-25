@@ -1,3 +1,4 @@
+// backend/src/main/java/NeonSquare/backend/dto/ReactionDTO.java
 package NeonSquare.backend.dto;
 
 import NeonSquare.backend.models.Reaction;

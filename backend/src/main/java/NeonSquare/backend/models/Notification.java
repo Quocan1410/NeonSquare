@@ -30,22 +30,24 @@ public class Notification {
     private UUID id;
 
     @ManyToOne(fetch = FetchType.LAZY, optional = false)
-    @JoinColumn(name = "user_id", nullable = false) // <- many notifications can point to the same user
+    @JoinColumn(name = "user_id", nullable = false)
     @ToString.Exclude
     private User user;
 
     @Column(name = "create_date", nullable = false)
     private LocalDateTime createDate;
 
-    @Enumerated(EnumType.ORDINAL) // matches smallint/int2 column
+    // keep status as ORDINAL if your column is smallint
+    @Enumerated(EnumType.ORDINAL)
     @Column(nullable = false)
     private NotificationStatus status;
 
     @Column(columnDefinition = "text", nullable = false)
     private String content;
 
-    @Enumerated(EnumType.ORDINAL)
-    @Column(nullable = false)
+    // IMPORTANT: STRING mapping so DB stores FRIEND_REQUEST, ...
+    @Enumerated(EnumType.STRING)
+    @Column(name = "type", nullable = false, length = 32)
     private NotificationType type;
 
     @PrePersist

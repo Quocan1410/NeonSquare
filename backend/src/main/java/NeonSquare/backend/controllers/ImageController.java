@@ -1,3 +1,4 @@
+// backend/src/main/java/NeonSquare/backend/controllers/ImageController.java
 package NeonSquare.backend.controllers;
 
 import NeonSquare.backend.models.Image;

@@ -1,3 +1,4 @@
+// backend/src/main/java/NeonSquare/backend/models/Reaction.java
 package NeonSquare.backend.models;
 
 import NeonSquare.backend.models.enums.ReactionType;

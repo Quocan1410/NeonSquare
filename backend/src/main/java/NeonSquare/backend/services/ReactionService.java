@@ -1,63 +1,67 @@
-// NeonSquare/backend/src/main/java/NeonSquare/backend/services/ReactionService.java
+// backend/src/main/java/NeonSquare/backend/services/ReactionService.java
 package NeonSquare.backend.services;
 
 import NeonSquare.backend.models.Post;
 import NeonSquare.backend.models.Reaction;
-import NeonSquare.backend.repositories.CommentRepository;
 import NeonSquare.backend.repositories.PostRepository;
 import NeonSquare.backend.repositories.ReactionRepository;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.util.List;
 import java.util.UUID;
 
 @Service
 public class ReactionService {
     private final ReactionRepository reactionRepository;
     private final PostRepository postRepository;
-    private final CommentRepository commentRepository;
 
-    @Autowired
-    public ReactionService(ReactionRepository reactionRepository, PostRepository postRepository, CommentRepository commentRepository) {
+    public ReactionService(ReactionRepository reactionRepository, PostRepository postRepository) {
         this.reactionRepository = reactionRepository;
         this.postRepository = postRepository;
-        this.commentRepository = commentRepository;
     }
 
     @Transactional
-    public Reaction createReaction(Reaction reaction){
+    public Reaction createReaction(Reaction reaction) {
         return reactionRepository.save(reaction);
     }
 
     @Transactional
-    public Reaction updateReaction(Reaction reaction){return reactionRepository.save(reaction);}
-
-    public Reaction findReactionByUserAndPost(UUID userId, UUID postId) {return reactionRepository.findReactionByUserAndPost(userId,postId);}
-
-    @Transactional
-    public boolean removeReaction(UUID postId) {
-        if (postRepository.existsById(postId)) {
-            postRepository.deleteById(postId);
-            return true;
-        }
-        return false;
+    public Reaction updateReaction(Reaction reaction) {
+        return reactionRepository.save(reaction);
     }
 
+    /**
+     * Returns the newest reaction by (user, post).
+     * If duplicates exist, prunes the older ones.
+     */
+    @Transactional
+    public Reaction findReactionByUserAndPost(UUID userId, UUID postId) {
+        List<Reaction> list = reactionRepository.findAllByUserAndPost(userId, postId);
+        if (list.isEmpty()) return null;
+        Reaction newest = list.get(0);
+        // prune older duplicates, if any
+        for (int i = 1; i < list.size(); i++) {
+            reactionRepository.delete(list.get(i));
+        }
+        return newest;
+    }
+
+    /** Remove the current user's reaction from a post (idempotent). */
     @Transactional
     public boolean removeReactionFromPost(UUID postId, UUID userId) {
         Post post = postRepository.findById(postId)
                 .orElseThrow(() -> new RuntimeException("Post not found"));
 
-        // Find and remove the user's reaction
-        Reaction userReaction = findReactionByUserAndPost(userId, postId);
-        if (userReaction != null) {
-            post.getReactions().removeIf(r -> r.getId().equals(userReaction.getId()));
-            reactionRepository.delete(userReaction);
-            postRepository.save(post);
-            return true;
-        }
-        return false;
-    }
+        List<Reaction> list = reactionRepository.findAllByUserAndPost(userId, postId);
+        if (list.isEmpty()) return false;
 
+        // remove all from join + table
+        for (Reaction r : list) {
+            post.getReactions().removeIf(x -> x.getId().equals(r.getId()));
+            reactionRepository.delete(r);
+        }
+        postRepository.save(post);
+        return true;
+    }
 }

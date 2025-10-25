@@ -104,9 +104,20 @@ public class GroupController {
             if (group.getMembers() != null) {
                 for (User m : group.getMembers()) {
                     if (author != null && m.getId().equals(author.getId())) continue; // don't notify self
-                    String who = author == null ? "Someone" : (author.getFirstName() + " " + author.getLastName()).trim();
+                    String first = author != null && author.getFirstName() != null ? author.getFirstName() : "";
+                    String last  = author != null && author.getLastName()  != null ? author.getLastName()  : "";
+                    String who   = (first + " " + last).trim();
+                    if (who.isBlank()) who = "Someone";
                     String msg = who + " posted in " + group.getName();
-                    NotificationType type = NotificationType.valueOf("postUpdate");
+
+                    // Be resilient if enum doesn't have POST_UPDATE; fall back to COMMENT
+                    NotificationType type;
+                    try {
+                        type = NotificationType.valueOf("POST_UPDATE");
+                    } catch (Exception e) {
+                        type = NotificationType.COMMENT;
+                    }
+
                     notificationService.createAndPush(m.getId(), type, msg);
                 }
             }
@@ -125,7 +136,10 @@ public class GroupController {
         response.setMemberCount(group.getMembers() != null ? group.getMembers().size() : 0);
 
         if (group.getCreatedBy() != null) {
-            response.setCreatedBy(group.getCreatedBy().getFirstName() + " " + group.getCreatedBy().getLastName());
+            String first = group.getCreatedBy().getFirstName() != null ? group.getCreatedBy().getFirstName() : "";
+            String last  = group.getCreatedBy().getLastName()  != null ? group.getCreatedBy().getLastName()  : "";
+            String full  = (first + " " + last).trim();
+            response.setCreatedBy(full.isBlank() ? "Unknown" : full);
         }
         return response;
     }

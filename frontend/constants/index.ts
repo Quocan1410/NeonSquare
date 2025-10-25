@@ -1,3 +1,4 @@
+// NeonSquare/frontend/constants/index.ts
 // Application constants
 
 export const APP_CONFIG = {

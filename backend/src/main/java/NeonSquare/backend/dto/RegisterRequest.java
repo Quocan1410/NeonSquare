@@ -1,3 +1,4 @@
+// backend/src/main/java/NeonSquare/backend/dto/RegisterRequest.java
 package NeonSquare.backend.dto;
 
 import lombok.AllArgsConstructor;
