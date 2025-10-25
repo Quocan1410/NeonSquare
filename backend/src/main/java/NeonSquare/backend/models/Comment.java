@@ -37,7 +37,7 @@ public class Comment {
     private Comment comment;
 
 
-    @OneToMany
+    @OneToMany(cascade = CascadeType.ALL, orphanRemoval = true)
     @JoinTable(
             name = "reaction_comment",
             joinColumns = @JoinColumn(name = "comment_id"),

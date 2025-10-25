@@ -30,4 +30,13 @@ public class PostService {
     public Post createPost(Post post){
         return postRepository.save(post);
     }
+
+    @Transactional
+    public boolean removePost(UUID postId) {
+        if (postRepository.existsById(postId)) {
+            postRepository.deleteById(postId);
+            return true;
+        }
+        return false;
+    }
 }
