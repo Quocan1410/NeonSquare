@@ -51,11 +51,7 @@ public class UserService {
         return userRepository.save(user);
     }
 
-    public List<User> getAllUsers() {
-        return userRepository.findAll();
-    }
-
-    public List<User> searchUsers(String query) {
-        return userRepository.findByFirstNameContainingIgnoreCaseOrLastNameContainingIgnoreCase(query, query);
+    public List<User> findUsersByName(String name){
+        return  userRepository.searchByName(name);
     }
 }
