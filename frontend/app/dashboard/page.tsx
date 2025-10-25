@@ -362,87 +362,105 @@ function Dashboard() {
                         </div>
                         <div>
                           <p className="font-semibold text-gray-900">Likes Received</p>
-                          <p className="text-sm text-gray-600">This week</p>
+                          <p className="text-sm text-gray-600">Total likes</p>
                         </div>
                       </div>
-                      <span className="text-3xl font-bold text-green-600">42</span>
+                      <span className="text-3xl font-bold text-green-600">{posts.reduce((total, post) => total + (post.reactionCount || 0), 0)}</span>
                     </div>
                     <div className="flex items-center justify-between p-4 bg-gradient-to-r from-purple-50 to-violet-50 rounded-xl">
                       <div className="flex items-center space-x-3">
                         <div className="w-12 h-12 bg-purple-100 rounded-xl flex items-center justify-center">
-                          <Share2 className="w-6 h-6 text-purple-600" />
+                          <MessageCircle className="w-6 h-6 text-purple-600" />
                         </div>
                         <div>
-                          <p className="font-semibold text-gray-900">Shares</p>
-                          <p className="text-sm text-gray-600">Your content</p>
+                          <p className="font-semibold text-gray-900">Comments</p>
+                          <p className="text-sm text-gray-600">Total comments</p>
                         </div>
                       </div>
-                      <span className="text-3xl font-bold text-purple-600">18</span>
+                      <span className="text-3xl font-bold text-purple-600">{posts.reduce((total, post) => total + (post.commentCount || 0), 0)}</span>
                     </div>
                   </div>
                 </div>
 
-                {/* Hot Topics */}
+                {/* Recent Activity */}
                 <div className="bg-white rounded-2xl shadow-sm border-0 p-6">
                   <h3 className="text-lg font-semibold text-gray-900 mb-4 flex items-center">
                     <Star className="w-5 h-5 mr-2 text-red-500" />
-                    Hot Topics
+                    Recent Activity
                   </h3>
                   <div className="space-y-3">
-                    {[
-                      { name: 'Study Tips', posts: 89, trend: 'up', color: 'bg-red-100 text-red-700' },
-                      { name: 'Exam Prep', posts: 67, trend: 'up', color: 'bg-orange-100 text-orange-700' },
-                      { name: 'Group Study', posts: 45, trend: 'up', color: 'bg-yellow-100 text-yellow-700' },
-                      { name: 'Career Advice', posts: 34, trend: 'down', color: 'bg-blue-100 text-blue-700' }
-                    ].map((topic, index) => (
-                      <div key={index} className="flex items-center justify-between p-3 hover:bg-gray-50 rounded-xl transition-colors group">
-                        <div className="flex items-center space-x-3">
-                          <div className={`w-8 h-8 ${topic.color} rounded-lg flex items-center justify-center group-hover:scale-110 transition-transform`}>
-                            <Hash className="w-4 h-4" />
+                    {posts.slice(0, 4).map((post, index) => {
+                      const colors = [
+                        'bg-red-100 text-red-700',
+                        'bg-orange-100 text-orange-700', 
+                        'bg-yellow-100 text-yellow-700',
+                        'bg-blue-100 text-blue-700'
+                      ];
+                      const color = colors[index % colors.length];
+                      const totalInteractions = (post.commentCount || 0) + (post.reactionCount || 0);
+                      
+                      return (
+                        <div key={post.id} className="flex items-center justify-between p-3 hover:bg-gray-50 rounded-xl transition-colors group">
+                          <div className="flex items-center space-x-3">
+                            <div className={`w-8 h-8 ${color} rounded-lg flex items-center justify-center group-hover:scale-110 transition-transform`}>
+                              <MessageCircle className="w-4 h-4" />
+                            </div>
+                            <div>
+                              <p className="font-medium text-gray-900 truncate max-w-32">
+                                {post.text ? post.text.substring(0, 30) + '...' : 'No content'}
+                              </p>
+                              <p className="text-sm text-gray-600">{totalInteractions} interactions</p>
+                            </div>
                           </div>
-                          <div>
-                            <p className="font-medium text-gray-900">#{topic.name}</p>
-                            <p className="text-sm text-gray-600">{topic.posts} posts</p>
+                          <div className="flex items-center space-x-2">
+                            <Star className="w-4 h-4 text-green-500" />
+                            <Button size="sm" className="bg-primary hover:bg-primary/90 text-white rounded-lg px-3 py-1 text-xs opacity-0 group-hover:opacity-100 transition-opacity">
+                              View
+                            </Button>
                           </div>
                         </div>
-                        <div className="flex items-center space-x-2">
-                          <Star className={`w-4 h-4 ${topic.trend === 'up' ? 'text-green-500' : 'text-red-500 rotate-180'}`} />
-                          <Button size="sm" className="bg-primary hover:bg-primary/90 text-white rounded-lg px-3 py-1 text-xs opacity-0 group-hover:opacity-100 transition-opacity">
-                            Join
-                          </Button>
-                        </div>
+                      );
+                    })}
+                    {posts.length === 0 && (
+                      <div className="text-center py-4 text-gray-500 text-sm">
+                        No recent posts
                       </div>
-                    ))}
+                    )}
                   </div>
                 </div>
 
-                {/* Community Leaders */}
+                {/* Recent Contributors */}
                 <div className="bg-gradient-to-br from-primary/5 to-primary/10 rounded-2xl border-0 p-6">
                   <h3 className="font-semibold text-gray-900 mb-4 flex items-center">
                     <Star className="w-5 h-5 mr-2 text-yellow-500" />
-                    Community Leaders
+                    Recent Contributors
                   </h3>
                   <div className="space-y-3">
-                    {[
-                      { name: 'Alex Chen', points: 1250, badge: 'Top Contributor' },
-                      { name: 'Emma Davis', points: 980, badge: 'Helper' },
-                      { name: 'David Brown', points: 750, badge: 'Rising Star' }
-                    ].map((leader, index) => (
-                      <div key={index} className="flex items-center justify-between p-3 bg-white/50 rounded-xl">
+                    {posts.slice(0, 3).map((post, index) => (
+                      <div key={post.id} className="flex items-center justify-between p-3 bg-white/50 rounded-xl">
                         <div className="flex items-center space-x-3">
                           <div className="w-8 h-8 bg-gradient-primary rounded-full flex items-center justify-center text-white font-semibold text-sm">
-                            {leader.name.split(' ').map(n => n[0]).join('')}
+                            {post.author ? `${post.author.firstName.charAt(0)}${post.author.lastName.charAt(0)}` : 'U'}
                           </div>
                           <div>
-                            <p className="font-medium text-gray-900 text-sm">{leader.name}</p>
-                            <p className="text-xs text-gray-600">{leader.points} points</p>
+                            <p className="font-medium text-gray-900 text-sm">
+                              {post.author ? `${post.author.firstName} ${post.author.lastName}` : 'Unknown User'}
+                            </p>
+                            <p className="text-xs text-gray-600">
+                              {(post.commentCount || 0) + (post.reactionCount || 0)} interactions
+                            </p>
                           </div>
                         </div>
                         <Badge className="bg-yellow-100 text-yellow-700 border-0 text-xs">
-                          {leader.badge}
+                          {index === 0 ? 'Active' : index === 1 ? 'Contributor' : 'Member'}
                         </Badge>
                       </div>
                     ))}
+                    {posts.length === 0 && (
+                      <div className="text-center py-4 text-gray-500 text-sm">
+                        No recent activity
+                      </div>
+                    )}
                   </div>
                 </div>
               </div>
