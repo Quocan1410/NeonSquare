@@ -3,6 +3,7 @@ import { Roboto } from "next/font/google";
 import "./globals.css";
 import { OnlineStatusProvider } from "@/contexts/OnlineStatusContext";
 import { AuthProvider } from "@/contexts/AuthContext";
+import { ThemeProvider } from "@/contexts/ThemeContext";
 
 const roboto = Roboto({
   variable: "--font-roboto",
@@ -26,15 +27,17 @@ export default function RootLayout({
       <head>
         <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/7.0.1/css/all.min.css" integrity="sha512-2SwdPD6INVrV/lHTZbO2nodKhrnDdJK9/kg2XD1r9uGqPo1cUbujc+IYdlYdEErWNu69gVcYgdxlmVmzTWnetw==" crossOrigin="anonymous" referrerPolicy="no-referrer" />
       </head>
-      <body
-        className={`${roboto.variable} antialiased`}
-      >
-        <AuthProvider>
-          <OnlineStatusProvider>
-            {children}
-          </OnlineStatusProvider>
-        </AuthProvider>
-      </body>
+                  <body
+                    className={`${roboto.variable} antialiased`}
+                  >
+                    <ThemeProvider>
+                      <AuthProvider>
+                        <OnlineStatusProvider>
+                          {children}
+                        </OnlineStatusProvider>
+                      </AuthProvider>
+                    </ThemeProvider>
+                  </body>
     </html>
   );
 }

@@ -25,10 +25,17 @@ const icons = {
 };
 
 const colors = {
-  success: 'bg-success/10 border-success/20 text-success',
-  error: 'bg-destructive/10 border-destructive/20 text-destructive',
-  warning: 'bg-warning/10 border-warning/20 text-warning',
-  info: 'bg-info/10 border-info/20 text-info',
+  success: 'bg-green-50 border-green-300 text-green-800',
+  error: 'bg-red-50 border-red-300 text-red-800',
+  warning: 'bg-yellow-50 border-yellow-300 text-yellow-800',
+  info: 'bg-blue-50 border-blue-300 text-blue-800',
+};
+
+const iconColors = {
+  success: 'text-green-600',
+  error: 'text-red-600',
+  warning: 'text-yellow-600',
+  info: 'text-blue-600',
 };
 
 export function ToastComponent({ toast, onRemove }: ToastProps) {
@@ -48,13 +55,13 @@ export function ToastComponent({ toast, onRemove }: ToastProps) {
   return (
     <div
       className={cn(
-        'fixed top-4 right-4 z-50 max-w-sm w-full bg-background border rounded-lg shadow-lg p-4 transition-all duration-300',
+        'fixed bottom-4 right-4 z-50 max-w-sm w-full border-2 rounded-xl shadow-xl p-4 transition-all duration-300 backdrop-blur-sm',
         colors[toast.type],
-        isVisible ? 'translate-x-0 opacity-100' : 'translate-x-full opacity-0'
+        isVisible ? 'translate-y-0 opacity-100 scale-100' : 'translate-y-full opacity-0 scale-95'
       )}
     >
       <div className="flex items-start space-x-3">
-        <Icon className="w-5 h-5 mt-0.5 flex-shrink-0" />
+        <Icon className={cn("w-5 h-5 mt-0.5 flex-shrink-0", iconColors[toast.type])} />
         <div className="flex-1 min-w-0">
           <h4 className="font-semibold text-sm">{toast.title}</h4>
           {toast.description && (
@@ -66,7 +73,7 @@ export function ToastComponent({ toast, onRemove }: ToastProps) {
             setIsVisible(false);
             setTimeout(() => onRemove(toast.id), 300);
           }}
-          className="flex-shrink-0 p-1 hover:bg-black/10 rounded transition-colors"
+          className="flex-shrink-0 p-1 hover:bg-black/10 rounded transition-colors text-gray-500 hover:text-gray-700"
         >
           <X className="w-4 h-4" />
         </button>
@@ -126,7 +133,7 @@ export function ToastContainer() {
   const { toasts, removeToast } = useToast();
 
   return (
-    <div className="fixed top-4 right-4 z-50 space-y-2">
+    <div className="fixed bottom-4 right-4 z-50 space-y-2">
       {toasts.map(toast => (
         <ToastComponent
           key={toast.id}

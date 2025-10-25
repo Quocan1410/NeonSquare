@@ -40,6 +40,7 @@ const post = {
   isBookmarked: false
 };
 
+// Mock data - would need backend API for comments
 const comments = [
   {
     id: '1',

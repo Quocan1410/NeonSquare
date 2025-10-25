@@ -1,7 +1,7 @@
 package NeonSquare.backend.controllers;
 
 import NeonSquare.backend.models.Friendship;
-import NeonSquare.backend.models.enums.Status;
+import NeonSquare.backend.models.enums.FriendshipStatus;
 import NeonSquare.backend.services.FriendshipService;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -11,6 +11,7 @@ import java.util.UUID;
 
 @RestController
 @RequestMapping("/api/friendships")
+@CrossOrigin(origins = {"http://localhost:3000", "http://localhost:3001"})
 public class FriendshipController {
 
     private final FriendshipService service;
@@ -35,7 +36,7 @@ public class FriendshipController {
     }
 
     @PutMapping("/{id}/status")
-    public ResponseEntity<Friendship> updateStatus(@PathVariable UUID id, @RequestParam Status status) {
+    public ResponseEntity<Friendship> updateStatus(@PathVariable UUID id, @RequestParam FriendshipStatus status) {
         return ResponseEntity.ok(service.updateStatus(id, status));
     }
 

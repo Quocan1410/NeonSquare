@@ -20,6 +20,7 @@ import {
 } from 'lucide-react';
 import Link from 'next/link';
 
+// Mock data - would need backend API for notifications
 const notifications = [
   {
     id: '1',

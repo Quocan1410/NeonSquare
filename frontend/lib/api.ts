@@ -155,28 +155,57 @@ class ApiService {
         });
     }
 
-    // Friendship endpoints (commented out until backend endpoints are ready)
-    // async getFriends(userId: string): Promise<User[]> {
-    //     return this.request<User[]>(`/friendships/${userId}/accepted`);
-    // }
+    // Friendship endpoints
+    async getFriends(userId: string): Promise<User[]> {
+        const friendships = await this.request<any[]>(`/friendships/${userId}/accepted`);
+        return friendships.map(f => f.receiver || f.sender).filter(u => u.id !== userId);
+    }
 
-    // async getFriendRequests(userId: string): Promise<any[]> {
-    //     return this.request<any[]>(`/friendships/requests/${userId}`);
-    // }
+    async getFriendRequests(userId: string): Promise<any[]> {
+        return this.request<any[]>(`/friendships`);
+    }
 
-    // async acceptFriendRequest(senderId: string, receiverId: string): Promise<void> {
-    //     await this.request<void>('/friendships/accept', {
-    //         method: 'POST',
-    //         body: JSON.stringify({ senderId, receiverId }),
-    //     });
-    // }
+    async sendFriendRequest(senderId: string, receiverId: string): Promise<any> {
+        return this.request<any>('/friendships', {
+            method: 'POST',
+            body: JSON.stringify({
+                sender: { id: senderId },
+                receiver: { id: receiverId },
+                status: 'PENDING'
+            }),
+        });
+    }
 
-    // async rejectFriendRequest(senderId: string, receiverId: string): Promise<void> {
-    //     await this.request<void>('/friendships/delete', {
-    //         method: 'DELETE',
-    //         body: JSON.stringify({ senderId, receiverId }),
-    //     });
-    // }
+    async acceptFriendRequest(senderId: string, receiverId: string): Promise<void> {
+        await this.request<void>('/friendships/accept', {
+            method: 'POST',
+            body: JSON.stringify({ senderId, receiverId }),
+        });
+    }
+
+    async rejectFriendRequest(senderId: string, receiverId: string): Promise<void> {
+        await this.request<void>('/friendships/delete', {
+            method: 'DELETE',
+            body: JSON.stringify({ senderId, receiverId }),
+        });
+    }
+
+    // Group endpoints
+    async getGroups(): Promise<any[]> {
+        return this.request<any[]>('/groups');
+    }
+
+    async createGroup(name: string, description: string, visibility: string, userId: string): Promise<any> {
+        return this.request<any>('/groups', {
+            method: 'POST',
+            body: JSON.stringify({
+                name,
+                description,
+                visibility,
+                userId,
+            }),
+        });
+    }
 
     // Notification endpoints (commented out until backend endpoints are ready)
     // async getNotifications(): Promise<any[]> {
@@ -196,7 +225,16 @@ class ApiService {
     }
 
     isAuthenticated(): boolean {
-        return !!this.token;
+        // Check both in-memory token and localStorage
+        if (this.token) return true;
+        if (typeof window !== 'undefined') {
+            const storedToken = localStorage.getItem('auth_token');
+            if (storedToken) {
+                this.token = storedToken;
+                return true;
+            }
+        }
+        return false;
     }
 }
 

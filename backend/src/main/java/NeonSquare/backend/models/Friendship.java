@@ -1,10 +1,11 @@
 package NeonSquare.backend.models;
 
-import NeonSquare.backend.models.enums.Status;
+import NeonSquare.backend.models.enums.FriendshipStatus;
 import jakarta.persistence.*;
 import lombok.*;
 import org.hibernate.annotations.UuidGenerator;
 
+import java.time.LocalDateTime;
 import java.util.UUID;
 @Entity
 @Getter
@@ -24,8 +25,11 @@ public class Friendship {
     @OneToOne
     private User receiver;
 
-    @Enumerated(EnumType.ORDINAL)
-    private Status status;
+    @Enumerated(EnumType.STRING)
+    private FriendshipStatus status;
+
+    @Column(name = "created_at")
+    private LocalDateTime createdAt;
 
 
     public UUID getId() {
@@ -44,12 +48,20 @@ public class Friendship {
         this.sender = sender;
     }
 
-    public Status getStatus() {
+    public FriendshipStatus getStatus() {
         return status;
     }
 
-    public void setStatus(Status status) {
+    public void setStatus(FriendshipStatus status) {
         this.status = status;
+    }
+
+    public LocalDateTime getCreatedAt() {
+        return createdAt;
+    }
+
+    public void setCreatedAt(LocalDateTime createdAt) {
+        this.createdAt = createdAt;
     }
 
     public User getReceiver() {

@@ -59,9 +59,10 @@ export function RegisterForm() {
         addToast({
           type: 'success',
           title: 'Registration Successful',
-          description: 'Welcome to the forum!',
+          description: 'Please sign in to continue',
         });
-        router.push('/dashboard');
+        // Redirect to login with email pre-filled
+        router.push(`/login?email=${encodeURIComponent(formData.email)}`);
       } else {
         addToast({
           type: 'error',
