@@ -56,4 +56,18 @@ public class UserController {
         List<UserDTO> dtos = users.stream().map(UserDTO::new).collect(Collectors.toList());
         return ResponseEntity.ok(dtos);
     }
+
+    @PutMapping("/{id}")
+    public ResponseEntity<UserDTO> updateUser(@PathVariable UUID id, @RequestBody UserDTO userDTO) {
+        User updatedUser = userService.updateUser(id, userDTO);
+        return ResponseEntity.ok(new UserDTO(updatedUser));
+    }
+
+    @GetMapping("/me")
+    public ResponseEntity<UserDTO> getCurrentUser(@RequestHeader("Authorization") String token) {
+        // Extract user ID from token (simplified for now)
+        // In a real app, you'd validate the JWT token and extract user info
+        User user = userService.getCurrentUserFromToken(token);
+        return ResponseEntity.ok(new UserDTO(user));
+    }
 }

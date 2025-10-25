@@ -18,7 +18,7 @@ public class PostService {
     }
 
     public List<Post> getAllFilterPosts(){
-        return postRepository.findAllByOrderByUpdateAtDesc();
+        return postRepository.findAllByOrderByUpdatedAtDesc();
     }
 
     public Post getPost(UUID id) {

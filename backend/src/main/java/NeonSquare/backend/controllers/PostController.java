@@ -65,9 +65,9 @@ public class PostController {
         }
 
         Post createPost = new Post();
-        createPost.setText(postRequest.getText());
+        createPost.setContent(postRequest.getText());
         createPost.setVisibility(postRequest.getVisibility());
-        createPost.setUser(user);
+        createPost.setAuthor(user);
 
         if (files != null && !files.isEmpty()) {
             var images = imageService.saveImages(files);
@@ -76,5 +76,6 @@ public class PostController {
         Post savedPost = postService.createPost(createPost);
         return ResponseEntity.ok(new PostDTO(savedPost));
     }
+
 
 }

@@ -17,11 +17,11 @@ public class PostDTO {
 
     public PostDTO(Post post){
         id = post.getId();
-        text = post.getText();
-        user = new UserDTO(post.getUser());
+        text = post.getContent();
+        user = new UserDTO(post.getAuthor());
         visibility = post.getVisibility();
-        updateAt = post.getUpdateAt();
-        profilePicUrls = post.getImages().stream().map(image -> "/api/images/" + image.getId()).toList();
+        updateAt = post.getUpdatedAt() != null ? post.getUpdatedAt().toLocalDate() : null;
+        profilePicUrls = post.getImages() != null ? post.getImages().stream().map(image -> "/api/images/" + image.getId()).toList() : List.of();
     }
 
     public UUID getId() {
