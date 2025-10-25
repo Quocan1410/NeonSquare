@@ -28,9 +28,7 @@ public class Reaction {
     @JoinColumn(name = "user_id")
     private User user;
 
-    @ManyToOne
-    @JoinColumn(name = "post_id")
-    private Post post;
+
 
     @Column(name = "created_at")
     private LocalDateTime createdAt;
@@ -59,13 +57,6 @@ public class Reaction {
         this.user = user;
     }
 
-    public Post getPost() {
-        return post;
-    }
-
-    public void setPost(Post post) {
-        this.post = post;
-    }
 
     public LocalDateTime getCreatedAt() {
         return createdAt;

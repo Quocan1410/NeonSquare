@@ -2,11 +2,15 @@ package NeonSquare.backend.controllers;
 
 import NeonSquare.backend.dto.PostDTO;
 import NeonSquare.backend.dto.PostRequest;
+import NeonSquare.backend.dto.ReactionDTO;
 import NeonSquare.backend.models.Post;
+import NeonSquare.backend.models.Reaction;
 import NeonSquare.backend.models.User;
 import NeonSquare.backend.services.ImageService;
 import NeonSquare.backend.services.PostService;
+import NeonSquare.backend.services.ReactionService;
 import NeonSquare.backend.services.UserService;
+import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -29,11 +33,14 @@ public class PostController {
 
     private  final UserService userService;
 
+    private final ReactionService reactionService;
+
     @Autowired
-    public PostController(ImageService imageService, PostService postService, UserService userService) {
+    public PostController(ImageService imageService, PostService postService, UserService userService, ReactionService reactionService) {
         this.imageService = imageService;
         this.postService = postService;
         this.userService = userService;
+        this.reactionService = reactionService;
     }
 
 
@@ -89,4 +96,26 @@ public class PostController {
         }
     }
 
+    @PostMapping("/{id}/reaction")
+    public ResponseEntity<ReactionDTO> createReaction(@PathVariable UUID id, @RequestParam("reaction") String reaction) throws IOException {
+        ObjectMapper mapper = new ObjectMapper();
+        mapper.registerModule(new JavaTimeModule());
+        ReactionDTO reactionDTO = mapper.readValue(reaction, ReactionDTO.class);
+
+        Post post = postService.getPost(id);
+        User user = userService.getUser(reactionDTO.getUserId());
+
+        if (post == null || user == null) {
+            return ResponseEntity.badRequest().build();
+        }
+        Reaction createReaction = new Reaction();
+        createReaction.setCreatedAt(reactionDTO.getCreatedAt());
+        createReaction.setType(createReaction.getType());
+        createReaction.setUser(user);
+
+        Reaction saveReaction = reactionService.createReaction(createReaction);
+        post.getReactions().add(saveReaction);
+        postService.updatePost(post);
+        return  ResponseEntity.ok(reactionDTO);
+    }
 }
