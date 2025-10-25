@@ -55,7 +55,7 @@ export interface Reaction {
     createdAt: string;
 }
 
-export type ReactionType = 'LIKE' | 'LOVE' | 'WOW' | 'SAD' | 'ANGRY';
+export type ReactionType = 'LIKE';
 
 export interface AuthResponse {
     token: string;
@@ -220,9 +220,9 @@ class ApiService {
     }
 
     async removeReaction(postId: string, userId: string): Promise<void> {
-        // Note: Backend doesn't have remove reaction endpoint yet
-        // This would need to be implemented
-        throw new Error('Remove reaction not implemented yet');
+        return this.request<void>(`/posts/${postId}/${userId}/delete`, {
+            method: 'PATCH',
+        });
     }
 
 

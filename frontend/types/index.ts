@@ -99,22 +99,22 @@ export interface Notification {
 }
 
 export interface Conversation {
-  id: string;
-  user: Partial<User>;
-  lastMessage: string;
-  time: string;
-  unreadCount: number;
-  isPinned: boolean;
-  isArchived: boolean;
+    id: string;
+    user: Partial<User>;
+    lastMessage: string;
+    time: string;
+    unreadCount: number;
+    isPinned: boolean;
+    isArchived: boolean;
 }
 
 export interface Message {
-  id: string;
-  senderId: string;
-  content: string;
-  time: string;
-  isRead: boolean;
-  conversationId: string;
+    id: string;
+    senderId: string;
+    content: string;
+    time: string;
+    isRead: boolean;
+    conversationId: string;
 }
 
 
@@ -122,7 +122,7 @@ export interface Message {
 export type PostVisibility = 'public' | 'friends' | 'private';
 export type GroupVisibility = 'public' | 'private';
 export type NotificationType = 'friendRequest' | 'postUpdate' | 'groupCreation' | 'memberRequest';
-export type ReactionType = 'like' | 'love' | 'laugh' | 'angry' | 'sad' | 'wow';
+export type ReactionType = 'like';
 
 export interface ApiResponse<T = any> {
     success: boolean;
