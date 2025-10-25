@@ -1,27 +1,66 @@
 // NeonSquare/frontend/components/posts/PostCard.tsx
 'use client';
 
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { Button } from '@/components/ui/button';
 import { OnlineIndicator } from '@/components/ui/online-indicator';
 import { ImageGallery } from '@/components/ui/image-gallery';
-import { Heart, MessageCircle, MoreHorizontal, Eye } from 'lucide-react';
+import { Heart, MessageCircle, MoreHorizontal, Eye, ThumbsUp, Laugh, Zap, Frown, Angry } from 'lucide-react';
 import Link from 'next/link';
-import { Post } from '@/lib/api';
+import { Post, apiService } from '@/lib/api';
 import { CommentModal } from './CommentModal';
+import { ReactionType } from '@/lib/api';
 
 interface PostCardProps {
   post: Post;
 }
 
+// Reaction icons and colors mapping
+const reactionIcons = {
+  LIKE: ThumbsUp,
+  LOVE: Heart,
+  WOW: Zap,
+  SAD: Frown,
+  ANGRY: Angry,
+};
+
+const reactionColors = {
+  LIKE: 'text-blue-500',
+  LOVE: 'text-red-500',
+  WOW: 'text-purple-500',
+  SAD: 'text-gray-500',
+  ANGRY: 'text-orange-500',
+};
+
 export function PostCard({ post }: PostCardProps) {
-  const [isLiked, setIsLiked] = useState(false);
-  const [likeCount, setLikeCount] = useState(post.reactionCount || 0);
   const [isGalleryOpen, setIsGalleryOpen] = useState(false);
   const [galleryIndex, setGalleryIndex] = useState(0);
   const [isHovered, setIsHovered] = useState(false);
   const [isCommentModalOpen, setIsCommentModalOpen] = useState(false);
+  const [reactions, setReactions] = useState(post.reactions || []);
+  
+  // Mock current user ID - in real app, get from auth context
+  const currentUserId = 'current-user-id';
+  
+  // Find current user's reaction
+  const currentReaction = reactions.find(r => r.user.id === currentUserId)?.type || null;
+  
+  // Load reactions from backend when component mounts
+  useEffect(() => {
+    const loadReactions = async () => {
+      try {
+        const postReactions = await apiService.getPostReactions(post.id);
+        setReactions(postReactions);
+      } catch (error) {
+        console.error('Error loading reactions:', error);
+        // Fallback to post.reactions if API fails
+        setReactions(post.reactions || []);
+      }
+    };
+    
+    loadReactions();
+  }, [post.id, post.reactions]);
 
   // Add null checks
   if (!post || !post.author) {
@@ -42,9 +81,60 @@ export function PostCard({ post }: PostCardProps) {
     );
   }
 
-  const handleLike = () => {
-    setIsLiked(!isLiked);
-    setLikeCount(prev => isLiked ? prev - 1 : prev + 1);
+
+  const handleReactionChange = async (reaction: ReactionType | null) => {
+    try {
+      if (reaction) {
+        // Check if user already has this reaction
+        const existingReaction = reactions.find(r => r.user.id === currentUserId && r.type === reaction);
+        
+        if (existingReaction) {
+          // If same reaction, remove it (unclick)
+          await apiService.removeReaction(post.id, currentUserId);
+          setReactions(prev => prev.filter(r => r.id !== existingReaction.id));
+        } else {
+          // Remove any existing reaction from current user first
+          const filteredReactions = reactions.filter(r => r.user.id !== currentUserId);
+          
+          // Add new reaction via API
+          const newReaction = await apiService.addReaction(post.id, reaction, currentUserId);
+          
+          // Add new reaction to local state
+          setReactions([...filteredReactions, newReaction]);
+        }
+      } else {
+        // Remove current user's reaction
+        await apiService.removeReaction(post.id, currentUserId);
+        setReactions(prev => prev.filter(r => r.user.id !== currentUserId));
+      }
+    } catch (error) {
+      console.error('Error handling reaction:', error);
+      // Fallback to local state update
+      if (reaction) {
+        const existingReaction = reactions.find(r => r.user.id === currentUserId && r.type === reaction);
+        if (existingReaction) {
+          setReactions(prev => prev.filter(r => r.id !== existingReaction.id));
+        } else {
+          const filteredReactions = reactions.filter(r => r.user.id !== currentUserId);
+          const newReaction = {
+            id: Date.now().toString(),
+            type: reaction,
+            user: {
+              id: currentUserId,
+              firstName: 'You',
+              lastName: '',
+              email: 'you@example.com',
+              isOnline: true,
+              lastSeen: 'Online now'
+            },
+            createdAt: new Date().toISOString()
+          };
+          setReactions([...filteredReactions, newReaction]);
+        }
+      } else {
+        setReactions(prev => prev.filter(r => r.user.id !== currentUserId));
+      }
+    }
   };
 
   const handleImageClick = (index: number) => {
@@ -149,37 +239,72 @@ export function PostCard({ post }: PostCardProps) {
         </div>
       )}
 
-      {/* Post Actions */}
-      <div className="px-6 py-4 border-t border-slate-200 dark:border-slate-700 bg-slate-50/50 dark:bg-slate-900/50">
-        <div className="flex items-center justify-between">
-          <div className="flex items-center space-x-6">
-            <Button
-              variant="ghost"
-              size="sm"
-              onClick={handleLike}
-              className={`flex items-center space-x-2 px-4 py-2 rounded-full transition-all duration-200 ${
-                isLiked 
-                  ? 'text-red-500 bg-red-50 dark:bg-red-900/20 hover:bg-red-100 dark:hover:bg-red-900/30' 
-                  : 'text-slate-600 dark:text-slate-400 hover:text-red-500 hover:bg-red-50 dark:hover:bg-red-900/20'
-              }`}
-            >
-              <Heart className={`w-5 h-5 transition-transform duration-200 ${isLiked ? 'fill-current scale-110' : 'hover:scale-110'}`} />
-              <span className="font-medium">{likeCount || 0}</span>
-            </Button>
+      {/* Likes Count */}
+      {reactions.length > 0 && (
+        <div className="px-6 py-2 border-t border-slate-200 dark:border-slate-700 bg-slate-50/30 dark:bg-slate-900/30">
+          <div className="flex items-center space-x-2">
+            <div className="flex items-center -space-x-1">
+              {reactions.slice(0, 3).map((reaction, index) => {
+                const Icon = reactionIcons[reaction.type];
+                const color = reactionColors[reaction.type];
+                
+                return (
+                  <div
+                    key={reaction.id}
+                    className={`
+                      w-6 h-6 rounded-full border-2 border-white flex items-center justify-center
+                      ${color} bg-white shadow-sm
+                      ${index > 0 ? '-ml-1' : ''}
+                    `}
+                    style={{ zIndex: 3 - index }}
+                  >
+                    <Icon className="w-3 h-3" />
+                  </div>
+                );
+              })}
+              {reactions.length > 3 && (
+                <div className="w-6 h-6 rounded-full border-2 border-white bg-gray-100 text-gray-600 text-xs font-medium flex items-center justify-center -ml-1">
+                  +{reactions.length - 3}
+                </div>
+              )}
+            </div>
             
-            <Button
-              variant="ghost"
-              size="sm"
-              onClick={handleCommentClick}
-              className="flex items-center space-x-2 px-4 py-2 rounded-full text-slate-600 dark:text-slate-400 hover:text-blue-500 hover:bg-blue-50 dark:hover:bg-blue-900/20 transition-all duration-200"
-            >
-              <MessageCircle className="w-5 h-5 hover:scale-110 transition-transform duration-200" />
-              <span className="font-medium">{post.commentCount || 0}</span>
-            </Button>
+            <div className="text-sm text-gray-600 dark:text-gray-400">
+              {reactions.length} {reactions.length === 1 ? 'like' : 'likes'}
+            </div>
           </div>
-          
-          <div className="text-xs text-slate-500 dark:text-slate-400">
-            {post.commentCount || 0} comments • {likeCount || 0} likes
+        </div>
+      )}
+
+      {/* Action Buttons */}
+      <div className="px-6 py-3 border-t border-slate-200 dark:border-slate-700 bg-slate-50/50 dark:bg-slate-900/50">
+        <div className="flex items-center justify-between">
+          <div className="flex items-center space-x-1">
+            {/* Like Button */}
+            <button
+              onClick={() => handleReactionChange(currentReaction === 'LIKE' ? null : 'LIKE')}
+              className={`
+                flex items-center space-x-2 px-4 py-2 rounded-lg transition-all duration-200 flex-1 justify-center
+                ${currentReaction === 'LIKE' 
+                  ? 'bg-blue-50 text-blue-600 border border-blue-200' 
+                  : 'text-gray-600 hover:bg-gray-100 dark:hover:bg-gray-700'
+                }
+              `}
+            >
+              <ThumbsUp className={`w-5 h-5 ${currentReaction === 'LIKE' ? 'fill-current' : ''}`} />
+              <span className="font-medium">
+                {currentReaction === 'LIKE' ? 'Liked' : 'Like'}
+              </span>
+            </button>
+            
+            {/* Comment Button */}
+            <button
+              onClick={handleCommentClick}
+              className="flex items-center space-x-2 px-4 py-2 rounded-lg text-gray-600 hover:bg-gray-100 dark:hover:bg-gray-700 transition-all duration-200 flex-1 justify-center"
+            >
+              <MessageCircle className="w-5 h-5" />
+              <span className="font-medium">Comment</span>
+            </button>
           </div>
         </div>
       </div>
@@ -198,6 +323,7 @@ export function PostCard({ post }: PostCardProps) {
         onClose={() => setIsCommentModalOpen(false)}
         post={post}
       />
+
     </article>
   );
 }

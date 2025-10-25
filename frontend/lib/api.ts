@@ -54,6 +54,8 @@ export interface Reaction {
   user: User;
 }
 
+export type ReactionType = 'LIKE';
+
 export interface AuthResponse {
   token: string;
   userId: string;

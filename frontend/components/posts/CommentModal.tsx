@@ -4,7 +4,7 @@
 import { useState, useEffect } from 'react';
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog';
 import { Button } from '@/components/ui/button';
-import { Loader2, Send, MessageCircle, MoreHorizontal, Heart } from 'lucide-react';
+import { Loader2, Send, MessageCircle, MoreHorizontal, ThumbsUp } from 'lucide-react';
 import { Comment, Post } from '@/lib/api';
 import { apiService } from '@/lib/api';
 import { useAuth } from '@/contexts/AuthContext';
@@ -260,7 +260,7 @@ export function CommentModal({ isOpen, onClose, post }: CommentModalProps) {
                         </p>
                         <div className="flex items-center space-x-6">
                           <button className="flex items-center space-x-1 text-slate-500 dark:text-slate-400 hover:text-blue-500 transition-colors duration-200 group/btn">
-                            <Heart className="w-4 h-4 group-hover/btn:scale-110 transition-transform duration-200" />
+                            <ThumbsUp className="w-4 h-4 group-hover/btn:scale-110 transition-transform duration-200" />
                             <span className="text-xs font-medium">Like</span>
                           </button>
                           <button 
@@ -331,7 +331,7 @@ export function CommentModal({ isOpen, onClose, post }: CommentModalProps) {
                                         </p>
                                         <div className="flex items-center space-x-4">
                                           <button className="flex items-center space-x-1 text-slate-500 dark:text-slate-400 hover:text-blue-500 transition-colors duration-200 group/btn">
-                                            <Heart className="w-4 h-4 group-hover/btn:scale-110 transition-transform duration-200" />
+                                            <ThumbsUp className="w-4 h-4 group-hover/btn:scale-110 transition-transform duration-200" />
                                             <span className="text-xs font-medium">Like</span>
                                           </button>
                                           <button 
