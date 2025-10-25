@@ -99,7 +99,7 @@ export interface Notification {
 
 export interface Conversation {
   id: string;
-  user: User;
+  user: Partial<User>;
   lastMessage: string;
   time: string;
   unreadCount: number;
@@ -113,6 +113,7 @@ export interface Message {
   content: string;
   time: string;
   isRead: boolean;
+  conversationId: string;
 }
 
 

@@ -3,7 +3,6 @@ export const conversations = [
     id: '1',
     user: {
       fullName: 'Sarah Wilson',
-      username: '@sarahw',
       profilePic: '/avatars/03.png',
       isOnline: true
     },
@@ -17,7 +16,6 @@ export const conversations = [
     id: '2',
     user: {
       fullName: 'Mike Johnson',
-      username: '@mikej',
       profilePic: '/avatars/02.png',
       isOnline: false
     },
@@ -31,7 +29,6 @@ export const conversations = [
     id: '3',
     user: {
       fullName: 'Alex Chen',
-      username: '@alexc',
       profilePic: '/avatars/04.png',
       isOnline: true
     },
@@ -45,7 +42,6 @@ export const conversations = [
     id: '4',
     user: {
       fullName: 'Emma Davis',
-      username: '@emmad',
       profilePic: '/avatars/05.png',
       isOnline: false
     },
@@ -59,7 +55,6 @@ export const conversations = [
     id: '5',
     user: {
       fullName: 'Tom Brown',
-      username: '@tomb',
       profilePic: '/avatars/06.png',
       isOnline: false
     },
@@ -77,34 +72,39 @@ export const messages = [
     senderId: 'current',
     content: 'Hey Sarah! How did your calculus exam go?',
     time: '10:30 AM',
-    isRead: true
+    isRead: true,
+    conversationId: '1'
   },
   {
     id: '2',
     senderId: '1',
     content: 'It went really well! Thanks for asking. The study tips you shared were super helpful.',
     time: '10:32 AM',
-    isRead: true
+    isRead: true,
+    conversationId: '1'
   },
   {
     id: '3',
     senderId: 'current',
     content: 'That\'s awesome! I\'m so glad they helped. What was the hardest part?',
     time: '10:35 AM',
-    isRead: true
+    isRead: true,
+    conversationId: '1'
   },
   {
     id: '4',
     senderId: '1',
     content: 'The integration by parts problems were tricky, but I managed to work through them step by step.',
     time: '10:37 AM',
-    isRead: true
+    isRead: true,
+    conversationId: '1'
   },
   {
     id: '5',
     senderId: '1',
     content: 'Thanks for the study tips! They really helped me with my calculus exam.',
     time: '2 minutes ago',
-    isRead: false
+    isRead: false,
+    conversationId: '1'
   }
 ];
