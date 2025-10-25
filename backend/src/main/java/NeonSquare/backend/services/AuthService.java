@@ -22,7 +22,7 @@ public class AuthService {
 
     public AuthResponse register(RegisterRequest request) {
         // Check if user already exists
-        if (userRepository.findByEmail(request.getEmail()).isPresent()) {
+        if (userRepository.findByEmail(request.getEmail()) != null) {
             return new AuthResponse(null, null, null, null, null, "Email already exists", false);
         }
 
@@ -51,8 +51,7 @@ public class AuthService {
 
     public AuthResponse login(LoginRequest request) {
         // Find user by email
-        User user = userRepository.findByEmail(request.getEmail())
-            .orElse(null);
+        User user = userRepository.findByEmail(request.getEmail());
 
         if (user == null) {
             return new AuthResponse(null, null, null, null, null, "User not found", false);
