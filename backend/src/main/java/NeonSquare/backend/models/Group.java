@@ -36,8 +36,6 @@ public class Group {
     )
     private List<Post> posts;
 
-    @Enumerated(EnumType.ORDINAL)
-    private Status status;
 
     @ManyToMany
     @JoinTable(
@@ -82,13 +80,6 @@ public class Group {
         this.posts = posts;
     }
 
-    public Status getStatus() {
-        return status;
-    }
-
-    public void setStatus(Status status) {
-        this.status = status;
-    }
 
     public List<User> getMembers() {
         return members;

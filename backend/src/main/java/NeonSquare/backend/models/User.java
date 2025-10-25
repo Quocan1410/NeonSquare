@@ -1,5 +1,6 @@
 package NeonSquare.backend.models;
 
+import NeonSquare.backend.models.enums.UserStatus;
 import jakarta.persistence.*;
 import lombok.*;
 import org.hibernate.annotations.UuidGenerator;
@@ -34,6 +35,8 @@ public class User {
     @ManyToMany(mappedBy = "members")
     private List<Group> groups;
 
+    @Enumerated(EnumType.ORDINAL)
+    private UserStatus status;
 
     public UUID getId() {
         return id;
@@ -89,5 +92,13 @@ public class User {
 
     public void setGroups(List<Group> groups) {
         this.groups = groups;
+    }
+
+    public UserStatus getStatus() {
+        return status;
+    }
+
+    public void setStatus(UserStatus status) {
+        this.status = status;
     }
 }
