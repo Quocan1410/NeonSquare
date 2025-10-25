@@ -1,131 +1,132 @@
 'use client';
 
+import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
-import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
-import { OnlineIndicator } from '@/components/ui/online-indicator';
-import { Paperclip, Image, Smile, Send, Phone, Video, Info, MoreHorizontal } from 'lucide-react';
-
-import { Message } from '@/types';
-import { socket } from '@/lib/socket';
-import { Dispatch, SetStateAction } from 'react';
+import { cn } from '@/lib/utils';
+import { Send } from 'lucide-react';
+import { socket, joinConversation, leaveConversation, getHistory, sendMessage as emitMessage, type Message } from '@/lib/socket';
 
 interface ChatAreaProps {
-  conversation: any;
-  messages: any[];
-  setMessages: Dispatch<SetStateAction<Message[]>>;
-  newMessage: string;
-  setNewMessage: Dispatch<SetStateAction<string>>;
+  conversationId: string;
+  currentUserId: string;
+  className?: string;
 }
 
-export default function ChatArea({ conversation, messages, setMessages, newMessage, setNewMessage }: ChatAreaProps) {
-  const handleSendMessage = () => {
-    if (!newMessage.trim()) return;
+export default function ChatArea({ conversationId, currentUserId, className }: ChatAreaProps) {
+  const [messages, setMessages] = useState<Message[]>([]);
+  const [text, setText] = useState('');
+  const [isSending, setIsSending] = useState(false);
+  const [connected, setConnected] = useState<boolean>(socket.connected);
+  const listRef = useRef<HTMLDivElement>(null);
 
-    const message: Message = {
-      id: Date.now().toString(),
-      content: newMessage,
-      senderId: 'current',
-      time: Date.now().toString(),
-      isRead: false,
-      conversationId: conversation.id,
+  const canSend = useMemo(() => text.trim().length > 0 && connected && !isSending, [text, connected, isSending]);
+
+  useEffect(() => {
+    const onConnect = () => setConnected(true);
+    const onDisconnect = () => setConnected(false);
+
+    if (!socket.connected) socket.connect();
+    setConnected(socket.connected);
+    socket.on('connect', onConnect);
+    socket.on('disconnect', onDisconnect);
+    return () => {
+      socket.off('connect', onConnect);
+      socket.off('disconnect', onDisconnect);
+    };
+  }, []);
+
+  useEffect(() => {
+    if (!conversationId) return;
+
+    setMessages([]);
+    joinConversation(conversationId, currentUserId);
+
+    getHistory(conversationId, (history) => {
+      setMessages(Array.isArray(history) ? history : []);
+      const el = listRef.current;
+      if (el) el.scrollTop = el.scrollHeight;
+    });
+
+    const onReceive = (message: Message) => {
+      if (message.conversationId === conversationId) {
+        setMessages((prev) => [...prev, message]);
+      }
     };
 
-    socket.emit('sendMessage', message);
+    socket.on('receiveMessage', onReceive);
 
-    setMessages((prev) => [...prev, message]);
-    setNewMessage('');
-  };
+    return () => {
+      socket.off('receiveMessage', onReceive);
+      leaveConversation(conversationId, currentUserId);
+    };
+  }, [conversationId, currentUserId]);
 
-  const handleKeyPress = (e: React.KeyboardEvent) => {
+  useEffect(() => {
+    const el = listRef.current;
+    if (!el) return;
+    const nearBottom = el.scrollHeight - el.scrollTop - el.clientHeight < 120;
+    if (nearBottom) el.scrollTo({ top: el.scrollHeight, behavior: 'smooth' });
+  }, [messages]);
+
+  const handleSend = useCallback(() => {
+    const trimmed = text.trim();
+    if (!trimmed) return;
+    const msg: Message = {
+      id: `${Date.now()}`,
+      conversationId,
+      senderId: currentUserId,
+      content: trimmed,
+      createdAt: new Date().toISOString(),
+    };
+    setIsSending(true);
+    setMessages((prev) => [...prev, msg]);
+    setText('');
+    emitMessage(msg);
+    window.setTimeout(() => setIsSending(false), 150);
+  }, [conversationId, currentUserId, text]);
+
+  const onKeyDown = (e: React.KeyboardEvent<HTMLInputElement>) => {
     if (e.key === 'Enter' && !e.shiftKey) {
       e.preventDefault();
-      handleSendMessage();
+      if (canSend) handleSend();
     }
   };
 
-  if (!conversation) {
-    return (
-      <div className="flex-1 flex items-center justify-center">
-        <div className="text-center">
-          <p className="text-forum-secondary">Select a conversation to start messaging</p>
-        </div>
-      </div>
-    );
-  }
-
   return (
-    <div className="flex-1 flex flex-col">
-      {/* Chat Header */}
-      <div className="p-4 border-b border-border bg-background/95 backdrop-blur flex justify-between items-center">
-        <div className="flex items-center space-x-3">
-          <Avatar className="avatar-forum w-10 h-10">
-            <AvatarImage src={conversation.user.profilePic} alt={conversation.user.fullName} />
-            <AvatarFallback className="gradient-primary text-primary-foreground">
-              {conversation.user.fullName.split(' ').map((n: string[]) => n[0]).join('')}
-            </AvatarFallback>
-          </Avatar>
-          <div>
-            <h3 className="font-semibold text-forum-primary">{conversation.user.fullName}</h3>
-            <OnlineIndicator showText={true} size="sm" />
-          </div>
-        </div>
-        <div className="flex items-center space-x-2">
-          {[Phone, Video, Info, MoreHorizontal].map((Icon, i) => (
-            <Button key={i} variant="ghost" size="sm" className="btn-forum">
-              <Icon className="w-4 h-4" />
-            </Button>
-          ))}
+    <div className={cn('flex h-full flex-col w-full', className)}>
+      <div className="flex items-center justify-between border-b px-4 py-2">
+        <div className="text-sm text-muted-foreground">Conversation {conversationId}</div>
+        <div className={cn('rounded-full px-2 py-0.5 text-xs', connected ? 'bg-emerald-100 text-emerald-700' : 'bg-rose-100 text-rose-700')}>
+          {connected ? 'connected' : 'disconnected'}
         </div>
       </div>
 
-      {/* Messages */}
-      <div className="flex-1 overflow-y-auto p-4 space-y-4">
-        {messages.map((message) => (
-          <div
-            key={message.id}
-            className={`flex ${message.senderId === 'current' ? 'justify-end' : 'justify-start'}`}
-          >
-            <div
-              className={`max-w-xs lg:max-w-md px-4 py-2 rounded-lg ${
-                message.senderId === 'current'
-                  ? 'bg-primary text-primary-foreground'
-                  : 'bg-muted text-forum-primary'
-              }`}
-            >
-              <p className="text-sm">{message.content}</p>
-              <p className={`text-xs mt-1 ${message.senderId === 'current' ? 'text-primary-foreground/70' : 'text-forum-secondary'}`}>
-                {message.time}
-              </p>
+      <div ref={listRef} className="flex-1 space-y-2 overflow-auto px-4 py-3">
+        {messages.map((m, idx) => {
+          const mine = m.senderId === currentUserId;
+          return (
+            <div key={m.id ?? `${m.senderId}-${idx}-${m.createdAt ?? ''}`} className={cn('flex', mine ? 'justify-end' : 'justify-start')}>
+              <div
+                className={cn('max-w-[75%] whitespace-pre-wrap rounded-2xl px-3 py-2 text-sm shadow-sm', mine ? 'bg-primary text-primary-foreground' : 'bg-muted text-foreground')}
+                title={m.createdAt ? new Date(m.createdAt).toLocaleString() : undefined}
+              >
+                {m.content}
+              </div>
             </div>
-          </div>
-        ))}
+          );
+        })}
+        {messages.length === 0 && <div className="py-8 text-center text-sm text-muted-foreground">No messages yet. Say hello!</div>}
       </div>
 
-      {/* Message Input */}
-      <div className="p-4 border-t border-border bg-background/95 backdrop-blur flex items-center space-x-3">
-        {[Paperclip, Image].map((Icon, i) => (
-          <Button key={i} variant="ghost" size="sm" className="btn-forum">
-            <Icon className="w-4 h-4" />
+      <div className="border-t px-3 py-3">
+        <div className="flex items-center gap-2">
+          <Input value={text} onChange={(e) => setText(e.target.value)} onKeyDown={onKeyDown} placeholder="Type a message..." className="flex-1" aria-label="Message input" />
+          <Button onClick={handleSend} disabled={!canSend} className="btn-primary">
+            <Send className="mr-1 h-4 w-4" />
+            Send
           </Button>
-        ))}
-
-        <div className="flex-1">
-          <Input
-            placeholder="Type a message..."
-            value={newMessage}
-            onChange={(e) => setNewMessage(e.target.value)}
-            onKeyPress={handleKeyPress}
-            className="input-forum"
-          />
         </div>
-
-        <Button variant="ghost" size="sm" className="btn-forum">
-          <Smile className="w-4 h-4" />
-        </Button>
-        <Button onClick={handleSendMessage} className="btn-primary">
-          <Send className="w-4 h-4" />
-        </Button>
       </div>
     </div>
   );
