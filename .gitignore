@@ -44,6 +44,7 @@ NeonSquare\backend\.env
 # Cloud Run env file (private, not committed)
 **/env.yaml
 !**/env.example.yaml
+!NeonSquare\frontend\next-env.d.ts
 
 # ──────────────────────────────
 # TypeScript

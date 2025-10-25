@@ -1,16 +1,24 @@
+// frontend/components/ui/notification-dropdown.tsx
 'use client';
 
 import { useState, useEffect, useRef } from 'react';
 import { Button } from '@/components/ui/button';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
-import { Badge } from '@/components/ui/badge';
 import { Bell, Heart, MessageCircle, UserPlus, CheckCircle, X } from 'lucide-react';
 import { cn } from '@/lib/utils';
-// WebSocket removed
+
+type IncomingDTO = {
+  id: string;
+  userId: string;
+  content: string;
+  type: 'friendRequest' | 'postUpdate' | 'groupCreation' | 'memberRequest';
+  status: 'New' | 'Seen';
+  createDate: string; // ISO
+};
 
 interface Notification {
   id: string;
-  type: 'like' | 'comment' | 'follow' | 'mention';
+  type: 'like' | 'comment' | 'follow' | 'mention' | 'system';
   user: {
     id: string;
     fullName: string;
@@ -26,21 +34,12 @@ interface NotificationDropdownProps {
   className?: string;
 }
 
-// Mock notifications - will be replaced with real API calls
-const mockNotifications: Notification[] = [];
-
-const getNotificationIcon = (type: string) => {
+const getIcon = (type: string) => {
   switch (type) {
-    case 'like':
-      return <Heart className="w-4 h-4 text-red-500" />;
-    case 'comment':
-      return <MessageCircle className="w-4 h-4 text-blue-500" />;
-    case 'follow':
-      return <UserPlus className="w-4 h-4 text-green-500" />;
-    case 'mention':
-      return <Bell className="w-4 h-4 text-purple-500" />;
-    default:
-      return <Bell className="w-4 h-4 text-gray-500" />;
+    case 'like': return <Heart className="w-4 h-4 text-red-500" />;
+    case 'comment': return <MessageCircle className="w-4 h-4 text-blue-500" />;
+    case 'follow': return <UserPlus className="w-4 h-4 text-green-500" />;
+    default: return <Bell className="w-4 h-4 text-gray-500" />;
   }
 };
 
@@ -52,112 +51,92 @@ export function NotificationDropdown({ className }: NotificationDropdownProps) {
 
   const unreadCount = notifications.filter(n => !n.read).length;
 
-  // Fetch notifications from API and listen to real-time updates
+  // Initial fetch (optional – still empty until you add REST)
   useEffect(() => {
     const fetchNotifications = async () => {
       try {
         setIsLoading(true);
-        // TODO: Implement actual notifications API
-        // const notificationsData = await apiService.getNotifications();
-        // setNotifications(notificationsData);
-        
-        // For now, using empty array until backend endpoint is ready
+        // TODO: replace with apiService.getNotifications()
         setNotifications([]);
-      } catch (error) {
-        console.error('Failed to fetch notifications:', error);
+      } catch (e) {
+        console.error('Failed to fetch notifications', e);
       } finally {
         setIsLoading(false);
       }
     };
-
     fetchNotifications();
-
-    // WebSocket removed - no real-time notifications for now
   }, []);
 
-  // Close dropdown when clicking outside
+  // Listen to real-time push from NotificationListener
   useEffect(() => {
-    const handleClickOutside = (event: MouseEvent) => {
+    const handler = (e: Event) => {
+      const dto = (e as CustomEvent).detail as IncomingDTO;
+
+      // Map DTO to UI shape. You can enrich with user’s name/avatar via another call if you want.
+      const mapped: Notification = {
+        id: dto.id,
+        type: 'system',
+        user: {
+          id: dto.userId,
+          fullName: 'Someone',
+          profilePic: '/avatars/01.png',
+        },
+        message: dto.content,
+        timestamp: new Date(dto.createDate).toLocaleString(),
+        read: dto.status === 'Seen',
+      };
+
+      setNotifications(prev => [mapped, ...prev]);
+    };
+
+    window.addEventListener('notification:new', handler as EventListener);
+    return () => window.removeEventListener('notification:new', handler as EventListener);
+  }, []);
+
+  // Close on outside click
+  useEffect(() => {
+    const fn = (event: MouseEvent) => {
       if (dropdownRef.current && !dropdownRef.current.contains(event.target as Node)) {
         setIsOpen(false);
       }
     };
-
-    document.addEventListener('mousedown', handleClickOutside);
-    return () => document.removeEventListener('mousedown', handleClickOutside);
+    document.addEventListener('mousedown', fn);
+    return () => document.removeEventListener('mousedown', fn);
   }, []);
 
-  const markAsRead = (id: string) => {
-    setNotifications(prev => 
-      prev.map(notification => 
-        notification.id === id 
-          ? { ...notification, read: true }
-          : notification
-      )
-    );
-  };
-
-  const markAllAsRead = () => {
-    setNotifications(prev => 
-      prev.map(notification => ({ ...notification, read: true }))
-    );
-  };
-
-  const removeNotification = (id: string) => {
-    setNotifications(prev => prev.filter(notification => notification.id !== id));
-  };
+  const markAsRead = (id: string) =>
+    setNotifications(prev => prev.map(n => (n.id === id ? { ...n, read: true } : n)));
+  const markAllAsRead = () =>
+    setNotifications(prev => prev.map(n => ({ ...n, read: true })));
+  const removeNotification = (id: string) =>
+    setNotifications(prev => prev.filter(n => n.id !== id));
 
   return (
     <div className={cn('relative', className)} ref={dropdownRef}>
-      {/* Notification Bell Button */}
-      <Button
-        variant="ghost"
-        size="sm"
-        className="relative btn-forum"
-        onClick={() => setIsOpen(!isOpen)}
-        aria-label={`Notifications (${unreadCount} unread)`}
-      >
+      <Button variant="ghost" size="sm" className="relative btn-forum" onClick={() => setIsOpen(!isOpen)} aria-label={`Notifications (${unreadCount} unread)`}>
         <Bell className="w-5 h-5" />
-        {unreadCount > 0 && (
-          <span 
-            className="absolute -top-1 -right-1 w-3 h-3 bg-destructive rounded-full"
-            aria-label={`${unreadCount} unread notifications`}
-          />
-        )}
+        {unreadCount > 0 && <span className="absolute -top-1 -right-1 w-3 h-3 bg-destructive rounded-full" />}
       </Button>
 
-      {/* Dropdown */}
       {isOpen && (
         <div className="absolute right-0 top-full mt-2 w-80 bg-background border rounded-lg shadow-lg z-50 max-h-96 overflow-hidden">
-          {/* Header */}
           <div className="p-4 border-b border-border">
             <div className="flex items-center justify-between">
               <h3 className="font-semibold text-forum-primary">Notifications</h3>
               <div className="flex items-center space-x-2">
                 {unreadCount > 0 && (
-                  <Button
-                    variant="ghost"
-                    size="sm"
-                    onClick={markAllAsRead}
-                    className="text-xs btn-forum"
-                  >
+                  <Button variant="ghost" size="sm" onClick={markAllAsRead} className="text-xs btn-forum">
                     <CheckCircle className="w-3 h-3 mr-1" />
                     Mark all read
                   </Button>
                 )}
-                <Button
-                  variant="ghost"
-                  size="sm"
-                  onClick={() => setIsOpen(false)}
-                  className="text-xs btn-forum"
-                >
+                <Button variant="ghost" size="sm" onClick={() => setIsOpen(false)} className="text-xs btn-forum">
                   <X className="w-3 h-3" />
                 </Button>
               </div>
             </div>
           </div>
 
-          {/* Notifications List */}
           <div className="max-h-80 overflow-y-auto">
             {isLoading ? (
               <div className="p-8 text-center">
@@ -171,52 +150,34 @@ export function NotificationDropdown({ className }: NotificationDropdownProps) {
               </div>
             ) : (
               <div className="divide-y divide-border">
-                {notifications.map((notification) => (
+                {notifications.map((n) => (
                   <div
-                    key={notification.id}
-                    className={cn(
-                      'p-4 hover:bg-muted/50 transition-colors cursor-pointer',
-                      !notification.read && 'bg-primary/5 border-l-2 border-l-primary'
-                    )}
-                    onClick={() => {
-                      markAsRead(notification.id);
-                      if (notification.link) {
-                        window.location.href = notification.link;
-                      }
-                    }}
+                    key={n.id}
+                    className={cn('p-4 hover:bg-muted/50 transition-colors cursor-pointer', !n.read && 'bg-primary/5 border-l-2 border-l-primary')}
+                    onClick={() => { markAsRead(n.id); if (n.link) window.location.href = n.link; }}
                   >
                     <div className="flex items-start space-x-3">
-                      <div className="flex-shrink-0">
-                        {getNotificationIcon(notification.type)}
-                      </div>
+                      <div className="flex-shrink-0">{getIcon(n.type)}</div>
                       <Avatar className="avatar-forum w-8 h-8 flex-shrink-0">
-                        <AvatarImage src={notification.user.profilePic} alt={notification.user.fullName} />
+                        <AvatarImage src={n.user.profilePic} alt={n.user.fullName} />
                         <AvatarFallback className="gradient-primary text-primary-foreground text-xs">
-                          {notification.user.fullName.split(' ').map(n => n[0]).join('')}
+                          {n.user.fullName.split(' ').map(x => x[0]).join('')}
                         </AvatarFallback>
                       </Avatar>
                       <div className="flex-1 min-w-0">
                         <div className="flex items-start justify-between">
                           <div className="flex-1">
                             <p className="text-sm text-forum-primary">
-                              <span className="font-medium">{notification.user.fullName}</span>{' '}
-                              {notification.message}
+                              <span className="font-medium">{n.user.fullName}</span>{' '}
+                              {n.message}
                             </p>
-                            <p className="text-xs text-forum-secondary mt-1">
-                              {notification.timestamp}
-                            </p>
+                            <p className="text-xs text-forum-secondary mt-1">{n.timestamp}</p>
                           </div>
                           <div className="flex items-center space-x-1 ml-2">
-                            {!notification.read && (
-                              <div className="w-2 h-2 bg-primary rounded-full" />
-                            )}
+                            {!n.read && <div className="w-2 h-2 bg-primary rounded-full" />}
                             <Button
-                              variant="ghost"
-                              size="sm"
-                              onClick={(e) => {
-                                e.stopPropagation();
-                                removeNotification(notification.id);
-                              }}
+                              variant="ghost" size="sm"
+                              onClick={(e) => { e.stopPropagation(); removeNotification(n.id); }}
                               className="text-xs btn-forum p-1 h-6 w-6"
                             >
                               <X className="w-3 h-3" />
@@ -231,18 +192,9 @@ export function NotificationDropdown({ className }: NotificationDropdownProps) {
             )}
           </div>
 
-          {/* Footer */}
           {notifications.length > 0 && (
             <div className="p-3 border-t border-border bg-muted/20">
-              <Button
-                variant="ghost"
-                size="sm"
-                className="w-full btn-forum text-xs"
-                onClick={() => {
-                  setIsOpen(false);
-                  window.location.href = '/notifications';
-                }}
-              >
+              <Button variant="ghost" size="sm" className="w-full btn-forum text-xs" onClick={() => { setIsOpen(false); window.location.href = '/notifications'; }}>
                 View all notifications
               </Button>
             </div>

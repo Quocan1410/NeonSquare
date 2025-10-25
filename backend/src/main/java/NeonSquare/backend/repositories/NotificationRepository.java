@@ -1,3 +1,4 @@
+// backend/src/main/java/NeonSquare/backend/repositories/NotificationRepository.java
 package NeonSquare.backend.repositories;
 
 import NeonSquare.backend.models.Notification;
