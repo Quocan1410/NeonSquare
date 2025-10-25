@@ -3,17 +3,17 @@
 import { useState } from 'react';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { Button } from '@/components/ui/button';
-import { ImageIcon, Smile, X, Globe, Users, Lock } from 'lucide-react';
+import { ImageIcon, Smile, X, Globe, Users, Lock, Loader2 } from 'lucide-react';
+import { addToast } from '@/components/ui/toast';
+import { useAuth } from '@/contexts/AuthContext';
+import { apiService } from '@/lib/api';
 
 export function CreatePost() {
   const [content, setContent] = useState('');
   const [visibility, setVisibility] = useState<'public' | 'friends' | 'private'>('public');
   const [imagePreview, setImagePreview] = useState<string | null>(null);
-
-  const user = {
-    fullName: 'John Doe',
-    profilePic: '/avatar.jpg',
-  };
+  const [isSubmitting, setIsSubmitting] = useState(false);
+  const { user } = useAuth();
 
   const handleImageUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
@@ -26,11 +26,50 @@ export function CreatePost() {
     }
   };
 
-  const handleSubmit = () => {
-    if (content.trim()) {
-      console.log('Creating post:', { content, visibility, image: imagePreview });
+  const handleSubmit = async () => {
+    if (!content.trim()) {
+      addToast({
+        type: 'warning',
+        title: 'Content required',
+        description: 'Please write something before posting.'
+      });
+      return;
+    }
+
+    if (!user) {
+      addToast({
+        type: 'error',
+        title: 'Authentication Required',
+        description: 'Please log in to create a post',
+      });
+      return;
+    }
+    
+    setIsSubmitting(true);
+    
+    try {
+      await apiService.createPost(content, user.id, visibility.toUpperCase());
+      
+      addToast({
+        type: 'success',
+        title: 'Post published!',
+        description: 'Your post has been shared with the community.'
+      });
+      
+      // Reset form
       setContent('');
       setImagePreview(null);
+      
+      // Refresh the page to show new post
+      window.location.reload();
+    } catch (error) {
+      addToast({
+        type: 'error',
+        title: 'Failed to post',
+        description: 'Something went wrong. Please try again.'
+      });
+    } finally {
+      setIsSubmitting(false);
     }
   };
 
@@ -51,9 +90,9 @@ export function CreatePost() {
     <div className="forum-card p-6 premium-hover">
       <div className="flex items-start space-x-4">
         <Avatar className="avatar-forum w-10 h-10">
-          <AvatarImage src={user.profilePic} alt={user.fullName} />
+          <AvatarImage src={user?.profilePicUrl} alt={`${user?.firstName} ${user?.lastName}`} />
           <AvatarFallback className="gradient-primary text-primary-foreground">
-            {user.fullName.split(' ').map(n => n[0]).join('')}
+            {user ? `${user.firstName.charAt(0)}${user.lastName.charAt(0)}` : 'U'}
           </AvatarFallback>
         </Avatar>
         
@@ -111,10 +150,17 @@ export function CreatePost() {
               </select>
               <Button 
                 className="btn-primary hover-glow shadow-fresh px-6 animate-fresh-glow"
-                disabled={!content.trim()}
+                disabled={!content.trim() || isSubmitting}
                 onClick={handleSubmit}
               >
-                Post
+                {isSubmitting ? (
+                  <>
+                    <Loader2 className="w-4 h-4 mr-2 animate-spin" />
+                    Posting...
+                  </>
+                ) : (
+                  'Post'
+                )}
               </Button>
             </div>
           </div>

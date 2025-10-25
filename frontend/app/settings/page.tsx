@@ -1,215 +1,599 @@
 'use client';
 
 import { useState } from 'react';
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
-import { Switch } from '@/components/ui/switch';
 import { Label } from '@/components/ui/label';
-import { Separator } from '@/components/ui/separator';
+import { Switch } from '@/components/ui/switch';
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
+import { Textarea } from '@/components/ui/textarea';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
-import { Save, Upload, Bell, Shield, Palette, Globe } from 'lucide-react';
+import { Badge } from '@/components/ui/badge';
+import { FormField, FormGroup, FormSection, useFormValidation, validators } from '@/components/ui/form';
+import { addToast, ToastContainer } from '@/components/ui/toast';
+import { showConfirmationDialog, ConfirmationDialogContainer } from '@/components/ui/confirmation-dialog';
+import { 
+  ArrowLeft, 
+  User, 
+  Bell, 
+  Shield, 
+  Palette, 
+  Globe, 
+  Smartphone,
+  Mail,
+  Lock,
+  Eye,
+  EyeOff,
+  Save,
+  Upload,
+  Trash2,
+  Download,
+  Loader2
+} from 'lucide-react';
+import Link from 'next/link';
+
+const user = {
+  fullName: 'John Doe',
+  username: '@johndoe',
+  email: 'john.doe@example.com',
+  profilePic: '/avatars/user.png',
+  joinDate: 'January 2023'
+};
 
 export default function SettingsPage() {
+  const [activeTab, setActiveTab] = useState('profile');
+  const [showPassword, setShowPassword] = useState(false);
+  const [isSaving, setIsSaving] = useState(false);
+
+  // Form validation for profile
+  const profileForm = useFormValidation(
+    {
+      fullName: user.fullName,
+      username: user.username,
+      email: user.email,
+      bio: ''
+    },
+    {
+      fullName: [validators.required, validators.minLength(2)],
+      username: [validators.required, validators.username],
+      email: [validators.required, validators.email],
+      bio: [validators.maxLength(500)]
+    }
+  );
   const [notifications, setNotifications] = useState({
     email: true,
-    push: false,
-    sms: false
+    push: true,
+    sms: false,
+    mentions: true,
+    comments: true,
+    likes: false,
+    follows: true
+  });
+  const [privacy, setPrivacy] = useState({
+    profileVisibility: 'public',
+    showEmail: false,
+    showPhone: false,
+    allowMessages: true,
+    allowComments: true
+  });
+  const [theme, setTheme] = useState({
+    mode: 'dark',
+    accent: 'teal',
+    fontSize: 'medium'
   });
 
-  const [privacy, setPrivacy] = useState({
-    profile: 'public',
-    posts: 'friends',
-    online: true
-  });
+  const tabs = [
+    { id: 'profile', label: 'Profile', icon: User },
+    { id: 'notifications', label: 'Notifications', icon: Bell },
+    { id: 'privacy', label: 'Privacy', icon: Shield },
+    { id: 'appearance', label: 'Appearance', icon: Palette },
+    { id: 'account', label: 'Account', icon: Lock }
+  ];
+
+  const handleSave = async () => {
+    if (activeTab === 'profile' && !profileForm.validateAll()) {
+      addToast({
+        type: 'error',
+        title: 'Validation failed',
+        description: 'Please fix the errors before saving.'
+      });
+      return;
+    }
+
+    setIsSaving(true);
+    
+    try {
+      // Simulate API call
+      await new Promise(resolve => setTimeout(resolve, 1500));
+      
+      console.log('Saving settings...');
+      // Here you would save settings to your backend
+      
+      addToast({
+        type: 'success',
+        title: 'Settings saved!',
+        description: 'Your changes have been saved successfully.'
+      });
+    } catch (error) {
+      addToast({
+        type: 'error',
+        title: 'Failed to save',
+        description: 'Something went wrong. Please try again.'
+      });
+    } finally {
+      setIsSaving(false);
+    }
+  };
+
+  const handleExportData = () => {
+    console.log('Exporting data...');
+    // Here you would export user data
+  };
+
+  const handleDeleteAccount = () => {
+    showConfirmationDialog({
+      title: 'Delete Account',
+      description: 'Are you sure you want to delete your account? This action cannot be undone and all your data will be permanently lost.',
+      type: 'danger',
+      confirmText: 'Delete Account',
+      cancelText: 'Cancel',
+      onConfirm: () => {
+        console.log('Deleting account...');
+        // Here you would delete the account
+        addToast({
+          type: 'success',
+          title: 'Account deleted',
+          description: 'Your account has been permanently deleted.'
+        });
+      }
+    });
+  };
 
   return (
-    <div className="min-h-screen bg-background">
-      <div className="max-w-4xl mx-auto p-6 space-y-6">
-        {/* Settings Header */}
-        <div className="card-social p-6">
-          <h1 className="text-3xl font-bold text-foreground mb-2">Settings</h1>
-          <p className="text-muted-foreground">Manage your account settings and preferences</p>
-        </div>
+    <div className="min-h-screen forum-layout">
+      <div className="flex">
+        {/* Sidebar */}
+        <div className="forum-sidebar scrollbar-forum">
+          <div className="flex flex-col h-full">
+            <div className="p-6 space-y-6 flex-1">
+              {/* Back Button */}
+              <Link href="/dashboard" className="flex items-center text-forum-secondary hover:text-forum-primary transition-colors">
+                <ArrowLeft className="w-4 h-4 mr-2" />
+                Back to Dashboard
+              </Link>
 
-        <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
-          {/* Settings Navigation */}
-          <div className="lg:col-span-1">
-            <Card className="card-social">
-              <CardContent className="p-4">
-                <nav className="space-y-2">
-                  <div className="nav-item active">
-                    <Globe className="w-4 h-4 mr-3" />
-                    General
-                  </div>
-                  <div className="nav-item">
-                    <Bell className="w-4 h-4 mr-3" />
-                    Notifications
-                  </div>
-                  <div className="nav-item">
-                    <Shield className="w-4 h-4 mr-3" />
-                    Privacy
-                  </div>
-                  <div className="nav-item">
-                    <Palette className="w-4 h-4 mr-3" />
-                    Appearance
-                  </div>
-                </nav>
-              </CardContent>
-            </Card>
-          </div>
-
-          {/* Settings Content */}
-          <div className="lg:col-span-2 space-y-6">
-            {/* Profile Settings */}
-            <Card className="card-social">
-              <CardHeader>
-                <CardTitle className="flex items-center">
-                  <Globe className="w-5 h-5 mr-2" />
-                  Profile Settings
-                </CardTitle>
-              </CardHeader>
-              <CardContent className="space-y-6">
-                <div className="flex items-center space-x-4">
-                  <Avatar className="w-16 h-16">
-                    <AvatarImage src="/avatar.jpg" alt="Profile" />
-                    <AvatarFallback className="bg-primary text-white text-xl font-bold">JD</AvatarFallback>
+              {/* User Info */}
+              <div className="forum-card p-4">
+                <div className="flex items-center space-x-3">
+                  <Avatar className="avatar-forum w-12 h-12">
+                    <AvatarImage src={user.profilePic} alt={user.fullName} />
+                    <AvatarFallback className="gradient-primary text-primary-foreground">
+                      {user.fullName.split(' ').map(n => n[0]).join('')}
+                    </AvatarFallback>
                   </Avatar>
                   <div>
-                    <Button variant="outline" size="sm">
-                      <Upload className="w-4 h-4 mr-2" />
-                      Change Photo
-                    </Button>
-                    <p className="text-xs text-muted-foreground mt-1">JPG, PNG or GIF. Max size 2MB.</p>
+                    <h3 className="font-semibold text-forum-primary">{user.fullName}</h3>
+                    <p className="text-sm text-forum-secondary">{user.username}</p>
+                  </div>
                   </div>
                 </div>
 
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                  <div className="space-y-2">
-                    <Label htmlFor="firstName">First Name</Label>
-                    <Input id="firstName" defaultValue="John" className="input-social" />
+              {/* Settings Tabs */}
+              <div className="space-y-1">
+                {tabs.map((tab) => (
+                  <button
+                    key={tab.id}
+                    onClick={() => setActiveTab(tab.id)}
+                    className={`w-full flex items-center space-x-3 px-3 py-2 rounded-lg transition-colors ${
+                      activeTab === tab.id
+                        ? 'bg-primary text-primary-foreground'
+                        : 'text-forum-secondary hover:text-forum-primary hover:bg-muted/50'
+                    }`}
+                  >
+                    <tab.icon className="w-5 h-5" />
+                    <span>{tab.label}</span>
+                  </button>
+                ))}
+              </div>
                   </div>
-                  <div className="space-y-2">
-                    <Label htmlFor="lastName">Last Name</Label>
-                    <Input id="lastName" defaultValue="Doe" className="input-social" />
                   </div>
                 </div>
 
-                <div className="space-y-2">
-                  <Label htmlFor="email">Email</Label>
-                  <Input id="email" type="email" defaultValue="john.doe@example.com" className="input-social" />
+        {/* Main Content */}
+        <div className="flex-1 forum-main">
+          <div className="forum-content space-y-6">
+            {/* Header */}
+            <div className="glass-effect p-6 rounded-lg">
+              <div className="flex items-center justify-between">
+                <div>
+                  <h1 className="text-3xl font-bold text-forum-primary">Settings</h1>
+                  <p className="text-forum-secondary">Manage your account and preferences</p>
                 </div>
-
-                <div className="space-y-2">
-                  <Label htmlFor="bio">Bio</Label>
-                  <textarea 
-                    id="bio" 
-                    className="input-social min-h-[100px] resize-none"
-                    defaultValue="Passionate about learning and connecting with fellow students."
-                  />
-                </div>
-
-                <Button className="btn-primary">
+                <Button 
+                  onClick={handleSave} 
+                  disabled={isSaving}
+                  className="btn-primary hover-glow"
+                >
+                  {isSaving ? (
+                    <>
+                      <Loader2 className="w-4 h-4 mr-2 animate-spin" />
+                      Saving...
+                    </>
+                  ) : (
+                    <>
                   <Save className="w-4 h-4 mr-2" />
                   Save Changes
+                    </>
+                  )}
                 </Button>
-              </CardContent>
-            </Card>
+              </div>
+                </div>
 
-            {/* Notification Settings */}
-            <Card className="card-social">
-              <CardHeader>
-                <CardTitle className="flex items-center">
-                  <Bell className="w-5 h-5 mr-2" />
-                  Notification Settings
-                </CardTitle>
-              </CardHeader>
-              <CardContent className="space-y-4">
+            {/* Profile Settings */}
+            {activeTab === 'profile' && (
+              <div className="space-y-6">
+                <div className="forum-card p-6">
+                  <h3 className="text-lg font-semibold text-forum-primary mb-4">Profile Information</h3>
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                    <FormGroup>
+                      <FormField 
+                        label="Full Name" 
+                        required 
+                        error={profileForm.errors.fullName}
+                      >
+                        <Input
+                          value={profileForm.values.fullName}
+                          onChange={(e) => profileForm.setValue('fullName', e.target.value)}
+                          onBlur={() => profileForm.setFieldTouched('fullName')}
+                          className="input-forum"
+                        />
+                      </FormField>
+                      
+                      <FormField 
+                        label="Username" 
+                        required 
+                        error={profileForm.errors.username}
+                      >
+                        <Input
+                          value={profileForm.values.username}
+                          onChange={(e) => profileForm.setValue('username', e.target.value)}
+                          onBlur={() => profileForm.setFieldTouched('username')}
+                          className="input-forum"
+                        />
+                      </FormField>
+                      
+                      <FormField 
+                        label="Email" 
+                        required 
+                        error={profileForm.errors.email}
+                      >
+                        <Input
+                          type="email"
+                          value={profileForm.values.email}
+                          onChange={(e) => profileForm.setValue('email', e.target.value)}
+                          onBlur={() => profileForm.setFieldTouched('email')}
+                          className="input-forum"
+                        />
+                      </FormField>
+                    </FormGroup>
+                    <div className="space-y-4">
+                      <div>
+                        <Label className="text-forum-primary">Profile Picture</Label>
+                        <div className="flex items-center space-x-4 mt-2">
+                          <Avatar className="avatar-forum w-16 h-16">
+                            <AvatarImage src={user.profilePic} alt={user.fullName} />
+                            <AvatarFallback className="gradient-primary text-primary-foreground">
+                              {user.fullName.split(' ').map(n => n[0]).join('')}
+                            </AvatarFallback>
+                          </Avatar>
+                          <Button variant="outline" className="btn-forum">
+                            <Upload className="w-4 h-4 mr-2" />
+                            Upload New
+                          </Button>
+                        </div>
+                      </div>
+                  <div>
+                        <Label htmlFor="bio" className="text-forum-primary">Bio</Label>
+                        <Textarea
+                    id="bio" 
+                          placeholder="Tell us about yourself..."
+                          className="input-forum mt-1"
+                          rows={4}
+                  />
+                </div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            )}
+
+            {/* Notifications Settings */}
+            {activeTab === 'notifications' && (
+              <div className="space-y-6">
+                <div className="forum-card p-6">
+                  <h3 className="text-lg font-semibold text-forum-primary mb-4">Notification Preferences</h3>
+                  <div className="space-y-6">
                 <div className="flex items-center justify-between">
                   <div>
-                    <Label htmlFor="email-notifications">Email Notifications</Label>
-                    <p className="text-sm text-muted-foreground">Receive notifications via email</p>
+                        <h4 className="font-medium text-forum-primary">Email Notifications</h4>
+                        <p className="text-sm text-forum-secondary">Receive notifications via email</p>
                   </div>
                   <Switch 
-                    id="email-notifications" 
                     checked={notifications.email}
-                    onCheckedChange={(checked) => setNotifications(prev => ({...prev, email: checked}))}
+                        onCheckedChange={(checked) => setNotifications({...notifications, email: checked})}
                   />
                 </div>
-
-                <Separator />
-
                 <div className="flex items-center justify-between">
                   <div>
-                    <Label htmlFor="push-notifications">Push Notifications</Label>
-                    <p className="text-sm text-muted-foreground">Receive push notifications</p>
+                        <h4 className="font-medium text-forum-primary">Push Notifications</h4>
+                        <p className="text-sm text-forum-secondary">Receive push notifications on your device</p>
                   </div>
                   <Switch 
-                    id="push-notifications" 
                     checked={notifications.push}
-                    onCheckedChange={(checked) => setNotifications(prev => ({...prev, push: checked}))}
+                        onCheckedChange={(checked) => setNotifications({...notifications, push: checked})}
                   />
                 </div>
-
-                <Separator />
-
                 <div className="flex items-center justify-between">
                   <div>
-                    <Label htmlFor="sms-notifications">SMS Notifications</Label>
-                    <p className="text-sm text-muted-foreground">Receive notifications via SMS</p>
+                        <h4 className="font-medium text-forum-primary">SMS Notifications</h4>
+                        <p className="text-sm text-forum-secondary">Receive notifications via SMS</p>
                   </div>
                   <Switch 
-                    id="sms-notifications" 
                     checked={notifications.sms}
-                    onCheckedChange={(checked) => setNotifications(prev => ({...prev, sms: checked}))}
+                        onCheckedChange={(checked) => setNotifications({...notifications, sms: checked})}
+                      />
+                    </div>
+                    <div className="border-t border-border pt-6">
+                      <h4 className="font-medium text-forum-primary mb-4">What to notify me about</h4>
+                      <div className="space-y-4">
+                        <div className="flex items-center justify-between">
+                          <div>
+                            <h5 className="font-medium text-forum-primary">Mentions</h5>
+                            <p className="text-sm text-forum-secondary">When someone mentions you</p>
+                          </div>
+                          <Switch
+                            checked={notifications.mentions}
+                            onCheckedChange={(checked) => setNotifications({...notifications, mentions: checked})}
+                          />
+                        </div>
+                        <div className="flex items-center justify-between">
+                          <div>
+                            <h5 className="font-medium text-forum-primary">Comments</h5>
+                            <p className="text-sm text-forum-secondary">When someone comments on your posts</p>
+                          </div>
+                          <Switch
+                            checked={notifications.comments}
+                            onCheckedChange={(checked) => setNotifications({...notifications, comments: checked})}
+                          />
+                        </div>
+                        <div className="flex items-center justify-between">
+                          <div>
+                            <h5 className="font-medium text-forum-primary">Likes</h5>
+                            <p className="text-sm text-forum-secondary">When someone likes your posts</p>
+                          </div>
+                          <Switch
+                            checked={notifications.likes}
+                            onCheckedChange={(checked) => setNotifications({...notifications, likes: checked})}
+                          />
+                        </div>
+                        <div className="flex items-center justify-between">
+                          <div>
+                            <h5 className="font-medium text-forum-primary">New Followers</h5>
+                            <p className="text-sm text-forum-secondary">When someone follows you</p>
+                          </div>
+                          <Switch
+                            checked={notifications.follows}
+                            onCheckedChange={(checked) => setNotifications({...notifications, follows: checked})}
                   />
                 </div>
-              </CardContent>
-            </Card>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            )}
 
             {/* Privacy Settings */}
-            <Card className="card-social">
-              <CardHeader>
-                <CardTitle className="flex items-center">
-                  <Shield className="w-5 h-5 mr-2" />
-                  Privacy Settings
-                </CardTitle>
-              </CardHeader>
-              <CardContent className="space-y-4">
-                <div className="space-y-2">
-                  <Label>Profile Visibility</Label>
-                  <select className="input-social">
-                    <option value="public">Public</option>
-                    <option value="friends">Friends Only</option>
-                    <option value="private">Private</option>
-                  </select>
+            {activeTab === 'privacy' && (
+              <div className="space-y-6">
+                <div className="forum-card p-6">
+                  <h3 className="text-lg font-semibold text-forum-primary mb-4">Privacy & Security</h3>
+                  <div className="space-y-6">
+                    <div>
+                      <Label htmlFor="profileVisibility" className="text-forum-primary">Profile Visibility</Label>
+                      <Select value={privacy.profileVisibility} onValueChange={(value) => setPrivacy({...privacy, profileVisibility: value})}>
+                        <SelectTrigger className="input-forum mt-1">
+                          <SelectValue />
+                        </SelectTrigger>
+                        <SelectContent>
+                          <SelectItem value="public">Public</SelectItem>
+                          <SelectItem value="friends">Friends Only</SelectItem>
+                          <SelectItem value="private">Private</SelectItem>
+                        </SelectContent>
+                      </Select>
+                    </div>
+                    <div className="space-y-4">
+                      <div className="flex items-center justify-between">
+                        <div>
+                          <h4 className="font-medium text-forum-primary">Show Email</h4>
+                          <p className="text-sm text-forum-secondary">Make your email visible to other users</p>
+                        </div>
+                        <Switch
+                          checked={privacy.showEmail}
+                          onCheckedChange={(checked) => setPrivacy({...privacy, showEmail: checked})}
+                        />
+                      </div>
+                      <div className="flex items-center justify-between">
+                        <div>
+                          <h4 className="font-medium text-forum-primary">Show Phone</h4>
+                          <p className="text-sm text-forum-secondary">Make your phone number visible to other users</p>
+                        </div>
+                        <Switch
+                          checked={privacy.showPhone}
+                          onCheckedChange={(checked) => setPrivacy({...privacy, showPhone: checked})}
+                        />
+                      </div>
+                      <div className="flex items-center justify-between">
+                        <div>
+                          <h4 className="font-medium text-forum-primary">Allow Messages</h4>
+                          <p className="text-sm text-forum-secondary">Allow other users to send you messages</p>
                 </div>
-
-                <div className="space-y-2">
-                  <Label>Post Visibility</Label>
-                  <select className="input-social">
-                    <option value="public">Public</option>
-                    <option value="friends">Friends Only</option>
-                    <option value="private">Private</option>
-                  </select>
+                        <Switch
+                          checked={privacy.allowMessages}
+                          onCheckedChange={(checked) => setPrivacy({...privacy, allowMessages: checked})}
+                        />
                 </div>
-
                 <div className="flex items-center justify-between">
                   <div>
-                    <Label htmlFor="online-status">Show Online Status</Label>
-                    <p className="text-sm text-muted-foreground">Let others see when you're online</p>
+                          <h4 className="font-medium text-forum-primary">Allow Comments</h4>
+                          <p className="text-sm text-forum-secondary">Allow comments on your posts</p>
                   </div>
                   <Switch 
-                    id="online-status" 
-                    checked={privacy.online}
-                    onCheckedChange={(checked) => setPrivacy(prev => ({...prev, online: checked}))}
+                          checked={privacy.allowComments}
+                          onCheckedChange={(checked) => setPrivacy({...privacy, allowComments: checked})}
+                        />
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            )}
+
+            {/* Appearance Settings */}
+            {activeTab === 'appearance' && (
+              <div className="space-y-6">
+                <div className="forum-card p-6">
+                  <h3 className="text-lg font-semibold text-forum-primary mb-4">Appearance</h3>
+                  <div className="space-y-6">
+                    <div>
+                      <Label htmlFor="theme" className="text-forum-primary">Theme</Label>
+                      <Select value={theme.mode} onValueChange={(value) => setTheme({...theme, mode: value})}>
+                        <SelectTrigger className="input-forum mt-1">
+                          <SelectValue />
+                        </SelectTrigger>
+                        <SelectContent>
+                          <SelectItem value="light">Light</SelectItem>
+                          <SelectItem value="dark">Dark</SelectItem>
+                          <SelectItem value="auto">Auto</SelectItem>
+                        </SelectContent>
+                      </Select>
+                    </div>
+                    <div>
+                      <Label htmlFor="accent" className="text-forum-primary">Accent Color</Label>
+                      <Select value={theme.accent} onValueChange={(value) => setTheme({...theme, accent: value})}>
+                        <SelectTrigger className="input-forum mt-1">
+                          <SelectValue />
+                        </SelectTrigger>
+                        <SelectContent>
+                          <SelectItem value="teal">Teal</SelectItem>
+                          <SelectItem value="blue">Blue</SelectItem>
+                          <SelectItem value="purple">Purple</SelectItem>
+                          <SelectItem value="green">Green</SelectItem>
+                        </SelectContent>
+                      </Select>
+                    </div>
+                    <div>
+                      <Label htmlFor="fontSize" className="text-forum-primary">Font Size</Label>
+                      <Select value={theme.fontSize} onValueChange={(value) => setTheme({...theme, fontSize: value})}>
+                        <SelectTrigger className="input-forum mt-1">
+                          <SelectValue />
+                        </SelectTrigger>
+                        <SelectContent>
+                          <SelectItem value="small">Small</SelectItem>
+                          <SelectItem value="medium">Medium</SelectItem>
+                          <SelectItem value="large">Large</SelectItem>
+                        </SelectContent>
+                      </Select>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            )}
+
+            {/* Account Settings */}
+            {activeTab === 'account' && (
+              <div className="space-y-6">
+                <div className="forum-card p-6">
+                  <h3 className="text-lg font-semibold text-forum-primary mb-4">Account Security</h3>
+                  <div className="space-y-6">
+                    <div>
+                      <Label htmlFor="currentPassword" className="text-forum-primary">Current Password</Label>
+                      <div className="relative mt-1">
+                        <Input
+                          id="currentPassword"
+                          type={showPassword ? "text" : "password"}
+                          className="input-forum pr-10"
+                        />
+                        <Button
+                          type="button"
+                          variant="ghost"
+                          size="sm"
+                          className="absolute right-0 top-0 h-full px-3 py-2 hover:bg-transparent"
+                          onClick={() => setShowPassword(!showPassword)}
+                        >
+                          {showPassword ? <EyeOff className="w-4 h-4" /> : <Eye className="w-4 h-4" />}
+                        </Button>
+                      </div>
+                    </div>
+                    <div>
+                      <Label htmlFor="newPassword" className="text-forum-primary">New Password</Label>
+                      <Input
+                        id="newPassword"
+                        type="password"
+                        className="input-forum mt-1"
+                      />
+                    </div>
+                    <div>
+                      <Label htmlFor="confirmPassword" className="text-forum-primary">Confirm New Password</Label>
+                      <Input
+                        id="confirmPassword"
+                        type="password"
+                        className="input-forum mt-1"
                   />
                 </div>
-              </CardContent>
-            </Card>
+                    <Button className="btn-primary">
+                      <Lock className="w-4 h-4 mr-2" />
+                      Update Password
+                    </Button>
+                  </div>
+                </div>
+
+                <div className="forum-card p-6">
+                  <h3 className="text-lg font-semibold text-forum-primary mb-4">Data & Privacy</h3>
+                  <div className="space-y-4">
+                    <div className="flex items-center justify-between">
+                      <div>
+                        <h4 className="font-medium text-forum-primary">Export Data</h4>
+                        <p className="text-sm text-forum-secondary">Download a copy of your data</p>
+                      </div>
+                      <Button variant="outline" onClick={handleExportData} className="btn-forum">
+                        <Download className="w-4 h-4 mr-2" />
+                        Export
+                      </Button>
+                    </div>
+                    <div className="border-t border-border pt-4">
+                <div className="flex items-center justify-between">
+                  <div>
+                          <h4 className="font-medium text-destructive">Delete Account</h4>
+                          <p className="text-sm text-forum-secondary">Permanently delete your account and all data</p>
+                        </div>
+                        <Button variant="destructive" onClick={handleDeleteAccount}>
+                          <Trash2 className="w-4 h-4 mr-2" />
+                          Delete Account
+                        </Button>
+                      </div>
           </div>
         </div>
       </div>
+              </div>
+            )}
+          </div>
+        </div>
+      </div>
+      
+      {/* Toast and Dialog Containers */}
+      <ToastContainer />
+      <ConfirmationDialogContainer />
     </div>
   );
 }

@@ -1,0 +1,120 @@
+# ──────────────────────────────
+# Dependencies / package managers
+# ──────────────────────────────
+**/node_modules/
+.pnp.*
+/.pnp
+.yarn/*
+!.yarn/patches
+!.yarn/plugins
+!.yarn/releases
+!.yarn/versions
+
+# ──────────────────────────────
+# Frontend build artifacts
+# ──────────────────────────────
+**/.next/
+**/out/
+**/.vercel/
+**/coverage/
+**/build/
+**/dist/
+
+# ──────────────────────────────
+# Logs & diagnostics
+# ──────────────────────────────
+logs/
+*.log
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+pnpm-debug.log*
+.pnpm-debug.log*
+*.pid
+*.pid.lock
+*.seed
+
+# ──────────────────────────────
+# Environment files (keep templates)
+# ──────────────────────────────
+**/.env*
+!**/.env.example
+!**/*.example
+# Cloud Run env file (private, not committed)
+**/env.yaml
+!**/env.example.yaml
+
+# ──────────────────────────────
+# TypeScript
+# ──────────────────────────────
+*.tsbuildinfo
+next-env.d.ts
+
+# ──────────────────────────────
+# IDE / editors
+# ──────────────────────────────
+.vscode/
+.idea/
+*.iml
+*.ipr
+*.iws
+.apt_generated
+.classpath
+.factorypath
+.project
+.settings
+.springBeans
+.sts4-cache
+
+# ──────────────────────────────
+# Java / Maven (backend)
+# ──────────────────────────────
+**/target/
+# Keep Maven wrapper tracked (do NOT ignore these)
+!**/mvnw
+!**/mvnw.cmd
+!**/.mvn/wrapper/**
+# Do not ignore the wrapper JAR (needed for reproducible builds)
+!**/.mvn/wrapper/maven-wrapper.jar
+
+# ──────────────────────────────
+# OS cruft
+# ──────────────────────────────
+.DS_Store
+.DS_Store?
+._*
+.Spotlight-V100
+.Trashes
+Thumbs.db
+ehthumbs.db
+Desktop.ini
+
+# ──────────────────────────────
+# Misc / caches / temp
+# ──────────────────────────────
+*.pem
+tmp/
+temp/
+.nyc_output/
+.grunt/
+.cache/
+.parcel-cache/
+serverless/
+.fusebox/
+.dynamodb/
+.tern-port
+.vscode-test/
+.yarn/cache
+.yarn/unplugged
+.yarn/build-state.yml
+.yarn/install-state.gz
+.rpt2_cache*/
+.rts2_cache_*/
+.yarn-integrity
+*.tgz
+
+# ──────────────────────────────
+# Keep Docker & build configs tracked
+# ──────────────────────────────
+# Do NOT ignore Dockerfile or .dockerignore — they should be committed
+# (remove any Dockerfile* ignore rules you had before)

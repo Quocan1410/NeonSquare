@@ -1,0 +1,13 @@
+# ignore everything by default
+**
+# allow only what’s needed to build the backend image
+!pom.xml
+!mvnw
+!mvnw.cmd
+!.mvn/wrapper/**
+!src/**
+!Dockerfile
+
+# never upload secrets or local envs
+.env*
+env.yaml
