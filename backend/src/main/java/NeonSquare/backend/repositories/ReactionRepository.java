@@ -10,9 +10,9 @@ import java.util.UUID;
 @Repository
 public interface ReactionRepository extends JpaRepository<Reaction, UUID> {
     @Query(value = """
-        SELECT r FROM Reaction r 
-        JOIN reaction_post rp ON r.id = rp.reaction_id 
-        WHERE rp.post_id = :postId AND r.user.id = :userId
-    """)
+    SELECT r.* FROM reaction r
+    JOIN reaction_post rp ON r.id = rp.reaction_id
+    WHERE rp.post_id = :postId AND r.user_id = :userId
+    """, nativeQuery = true)
     Reaction findReactionByUserAndPost(UUID userId, UUID postId);
 }
