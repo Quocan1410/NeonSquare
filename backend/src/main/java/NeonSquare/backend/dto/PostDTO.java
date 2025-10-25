@@ -1,6 +1,7 @@
 package NeonSquare.backend.dto;
 
 import NeonSquare.backend.models.Post;
+import NeonSquare.backend.models.Reaction;
 import NeonSquare.backend.models.enums.PostVisibility;
 
 import java.time.LocalDate;
@@ -14,6 +15,7 @@ public class PostDTO {
     private PostVisibility visibility;
     private LocalDate updateAt;
     private List<String> profilePicUrls;
+    private List<ReactionDTO> reactions;
 
     public PostDTO(Post post){
         id = post.getId();
@@ -22,6 +24,7 @@ public class PostDTO {
         visibility = post.getVisibility();
         updateAt = post.getUpdatedAt() != null ? post.getUpdatedAt().toLocalDate() : null;
         profilePicUrls = post.getImages() != null ? post.getImages().stream().map(image -> "/api/images/" + image.getId()).toList() : List.of();
+        reactions = post.getReactions() != null ? post.getReactions().stream().map(reaction -> new ReactionDTO(reaction)).toList() : List.of();
     }
 
     public UUID getId() {
@@ -70,5 +73,13 @@ public class PostDTO {
 
     public void setProfilePicUrls(List<String> profilePicUrls) {
         this.profilePicUrls = profilePicUrls;
+    }
+
+    public List<ReactionDTO> getReactions() {
+        return reactions;
+    }
+
+    public void setReactions(List<ReactionDTO> reactions) {
+        this.reactions = reactions;
     }
 }
