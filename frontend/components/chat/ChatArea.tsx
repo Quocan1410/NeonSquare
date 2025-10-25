@@ -1,22 +1,40 @@
+'use client';
+
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { OnlineIndicator } from '@/components/ui/online-indicator';
 import { Paperclip, Image, Smile, Send, Phone, Video, Info, MoreHorizontal } from 'lucide-react';
 
+import { Message } from '@/types';
+import { socket } from '@/lib/socket';
+import { Dispatch, SetStateAction } from 'react';
+
 interface ChatAreaProps {
   conversation: any;
   messages: any[];
+  setMessages: Dispatch<SetStateAction<Message[]>>;
   newMessage: string;
-  setNewMessage: (msg: string) => void;
+  setNewMessage: Dispatch<SetStateAction<string>>;
 }
 
-export default function ChatArea({ conversation, messages, newMessage, setNewMessage }: ChatAreaProps) {
+export default function ChatArea({ conversation, messages, setMessages, newMessage, setNewMessage }: ChatAreaProps) {
   const handleSendMessage = () => {
-    if (newMessage.trim()) {
-      console.log('Sending message:', newMessage);
-      setNewMessage('');
-    }
+    if (!newMessage.trim()) return;
+
+    const message: Message = {
+      id: Date.now().toString(),
+      content: newMessage,
+      senderId: 'current',
+      time: Date.now().toString(),
+      isRead: false,
+      conversationId: conversation.id,
+    };
+
+    socket.emit('sendMessage', message);
+
+    setMessages((prev) => [...prev, message]);
+    setNewMessage('');
   };
 
   const handleKeyPress = (e: React.KeyboardEvent) => {
