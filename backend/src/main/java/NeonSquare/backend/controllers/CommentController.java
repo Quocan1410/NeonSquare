@@ -87,12 +87,21 @@ public class CommentController {
             return ResponseEntity.notFound().build();
         }
 
-        List<Comment> comments = commentService.getCommentsByPost(post);
+        List<Comment> comments = commentService.getRootCommentsByPost(post.getId());
         List<CommentDTO> commentDTOs = comments.stream()
                 .map(CommentDTO::new)
                 .toList();
 
         return ResponseEntity.ok(commentDTOs);
+    }
+
+    @GetMapping("/{commentId}/replies")
+    public ResponseEntity<List<CommentDTO>> getReplies(@PathVariable UUID commentId) {
+        List<Comment> replies = commentService.getReplies(commentId);
+        List<CommentDTO> replyDTOs = replies.stream()
+                .map(CommentDTO::new)
+                .toList();
+        return ResponseEntity.ok(replyDTOs);
     }
 
 }

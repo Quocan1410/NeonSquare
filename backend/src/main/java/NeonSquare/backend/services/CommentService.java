@@ -30,4 +30,12 @@ public class CommentService {
     public List<Comment> getCommentsByPost(Post post) {
         return commentRepository.findByPost(post);
     }
+
+    public List<Comment> getRootCommentsByPost(UUID postId) {
+        return commentRepository.findByPost_IdAndCommentIsNull(postId);
+    }
+
+    public List<Comment> getReplies(UUID commentId) {
+        return commentRepository.findByComment_Id(commentId);
+    }
 }
