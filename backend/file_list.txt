@@ -1,0 +1,167 @@
+﻿Folder PATH listing
+Volume serial number is 3C76-71E4
+C:.
+ª   .env
+ª   .env.example
+ª   .gcloudignore
+ª   .gitattributes
+ª   Dockerfile
+ª   env.example
+ª   env.example.yaml
+ª   env.yaml
+ª   file_list.txt
+ª   mvnw
+ª   mvnw.cmd
+ª   pom.xml
+ª   
++---.mvn
+ª   +---wrapper
+ª           maven-wrapper.properties
+ª           
++---src
+ª   +---main
+ª       +---java
+ª       ª   +---NeonSquare
+ª       ª       +---backend
+ª       ª           ª   .env.yaml
+ª       ª           ª   BackendApplication.java
+ª       ª           ª   
+ª       ª           +---config
+ª       ª           ª       CorsConfig.java
+ª       ª           ª       SecurityConfig.java
+ª       ª           ª       
+ª       ª           +---controllers
+ª       ª           ª       AuthController.java
+ª       ª           ª       FriendshipController.java
+ª       ª           ª       GroupController.java
+ª       ª           ª       ImageController.java
+ª       ª           ª       PostController.java
+ª       ª           ª       UserController.java
+ª       ª           ª       
+ª       ª           +---dto
+ª       ª           ª       AuthResponse.java
+ª       ª           ª       LoginRequest.java
+ª       ª           ª       PostResponse.java
+ª       ª           ª       RegisterRequest.java
+ª       ª           ª       UserDTO.java
+ª       ª           ª       UserResponse.java
+ª       ª           ª       
+ª       ª           +---models
+ª       ª           ª   ª   Admin.java
+ª       ª           ª   ª   Comment.java
+ª       ª           ª   ª   Friendship.java
+ª       ª           ª   ª   Group.java
+ª       ª           ª   ª   Image.java
+ª       ª           ª   ª   Notification.java
+ª       ª           ª   ª   Post.java
+ª       ª           ª   ª   Reaction.java
+ª       ª           ª   ª   User.java
+ª       ª           ª   ª   
+ª       ª           ª   +---enums
+ª       ª           ª           FriendshipStatus.java
+ª       ª           ª           GroupVisibility.java
+ª       ª           ª           NotificationStatus.java
+ª       ª           ª           NotificationType.java
+ª       ª           ª           PostVisibility.java
+ª       ª           ª           ReactionType.java
+ª       ª           ª           Status.java
+ª       ª           ª           
+ª       ª           +---repositories
+ª       ª           ª       CommentRepository.java
+ª       ª           ª       FriendshipRepository.java
+ª       ª           ª       GroupRepository.java
+ª       ª           ª       ImageRepository.java
+ª       ª           ª       NotificationRepository.java
+ª       ª           ª       PostRepository.java
+ª       ª           ª       ReactionRepository.java
+ª       ª           ª       UserRepository.java
+ª       ª           ª       
+ª       ª           +---services
+ª       ª                   AuthService.java
+ª       ª                   FriendshipService.java
+ª       ª                   ImageService.java
+ª       ª                   UserService.java
+ª       ª                   
+ª       +---resources
+ª               application.properties
+ª               
++---target
+    +---classes
+    ª   ª   application.properties
+    ª   ª   
+    ª   +---NeonSquare
+    ª       +---backend
+    ª           ª   .env.yaml
+    ª           ª   BackendApplication.class
+    ª           ª   
+    ª           +---config
+    ª           ª       CorsConfig.class
+    ª           ª       SecurityConfig.class
+    ª           ª       
+    ª           +---controllers
+    ª           ª       AuthController.class
+    ª           ª       FriendshipController.class
+    ª           ª       GroupController$CreateGroupRequest.class
+    ª           ª       GroupController$GroupResponse.class
+    ª           ª       GroupController.class
+    ª           ª       ImageController.class
+    ª           ª       PostController$CreatePostRequest.class
+    ª           ª       PostController.class
+    ª           ª       UserController.class
+    ª           ª       
+    ª           +---dto
+    ª           ª       AuthResponse.class
+    ª           ª       LoginRequest.class
+    ª           ª       PostResponse.class
+    ª           ª       RegisterRequest.class
+    ª           ª       UserDTO.class
+    ª           ª       UserResponse.class
+    ª           ª       
+    ª           +---models
+    ª           ª   ª   Admin.class
+    ª           ª   ª   Comment.class
+    ª           ª   ª   Friendship.class
+    ª           ª   ª   Group.class
+    ª           ª   ª   Image.class
+    ª           ª   ª   Notification.class
+    ª           ª   ª   Post.class
+    ª           ª   ª   Reaction.class
+    ª           ª   ª   User.class
+    ª           ª   ª   
+    ª           ª   +---enums
+    ª           ª           FriendshipStatus.class
+    ª           ª           GroupVisibility.class
+    ª           ª           NotificationStatus.class
+    ª           ª           NotificationType.class
+    ª           ª           PostVisibility.class
+    ª           ª           ReactionType.class
+    ª           ª           Status.class
+    ª           ª           
+    ª           +---repositories
+    ª           ª       CommentRepository.class
+    ª           ª       FriendshipRepository.class
+    ª           ª       GroupRepository.class
+    ª           ª       ImageRepository.class
+    ª           ª       NotificationRepository.class
+    ª           ª       PostRepository.class
+    ª           ª       ReactionRepository.class
+    ª           ª       UserRepository.class
+    ª           ª       
+    ª           +---services
+    ª                   AuthService.class
+    ª                   FriendshipService.class
+    ª                   ImageService.class
+    ª                   UserService.class
+    ª                   
+    +---generated-sources
+    ª   +---annotations
+    +---generated-test-sources
+    ª   +---test-annotations
+    +---maven-status
+    ª   +---maven-compiler-plugin
+    ª       +---compile
+    ª           +---default-compile
+    ª                   createdFiles.lst
+    ª                   inputFiles.lst
+    ª                   
+    +---test-classes

@@ -1,0 +1,10 @@
+C:\Users\Nguyen Hoang Duy\Documents\GitHub\CSIT-SWITCH Hackathon 2025\NeonSquare\frontend\.env.example
+C:\Users\Nguyen Hoang Duy\Documents\GitHub\CSIT-SWITCH Hackathon 2025\NeonSquare\frontend\components.json
+C:\Users\Nguyen Hoang Duy\Documents\GitHub\CSIT-SWITCH Hackathon 2025\NeonSquare\frontend\Dockerfile
+C:\Users\Nguyen Hoang Duy\Documents\GitHub\CSIT-SWITCH Hackathon 2025\NeonSquare\frontend\eslint.config.mjs
+C:\Users\Nguyen Hoang Duy\Documents\GitHub\CSIT-SWITCH Hackathon 2025\NeonSquare\frontend\next.config.ts
+C:\Users\Nguyen Hoang Duy\Documents\GitHub\CSIT-SWITCH Hackathon 2025\NeonSquare\frontend\next-env.d.ts
+C:\Users\Nguyen Hoang Duy\Documents\GitHub\CSIT-SWITCH Hackathon 2025\NeonSquare\frontend\package.json
+C:\Users\Nguyen Hoang Duy\Documents\GitHub\CSIT-SWITCH Hackathon 2025\NeonSquare\frontend\package-lock.json
+C:\Users\Nguyen Hoang Duy\Documents\GitHub\CSIT-SWITCH Hackathon 2025\NeonSquare\frontend\postcss.config.mjs
+C:\Users\Nguyen Hoang Duy\Documents\GitHub\CSIT-SWITCH Hackathon 2025\NeonSquare\frontend\tsconfig.json
